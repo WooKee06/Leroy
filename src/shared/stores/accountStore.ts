@@ -38,7 +38,22 @@ class AccountStore {
     void this.loadUser();
   }
 
+  private async waitForTelegramUser(timeout = 5000): Promise<void> {
+    const start = Date.now();
+    while (Date.now() - start < timeout) {
+      if (getTgUser()) return;
+      await new Promise((r) => setTimeout(r, 150));
+    }
+  }
+
   private async loadUser() {
+    // DEBUG: временная диагностика — убрать, когда бэкенд/подтяжка заработает
+    console.log('[account] window.Telegram:', Boolean(window.Telegram));
+    console.log('[account] initData:', window.Telegram?.WebApp?.initData?.slice(0, 80));
+    console.log('[account] initDataUnsafe:', JSON.stringify(window.Telegram?.WebApp?.initDataUnsafe));
+
+    await this.waitForTelegramUser();
+
     const tgUser = getTgUser();
     const initData = window.Telegram?.WebApp?.initData ?? '';
 
