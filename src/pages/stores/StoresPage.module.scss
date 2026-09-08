@@ -1,0 +1,283 @@
+@use "../../app/styles/variables" as *;
+
+.storesPage {
+  min-height: 100dvh;
+  padding-bottom: $space-xl;
+}
+
+.storesHeader {
+  padding: $space-3xl 0 $space-lg;
+}
+
+.storesTitle {
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  line-height: 1.1;
+  color: $text-primary;
+}
+
+.storesSubtitle {
+  margin-top: 4px;
+  font-size: 14px;
+  color: $text-secondary;
+}
+
+.storesSearch {
+  margin-top: $space-lg;
+  height: 48px;
+  border-radius: $radius-md;
+  background: $bg-surface;
+  box-shadow: $shadow-soft;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 0 14px;
+}
+
+.storesSearchIcon {
+  color: $text-tertiary;
+  flex-shrink: 0;
+}
+
+.storesSearchInput {
+  flex: 1;
+  background: none;
+  font-size: 15px;
+  color: $text-primary;
+  min-width: 0;
+}
+
+.storesSection {
+  padding: $space-md 0 $space-xl;
+}
+
+.storesSectionTitle {
+  padding: 0;
+  margin-bottom: $space-lg;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  color: $text-primary;
+}
+
+.storesCount {
+  margin-left: 2px;
+  font-size: 13px;
+  font-weight: 600;
+  color: $text-tertiary;
+}
+
+.popularRow {
+  display: flex;
+  gap: 14px;
+  overflow-x: auto;
+  padding: $space-sm 0;
+  scroll-snap-type: x mandatory;
+}
+
+.popularCard {
+  scroll-snap-align: start;
+  flex-shrink: 0;
+  width: 172px;
+  height: 220px;
+  border-radius: 26px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-end;
+  color: #ffffff;
+  text-align: left;
+  position: relative;
+  overflow: hidden;
+}
+
+.popularRank {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.popularLogo {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2.5px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  margin-bottom: 12px;
+}
+
+.popularName {
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.15;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+}
+
+.popularVerified {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #34c759;
+  padding: 2px;
+}
+
+.popularMeta {
+  margin-top: 4px;
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.75);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.chipsRow {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding: $space-sm 0;
+}
+
+.chip {
+  flex-shrink: 0;
+  height: 38px;
+  padding: 0 15px;
+  border-radius: $radius-md;
+  background: $bg-surface;
+  box-shadow: $shadow-soft;
+  font-size: 13px;
+  font-weight: 600;
+  color: $text-primary;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chipActive {
+  flex-shrink: 0;
+  height: 38px;
+  padding: 0 15px;
+  border-radius: $radius-md;
+  background: $text-primary;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.storesList {
+  padding: $space-sm 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.storeRow {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: $bg-surface;
+  border-radius: 18px;
+  box-shadow: $shadow-soft;
+  padding: 12px 14px;
+  text-align: left;
+}
+
+.storeRowLogo {
+  width: 48px;
+  height: 48px;
+  border-radius: 16px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.storeRowInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.storeRowName {
+  font-size: 15px;
+  font-weight: 700;
+  color: $text-primary;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.storeRowVerified {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #34c759;
+  color: #ffffff;
+  padding: 2px;
+}
+
+.storeRowMeta {
+  font-size: 12px;
+  color: $text-secondary;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.storeRowStats {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.storeRowRating {
+  font-size: 13px;
+  font-weight: 700;
+  color: $text-primary;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.storeRowOrders {
+  font-size: 11px;
+  font-weight: 500;
+  color: $text-tertiary;
+}
+
+.storeRowArrow {
+  color: $text-tertiary;
+  flex-shrink: 0;
+}
+
+.storesEmpty {
+  padding: $space-3xl 0;
+  text-align: center;
+  font-size: 15px;
+  color: $text-secondary;
+}

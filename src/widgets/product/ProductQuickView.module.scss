@@ -1,0 +1,250 @@
+@use "../../app/styles/variables" as *;
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
+  z-index: 110;
+}
+
+.sheet {
+  position: fixed;
+  left: 5px;
+  right: 5px;
+  bottom: 5px;
+  z-index: 120;
+  display: flex;
+  flex-direction: column;
+  max-height: 82dvh;
+  background: #ffffff;
+  border-radius: 30px;
+  box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.18);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.handle {
+  width: 40px;
+  height: 4px;
+  border-radius: 2px;
+  background: #e3e3e7;
+  margin: 10px auto 4px;
+  flex-shrink: 0;
+}
+
+.close {
+  position: absolute;
+  top: -45px;
+  right: 10px;
+  padding: 10px 30px;
+  border-radius: 16px;
+  background: rgb(255 255 255);
+  color: #111111;
+  backdrop-filter: blur(13px);
+  display: flex;
+  align-items: center;
+  font-size: 15px;
+  gap: 10px;
+  justify-content: center;
+  z-index: 5;
+  flex-shrink: 0;
+}
+
+.scroller {
+  flex: 1;
+  overflow-y: auto;
+  padding: $space-md $padding-page $space-lg;
+}
+
+.imageWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: $radius-xl;
+  overflow: hidden;
+  background: $bg-surface-secondary;
+}
+
+.qvSwiper {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+
+  :global(.swiper-slide) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  :global(.swiper-pagination) {
+    position: absolute;
+    bottom: 8px;
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  :global(.swiper-pagination-bullet) {
+    width: 5px;
+    height: 5px;
+    border-radius: 3px;
+    background: #ffffff;
+    opacity: 0.6;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+    margin: 0 3px;
+    transition: all 0.25s ease;
+  }
+
+  :global(.swiper-pagination-bullet-active) {
+    opacity: 1;
+    width: 15px;
+  }
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.favorite {
+  position: absolute;
+  top: $space-md;
+  right: $space-md;
+  z-index: 4;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+  padding-top: $space-lg;
+}
+
+.name {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  line-height: 1.2;
+}
+
+.ratingRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.stars {
+  display: flex;
+  gap: 1px;
+  font-size: 13px;
+  line-height: 1;
+}
+
+.starOn {
+  color: $text-primary;
+}
+
+.starOff {
+  color: #e3e3e7;
+}
+
+.ratingValue {
+  font-size: 13px;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.ratingBased {
+  font-size: 13px;
+  color: $text-secondary;
+}
+
+.sizes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-sm;
+}
+
+.size,
+.sizeActive {
+  min-width: 46px;
+  height: 38px;
+  padding: 0 14px;
+  border-radius: $radius-pill;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.size {
+  background: #f2f2f4;
+  color: $text-primary;
+}
+
+.sizeActive {
+  background: #111111;
+  color: #ffffff;
+}
+
+.footer {
+  flex-shrink: 0;
+  border-top: 1px solid $color-divider;
+  padding: 0 $padding-page;
+}
+
+.footerRow {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: $space-md 0;
+}
+
+.price {
+  font-size: 18px;
+  font-weight: 700;
+  white-space: nowrap;
+  margin-right: 40px;
+}
+
+.addBtn {
+  flex: 1;
+  height: 48px;
+  border-radius: $radius-pill;
+  background: #111111;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  margin-left: auto;
+}
+
+.addLabel {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.arrowBtn {
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #111111;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

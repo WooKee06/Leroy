@@ -1,0 +1,107 @@
+@use "../../app/styles/variables" as *;
+
+.searchPageSearch {
+  padding: $space-sm 0 0px;
+}
+
+.searchPageResultsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $space-md 0 $space-lg;
+}
+
+.searchPageCount {
+  font-size: 15px;
+  font-weight: 500;
+  color: $text-secondary;
+}
+
+.searchPageFilterBtn {
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+  font-size: 14px;
+  font-weight: 500;
+  color: $text-primary;
+  padding: $space-sm $space-md;
+  border-radius: $radius-md;
+  background: $bg-surface;
+  box-shadow: $shadow-card;
+}
+
+.searchPageGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px 4px;
+}
+
+.bottomSheetOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 200;
+}
+
+.bottomSheet {
+  position: fixed;
+  bottom: 5px;
+  left: 5px;
+  right: 5px;
+  background: $bg-surface;
+  border-radius: 30px;
+  z-index: 201;
+  padding: $space-md $padding-page $space-md;
+}
+
+.bottomSheetHandle {
+  width: 36px;
+  height: 4px;
+  border-radius: 2px;
+  background: $color-divider;
+  margin: 0 auto $space-xl;
+}
+
+.bottomSheetTitle {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: $space-lg;
+}
+
+.bottomSheetOptions {
+  display: flex;
+  flex-direction: column;
+  gap: $space-sm;
+}
+
+.bottomSheetOption {
+  padding: $space-lg $space-md;
+  border-radius: $radius-md;
+  background: $bg-surface-secondary;
+  font-size: 16px;
+  font-weight: 500;
+  color: $text-primary;
+  text-align: left;
+}
+
+.bottomSheetOptionActive {
+  background: $text-primary;
+  color: #ffffff;
+
+  padding: $space-lg $space-md;
+  border-radius: $radius-md;
+  font-size: 16px;
+  font-weight: 500;
+  text-align: left;
+}
+
+.bottomSheetDone {
+  margin-top: $space-xl;
+  width: 100%;
+  padding: $space-lg;
+  border-radius: $radius-lg;
+  background: $text-primary;
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 600;
+}

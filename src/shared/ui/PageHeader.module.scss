@@ -1,0 +1,40 @@
+@use '../../app/styles/variables' as *;
+
+.pageHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $space-lg 0;
+}
+
+.pageHeaderIconBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $text-primary;
+  background: transparent;
+  transition: transform 0.15s ease;
+
+  &:active {
+    transform: scale(0.9);
+  }
+}
+
+.pageHeaderTitle {
+  position: absolute;
+  left: 50%;
+  top: $space-lg;
+  transform: translateX(-50%);
+  font-size: 17px;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.pageHeaderRight {
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+}

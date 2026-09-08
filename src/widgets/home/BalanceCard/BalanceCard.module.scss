@@ -1,0 +1,74 @@
+@use "../../../app/styles/variables" as *;
+
+.balanceCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-md;
+  padding: 14px 16px;
+  background: linear-gradient(180deg, #ffffff 0%, #f7f8fb 100%);
+  border: 1px solid $color-border;
+  border-radius: $radius-xl;
+  box-shadow: $shadow-card;
+}
+
+.balanceLeft {
+  display: flex;
+  align-items: center;
+  gap: $space-md;
+  min-width: 0;
+}
+
+.balanceStar {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 15px;
+  background: #fff4e0;
+  color: #f5a623;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.balanceInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.balanceValue {
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+  color: $text-primary;
+  line-height: 1.15;
+  white-space: nowrap;
+}
+
+.balanceUnit {
+  font-size: 12px;
+  font-weight: 500;
+  color: $text-secondary;
+  white-space: nowrap;
+}
+
+.topUpBtn {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: $radius-pill;
+  background: #111111;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
+  transition: transform 0.15s ease;
+
+  &:active {
+    transform: scale(0.95);
+  }
+}

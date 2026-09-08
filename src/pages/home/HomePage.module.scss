@@ -1,0 +1,65 @@
+@use "../../app/styles/variables" as *;
+
+.productsHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $space-2xl 0 $space-md;
+}
+
+.productsTitle {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.4px;
+  color: $text-primary;
+}
+
+.seeAll {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 13px;
+  font-weight: 600;
+  color: $text-secondary;
+  transition: color 0.15s ease;
+
+  &:active {
+    color: $text-primary;
+  }
+}
+
+.filterChips {
+  display: flex;
+  gap: $space-sm;
+  overflow-x: auto;
+  padding-bottom: $space-lg;
+  scroll-snap-type: x proximity;
+}
+
+.filterChip {
+  flex: none;
+  height: 36px;
+  padding: 0 16px;
+  border-radius: $radius-md;
+  background: #f2f2f4;
+  color: $text-primary;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  scroll-snap-align: start;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.15s ease;
+
+  &:active {
+    transform: scale(0.94);
+  }
+}
+
+.filterChipActive {
+  background: #111111;
+  color: #ffffff;
+}

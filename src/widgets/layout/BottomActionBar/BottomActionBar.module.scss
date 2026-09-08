@@ -1,0 +1,137 @@
+@use "../../../app/styles/variables" as *;
+
+.bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: $nav-bottom;
+  margin: 0 auto;
+  width: calc(100% - 40px);
+  max-width: 400px;
+  height: $nav-height;
+  z-index: 100;
+  background: rgb(26, 26, 26);
+  backdrop-filter: blur(30px) saturate(150%);
+  -webkit-backdrop-filter: blur(30px) saturate(150%);
+  border-radius: 100px;
+  box-shadow: $shadow-nav;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px;
+}
+
+.left,
+.center,
+.right {
+  display: flex;
+  align-items: center;
+  height: 100%;
+}
+
+.left {
+  gap: 4px;
+}
+
+.center {
+  flex: 1;
+  justify-content: center;
+  min-width: 0;
+}
+
+.right {
+  gap: 8px;
+}
+
+.iconBtn {
+  flex-shrink: 0;
+  width: 52px;
+  height: 100%;
+  border-radius: 50%;
+  background: rgb(255, 255, 255);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  color: $text-primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qty {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  gap: 2px;
+}
+
+.qtyBtn {
+  width: 52px;
+  height: 100%;
+  border-radius: 50%;
+  background: rgb(255, 255, 255);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  color: $text-primary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.qtyValue {
+  min-width: 22px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.totalLabel {
+  flex: 1;
+  height: 100%;
+  min-width: 0;
+  padding: 0 16px;
+  border-radius: 100px;
+  background: rgb(255, 255, 255);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  color: $text-primary;
+  font-size: 16px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.cartBtn {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  color: rgb(26, 26, 26);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 100%;
+  border-radius: 50%;
+  background: rgb(255, 255, 255);
+}
+
+.cartIcon {
+  display: flex;
+}
+
+.orderBtn {
+  flex: 1;
+  height: 100%;
+  border-radius: 100px;
+  background: #ffffff;
+  color: $text-primary;
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  white-space: nowrap;
+  padding: 0 20px;
+}

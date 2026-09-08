@@ -1,0 +1,39 @@
+@use '../../../app/styles/variables' as *;
+
+.categoriesScroll {
+  padding: $space-2xl 0 $space-lg;
+  -webkit-overflow-scrolling: touch;
+}
+
+.categoriesScrollList {
+  display: flex;
+  gap: $space-sm;
+  padding: 0 $padding-page;
+  overflow-x: auto;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.categoriesScrollPill {
+  padding: 10px 18px;
+  border-radius: $radius-pill;
+  background: $bg-surface;
+  font-size: 14px;
+  font-weight: 500;
+  color: $text-secondary;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  box-shadow: $shadow-card;
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.categoriesScrollPillActive {
+  background: $text-primary;
+  color: #ffffff;
+}

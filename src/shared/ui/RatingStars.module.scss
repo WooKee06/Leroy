@@ -1,0 +1,28 @@
+@use '../../app/styles/variables' as *;
+
+.ratingStars {
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+}
+
+.ratingStarsStarRow {
+  display: flex;
+  gap: 1px;
+  color: $color-border;
+}
+
+.ratingStarsStar {
+  color: #DDDDDD;
+  line-height: 1;
+}
+
+.ratingStarsStarFilled {
+  color: #1A1A1A;
+}
+
+.ratingStarsValue {
+  font-size: 13px;
+  font-weight: 600;
+  color: $text-primary;
+}

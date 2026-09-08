@@ -1,0 +1,108 @@
+@use "../../../app/styles/variables" as *;
+
+.homeHeader {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $space-xl $padding-page $space-lg;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.3) 0%,
+    rgba(255, 255, 255, 0.36) 100%,
+    rgba(255, 255, 255, 100) 100%
+  );
+  backdrop-filter: blur(20px) saturate(150%);
+  -webkit-backdrop-filter: blur(20px) saturate(150%);
+  -webkit-mask-image: linear-gradient(180deg, #000 55%, transparent 100%);
+  mask-image: linear-gradient(180deg, #000 55%, transparent 100%);
+}
+
+.homeHeaderAccount {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  text-align: left;
+}
+
+.homeHeaderAvatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: $bg-surface;
+  box-shadow: $shadow-soft;
+  flex-shrink: 0;
+}
+
+.homeHeaderAccountText {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.homeHeaderNickname {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  color: $text-primary;
+  line-height: 1.2;
+  max-width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.homeHeaderRole {
+  font-size: 12px;
+  font-weight: 500;
+  color: $text-secondary;
+  line-height: 1.2;
+}
+
+.homeHeaderRight {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.homeHeaderIconBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: 16px;
+  background: rgb(255, 255, 255);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.965),
+    0 1px 4px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $text-primary;
+  position: relative;
+  transition: transform 0.15s ease;
+
+  &:active {
+    transform: scale(0.92);
+  }
+}
+
+.homeHeaderBadge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  min-width: 16px;
+  height: 16px;
+  border-radius: 8px;
+  background: #ff3b30;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 3px;
+}

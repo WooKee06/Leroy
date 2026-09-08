@@ -1,0 +1,96 @@
+@use 'variables' as *;
+@use 'typography';
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  font-family: $font-family;
+  background-color: $bg-primary;
+  background-image:
+    radial-gradient(55% 38% at 12% -4%, rgba(186, 211, 255, 0.18), transparent 62%),
+    radial-gradient(46% 34% at 88% 4%, rgba(226, 218, 255, 0.16), transparent 60%),
+    radial-gradient(52% 40% at 0% 100%, rgba(203, 238, 232, 0.14), transparent 62%);
+  background-repeat: no-repeat;
+  color: $text-primary;
+  min-height: 100dvh;
+  overflow-x: hidden;
+  line-height: 1.5;
+}
+
+#root {
+  min-height: 100dvh;
+  position: relative;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+button {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: inherit;
+  color: inherit;
+}
+
+input, textarea {
+  border: none;
+  outline: none;
+  font-family: inherit;
+}
+
+ul, ol {
+  list-style: none;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+* {
+  scrollbar-width: none;
+}
+
+.page-wrapper {
+  padding-bottom: calc(#{$nav-height} + #{$nav-bottom} * 2 + 16px);
+  min-height: 100dvh;
+}
+
+.container {
+  padding: 0 $padding-page;
+}
+
+img {
+  object-fit: cover;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}

@@ -1,0 +1,41 @@
+@use "../../../app/styles/variables" as *;
+
+.heroSection {
+  position: relative;
+  padding-top: $space-lg;
+
+  &::before {
+    content: "";
+    position: absolute;
+    top: -64px;
+    left: 0;
+    right: 0;
+    height: 340px;
+    z-index: -1;
+    background: radial-gradient(
+      58% 100% at 50% 0%,
+      rgba(186, 213, 255, 0.3),
+      transparent 70%
+    );
+  }
+}
+
+.heroSectionTitle {
+  font-size: 32px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  line-height: 1.15;
+  color: $text-primary;
+  margin-bottom: 10px;
+}
+
+.heroSectionSubtitle {
+  margin-top: $space-sm;
+  font-size: 15px;
+  color: $text-secondary;
+  font-weight: 400;
+}
+
+.heroSectionSearch {
+  margin-top: $space-2xl;
+}

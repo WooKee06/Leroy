@@ -1,0 +1,98 @@
+@use "../../../app/styles/variables" as *;
+
+.storeSection {
+  padding: $space-2xl 0 $space-md;
+}
+
+.sectionHeading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $space-md;
+}
+
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  color: $text-primary;
+}
+
+.seeAll {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  font-size: 13px;
+  font-weight: 600;
+  color: $text-secondary;
+  transition: color 0.15s ease;
+
+  &:active {
+    color: $text-primary;
+  }
+}
+
+.storesRow {
+  display: flex;
+  gap: $space-lg;
+  overflow-x: auto;
+  padding-bottom: $space-sm;
+  scroll-snap-type: x proximity;
+}
+
+.storeItem {
+  flex: none;
+  display: flex;
+  width: 64px;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  scroll-snap-align: start;
+  color: inherit;
+  transition: transform 0.15s ease;
+
+  &:active {
+    transform: scale(0.92);
+  }
+}
+
+.storeAvatarWrap {
+  position: relative;
+  width: 54px;
+  height: 54px;
+}
+
+.storeAvatar {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  background: $bg-surface-secondary;
+}
+
+.storeVerified {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid #ffffff;
+  background: #3b82f6;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.storeName {
+  font-size: 12px;
+  font-weight: 600;
+  color: $text-primary;
+  text-align: center;
+  max-width: 64px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

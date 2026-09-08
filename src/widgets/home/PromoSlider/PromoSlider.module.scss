@@ -1,0 +1,181 @@
+@use "../../../app/styles/variables" as *;
+
+.wrap {
+  width: 100%;
+  overflow-x: clip;
+  overflow-y: visible;
+  padding: 10px 10px 0;
+}
+
+.deck {
+  width: 100%;
+  padding: $space-sm 0 $space-3xl;
+
+  :global(.swiper-slide) {
+    height: auto;
+  }
+
+  :global(.swiper-pagination) {
+    position: static;
+    margin-top: $space-md;
+  }
+
+  :global(.swiper-pagination-bullet) {
+    width: 7px;
+    height: 7px;
+    border-radius: 4px;
+    background: #111111;
+    opacity: 0.2;
+    transition: all 0.3s ease;
+  }
+
+  :global(.swiper-pagination-bullet-active) {
+    opacity: 1;
+    width: 20px;
+  }
+}
+
+.slide {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+  padding: $space-sm;
+  border-radius: $radius-2xl;
+  background: linear-gradient(135deg, #f7f9fd 0%, #f2f3f8 100%);
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.15s ease;
+
+  &:active {
+    transform: scale(0.985);
+  }
+}
+
+.imageWrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  background: $bg-surface-secondary;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.overlayRow {
+  position: absolute;
+  top: $space-md;
+  right: $space-md;
+  display: flex;
+  gap: 8px;
+}
+
+.overlayValue,
+.overlayIcon {
+  width: 56px;
+  height: 36px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.overlayValue {
+  background: rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.overlayIcon {
+  background: rgba(255, 255, 255, 0.92);
+  color: $text-primary;
+}
+
+.info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-md;
+  padding: 0 $space-sm;
+}
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.name {
+  font-size: 17px;
+  font-weight: 700;
+  color: #111111;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.check {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #3b82f6;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.floor {
+  font-size: 13px;
+  font-weight: 500;
+  color: #6b6b70;
+  white-space: nowrap;
+}
+
+.buttons {
+  display: flex;
+  gap: $space-sm;
+  width: 100%;
+}
+
+.btnLight,
+.btnDark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex: 1;
+  height: 44px;
+  border-radius: $radius-pill;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.btnLight {
+  background: #ececf1;
+  color: #111111;
+}
+
+.btnDark {
+  background: #111111;
+  color: #ffffff;
+}

@@ -1,0 +1,205 @@
+@use "../../app/styles/variables" as *;
+
+.page {
+  min-height: 100dvh;
+  padding-bottom: calc(#{$nav-height} + #{$nav-bottom} * 2 + 16px);
+}
+
+.cover {
+  position: relative;
+  height: 300px;
+  border-radius: 0;
+  overflow: hidden;
+  margin-top: calc(-64px - env(safe-area-inset-top, 0px));
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0) 55%,
+      rgb(255 255 255) 100%,
+      rgba(255, 255, 255, 0.9) 100%
+    );
+    pointer-events: none;
+  }
+}
+
+.coverImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.header {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: $space-lg;
+}
+
+.avatar {
+  width: 96px;
+  height: 96px;
+  border-radius: $radius-xl;
+  object-fit: cover;
+  margin-top: -48px;
+  flex-shrink: 0;
+  box-shadow: $shadow-soft;
+}
+
+.identity {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 4px;
+  min-width: 0;
+}
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.name {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  color: $text-primary;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.verified {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: $color-success;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+.desc {
+  margin-top: $space-sm;
+  font-size: 13px;
+  color: $text-secondary;
+  line-height: 1.35;
+}
+
+.stats {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-sm;
+  margin: $space-2xl 0 0;
+}
+
+.stat {
+  flex: 1;
+  min-width: 0;
+  text-align: center;
+}
+
+.statValue {
+  font-size: 18px;
+  font-weight: 700;
+  color: $text-primary;
+  letter-spacing: -0.3px;
+}
+
+.statLabel {
+  margin-top: 3px;
+  font-size: 11px;
+  color: $text-secondary;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tabs {
+  display: flex;
+  gap: $space-sm;
+  padding: $space-2xl 0 $space-lg;
+}
+
+.tab {
+  flex: 1;
+  padding: $space-md $space-lg;
+  border-radius: $radius-pill;
+  background: $bg-surface-secondary;
+  color: $text-primary;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  box-shadow: $shadow-card;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.tabActive {
+  flex: 1;
+  padding: $space-md $space-lg;
+  border-radius: $radius-pill;
+  background: $text-primary;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 600;
+  text-align: center;
+  box-shadow: $shadow-soft;
+}
+
+.content {
+  padding-bottom: $space-2xl;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.analytics {
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+}
+
+.analyticsRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $space-lg $space-xl;
+  border-radius: $radius-md;
+  background: $bg-surface;
+  box-shadow: $shadow-soft;
+}
+
+.analyticsValue {
+  font-size: 18px;
+  font-weight: 700;
+  color: $text-primary;
+}
+
+.analyticsLabel {
+  font-size: 13px;
+  color: $text-secondary;
+}
+
+.activity {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $space-4xl $space-xl;
+}
+
+.activityText {
+  font-size: 14px;
+  color: $text-secondary;
+  text-align: center;
+}

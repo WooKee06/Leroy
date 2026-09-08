@@ -1,0 +1,52 @@
+@use "../../app/styles/variables" as *;
+
+.searchBar {
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+  gap: 5px;
+
+  section {
+    background: $bg-surface-secondary;
+    border-radius: $radius-lg;
+    padding: 14px $space-lg;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex: 1;
+    transition:
+      background 0.2s ease,
+      box-shadow 0.2s ease;
+
+    &:focus-within {
+      background: $bg-surface;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+    }
+  }
+}
+
+.searchBarIcon {
+  color: $text-tertiary;
+  flex-shrink: 0;
+}
+
+.searchBarInput {
+  flex: 1;
+  background: transparent;
+  font-size: 16px;
+  color: $text-primary;
+
+  &::placeholder {
+    color: $text-tertiary;
+  }
+}
+
+.searchBarTrailing {
+  flex-shrink: 0;
+  background: $bg-surface-secondary;
+  border-radius: $radius-lg;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 50px;
+}

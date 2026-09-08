@@ -1,0 +1,96 @@
+@use "../../../app/styles/variables" as *;
+
+.bottomNav {
+  position: fixed;
+  bottom: $nav-bottom;
+  left: 0;
+  right: 0;
+  margin: 0 auto;
+  width: calc(100% - 130px);
+  max-width: 400px;
+  z-index: 100;
+  background: rgb(26 26 26);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 100px;
+  box-shadow: $shadow-nav;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 3px;
+  height: $nav-height;
+}
+
+.bottomNavItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  color: $text-tertiary;
+  position: relative;
+  height: 100%;
+  border-radius: $radius-lg;
+}
+
+.bottomNavItemCenter {
+  max-width: 56px;
+  aspect-ratio: 1;
+  align-self: center;
+  margin: 0 auto;
+  justify-content: center;
+}
+
+.bottomNavItemCenter .bottomNavItemIcon {
+  color: #ffffff;
+}
+
+.bottomNavItemActive {
+  color: #000000;
+  border-radius: 100px;
+}
+
+.bottomNavItemActive .bottomNavItemLabel {
+  color: $text-primary;
+}
+
+.bottomNavPill {
+  position: absolute;
+  inset: 0;
+  border-radius: 100px;
+  background: #fff;
+}
+
+.bottomNavItemIcon {
+  position: relative;
+  z-index: 1;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bottomNavItemLabel {
+  font-size: 10px;
+  font-weight: 500;
+  color: $text-tertiary;
+  -webkit-font-smoothing: antialiased;
+}
+
+.bottomNavBadge {
+  position: absolute;
+  top: 6px;
+  left: 56%;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 4px;
+  border-radius: 9px;
+  background: #ff3b30;
+  color: #ffffff;
+  font-size: 11px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}

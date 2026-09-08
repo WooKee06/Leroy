@@ -1,0 +1,104 @@
+@use '../../app/styles/variables' as *;
+
+.search-page {
+  &__search {
+    padding: $space-sm $padding-page $space-lg;
+  }
+
+  &__results-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: $space-md $padding-page $space-lg;
+  }
+
+  &__count {
+    font-size: 15px;
+    font-weight: 500;
+    color: $text-secondary;
+  }
+
+  &__filter-btn {
+    display: flex;
+    align-items: center;
+    gap: $space-sm;
+    font-size: 14px;
+    font-weight: 500;
+    color: $text-primary;
+    padding: $space-sm $space-md;
+    border-radius: $radius-pill;
+    background: $bg-surface;
+    box-shadow: $shadow-card;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: $space-xl $space-lg;
+    padding: 0 $padding-page;
+  }
+}
+
+.bottom-sheet-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  z-index: 200;
+}
+
+.bottom-sheet {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: $bg-surface;
+  border-radius: $radius-2xl $radius-2xl 0 0;
+  z-index: 201;
+  padding: $space-md $padding-page 68px;
+
+  &__handle {
+    width: 36px;
+    height: 4px;
+    border-radius: 2px;
+    background: $color-divider;
+    margin: 0 auto $space-xl;
+  }
+
+  &__title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: $space-lg;
+  }
+
+  &__options {
+    display: flex;
+    flex-direction: column;
+    gap: $space-sm;
+  }
+
+  &__option {
+    padding: $space-lg $space-md;
+    border-radius: $radius-md;
+    background: $bg-surface-secondary;
+    font-size: 16px;
+    font-weight: 500;
+    color: $text-primary;
+    text-align: left;
+
+    &--active {
+      background: $text-primary;
+      color: #FFFFFF;
+    }
+  }
+
+  &__done {
+    margin-top: $space-xl;
+    width: 100%;
+    padding: $space-lg;
+    border-radius: $radius-lg;
+    background: $text-primary;
+    color: #FFFFFF;
+    font-size: 16px;
+    font-weight: 600;
+  }
+}

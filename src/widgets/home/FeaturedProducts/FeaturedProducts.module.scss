@@ -1,0 +1,15 @@
+@use "../../../app/styles/variables" as *;
+
+.featuredProductsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: $space-xs $space-xs;
+}
+
+.featuredProductsFeatured {
+  grid-column: 1 / -1;
+}
+
+.featuredProducts {
+  padding-top: $space-lg;
+}

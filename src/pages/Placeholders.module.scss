@@ -1,0 +1,17 @@
+@use '../app/styles/variables' as *;
+
+.placeholderPage {
+  padding: 120px 20px;
+  text-align: center;
+
+  h2 {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  p {
+    color: $text-secondary;
+    font-size: 15px;
+  }
+}
