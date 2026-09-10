@@ -24,7 +24,7 @@
     width: 7px;
     height: 7px;
     border-radius: 4px;
-    background: #111111;
+    background: var(--inverted);
     opacity: 0.2;
     transition: all 0.3s ease;
   }
@@ -48,7 +48,7 @@
   gap: $space-md;
   padding: $space-sm;
   border-radius: $radius-2xl;
-  background: linear-gradient(135deg, #f7f9fd 0%, #f2f3f8 100%);
+  background: linear-gradient(135deg, var(--bg-surface) 0%, var(--bg-surface-secondary) 100%);
   border: 1px solid rgba(0, 0, 0, 0.04);
   cursor: pointer;
   user-select: none;
@@ -126,7 +126,7 @@
 .name {
   font-size: 17px;
   font-weight: 700;
-  color: #111111;
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -147,7 +147,7 @@
 .floor {
   font-size: 13px;
   font-weight: 500;
-  color: #6b6b70;
+  color: var(--text-tertiary);
   white-space: nowrap;
 }
 
@@ -171,11 +171,11 @@
 }
 
 .btnLight {
-  background: #ececf1;
-  color: #111111;
+  background: var(--bg-surface-secondary);
+  color: var(--text-primary);
 }
 
 .btnDark {
-  background: #111111;
-  color: #ffffff;
+  background: var(--inverted);
+  color: var(--inverted-fg);
 }

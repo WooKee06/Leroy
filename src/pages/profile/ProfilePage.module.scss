@@ -48,25 +48,6 @@
   text-overflow: ellipsis;
 }
 
-.settingsBtn {
-  flex-shrink: 0;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: $bg-surface;
-  border: 1px solid $color-border;
-  box-shadow: $shadow-soft;
-  color: $text-primary;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.15s ease;
-
-  &:active {
-    transform: scale(0.94);
-  }
-}
-
 .stats {
   display: flex;
   align-items: center;

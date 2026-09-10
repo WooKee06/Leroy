@@ -10,6 +10,7 @@ import {
   FiShoppingCart,
 } from "react-icons/fi";
 import { productBarStore } from "@shared/stores/productBarStore";
+import { checkoutStore } from "@shared/stores/checkoutStore";
 import styles from "./BottomActionBar.module.scss";
 
 function resolveShape(pathname: string): { left: string; right: string } {
@@ -72,7 +73,7 @@ function BottomActionBar() {
           className={styles.cartBtn}
           onClick={() => productBarStore.toggleCart()}
           whileTap={{ scale: 0.88 }}
-          animate={{ backgroundColor: inCart ? "#34c759" : "#ffffff" }}
+          animate={{ backgroundColor: inCart ? "#34c759" : "var(--bg-surface)" }}
           transition={{ duration: 0.2 }}
           aria-label={inCart ? "В корзине" : "В корзину"}
         >
@@ -93,7 +94,7 @@ function BottomActionBar() {
       return (
         <button
           className={styles.orderBtn}
-          onClick={() => {}}
+          onClick={() => checkoutStore.show()}
           aria-label="Оформить заказ"
         >
           <FiShoppingBag size={18} />

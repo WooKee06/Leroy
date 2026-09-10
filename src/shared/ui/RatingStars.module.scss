@@ -13,12 +13,12 @@
 }
 
 .ratingStarsStar {
-  color: #DDDDDD;
+  color: var(--text-tertiary);
   line-height: 1;
 }
 
 .ratingStarsStarFilled {
-  color: #1A1A1A;
+  color: var(--text-primary);
 }
 
 .ratingStarsValue {

@@ -1,8 +1,10 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiSliders, FiArrowRight } from "react-icons/fi";
 import { motion } from "framer-motion";
-import { getProductsByCategory, type Product } from "@shared/api/mockData";
+import { observer } from "mobx-react-lite";
+import type { Product } from "@shared/api/models";
+import { catalogStore } from "@shared/stores/catalogStore";
 import SearchBar from "@shared/ui/SearchBar";
 import PageContainer from "@shared/ui/PageContainer";
 import HeroSection from "@widgets/home/HeroSection/HeroSection";
@@ -37,11 +39,15 @@ function matchesFilter(product: Product, filter: FilterId): boolean {
   }
 }
 
-export default function HomePage() {
+function HomePage() {
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState<FilterId>("all");
 
-  const categoryProducts = useMemo(() => getProductsByCategory("all"), []);
+  useEffect(() => {
+    void catalogStore.load();
+  }, []);
+
+  const categoryProducts = catalogStore.products;
 
   const filteredProducts = useMemo(
     () => categoryProducts.filter((p) => matchesFilter(p, activeFilter)),
@@ -112,6 +118,12 @@ export default function HomePage() {
           ))}
         </div>
 
+        {!catalogStore.loaded && catalogStore.loading && (
+          <p style={{ color: "var(--text-secondary)", padding: 24, textAlign: "center" }}>
+            Загрузка…
+          </p>
+        )}
+
         <FeaturedProducts
           products={filteredProducts.filter((p) => p.id !== featured?.id)}
           variant="grid"
@@ -120,3 +132,5 @@ export default function HomePage() {
     </div>
   );
 }
+
+export default observer(HomePage);

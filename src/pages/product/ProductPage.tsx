@@ -12,8 +12,9 @@ import {
   FiTag,
 } from "react-icons/fi";
 import { observer } from "mobx-react-lite";
-import { getProductById } from "@shared/api/mockData";
-import type { Product } from "@shared/api/mockData";
+import type { Product, Review } from "@shared/api/models";
+import { mapProduct, mapReview } from "@shared/api/models";
+import { leroyApi } from "@shared/api/leroyApi";
 import { productBarStore } from "@shared/stores/productBarStore";
 import PageContainer from "@shared/ui/PageContainer";
 import styles from "./ProductPage.module.scss";
@@ -23,26 +24,58 @@ import "swiper/css/pagination";
 function ProductPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const product = id ? getProductById(id) : undefined;
+  const [product, setProduct] = useState<Product | undefined>(undefined);
+  const [reviews, setReviews] = useState<Review[]>([]);
+  const [notFound, setNotFound] = useState(false);
 
-  const [selectedSize, setSelectedSize] = useState<string | undefined>(
-    product?.sizes?.[2] ?? undefined,
-  );
-  const [selectedColor] = useState<string | undefined>(
-    product?.colors?.[0]?.name ?? undefined,
-  );
+  const [selectedSize, setSelectedSize] = useState<string | undefined>(undefined);
+  const selectedColor = product?.colors?.[0]?.name;
   const [activeTab, setActiveTab] = useState<"description" | "specs" | "reviews">(
     "description",
   );
   const swiperRef = useRef<SwiperClass | null>(null);
 
   useEffect(() => {
+    if (!id) {
+      setNotFound(true);
+      return;
+    }
+    let alive = true;
+    setProduct(undefined);
+    setReviews([]);
+    setNotFound(false);
+
+    leroyApi
+      .product(id)
+      .then((dto) => {
+        if (alive) setProduct(mapProduct(dto));
+      })
+      .catch(() => {
+        if (alive) setNotFound(true);
+      });
+
+    leroyApi
+      .reviews(id)
+      .then((res) => {
+        if (alive) setReviews(res.items.map(mapReview));
+      })
+      .catch(() => {
+        if (alive) setReviews([]);
+      });
+
+    return () => {
+      alive = false;
+    };
+  }, [id]);
+
+  useEffect(() => {
     if (product) {
-      productBarStore.set(product, 1, selectedSize, selectedColor);
+      const size = selectedSize ?? product.sizes?.[2];
+      productBarStore.set(product, 1, size, selectedColor);
     }
   }, [product?.id, selectedSize, selectedColor]); // eslint-disable-line
 
-  if (!product) {
+  if (notFound) {
     return (
       <div
         className="page-wrapper"
@@ -50,6 +83,17 @@ function ProductPage() {
       >
         <p>Товар не найден</p>
         <button onClick={() => navigate(-1)}>Назад</button>
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div
+        className="page-wrapper"
+        style={{ padding: 40, textAlign: "center", color: "var(--text-secondary)" }}
+      >
+        Загрузка…
       </div>
     );
   }
@@ -144,7 +188,7 @@ function ProductPage() {
               [
                 { id: "description", label: "Описание", icon: FiInfo },
                 { id: "specs", label: "Характеристики", icon: FiTag },
-                { id: "reviews", label: `Отзывы (${product.reviewCount})`, icon: FiStar },
+                { id: "reviews", label: `Отзывы (${reviews.length})`, icon: FiStar },
               ] as const
             ).map((tab) => {
               const active = activeTab === tab.id;
@@ -184,7 +228,7 @@ function ProductPage() {
                   <p className={styles.detailsText}>{product.description}</p>
                 )}
                 {activeTab === "specs" && <Specs product={product} />}
-                {activeTab === "reviews" && <Reviews product={product} />}
+                {activeTab === "reviews" && <Reviews reviews={reviews} />}
               </motion.div>
             </AnimatePresence>
           </div>
@@ -232,16 +276,6 @@ const SPECS_BY_CATEGORY: Record<string, [string, string][]> = {
   ],
 };
 
-const REVIEW_AUTHORS = ["Дмитрий", "Анна", "Сергей", "Мария", "Илья", "Ольга"];
-const REVIEW_TEXTS = [
-  "Отличное качество, соответствует описанию. Рекомендую!",
-  "Доставка быстрая, упаковка надёжная. Всем доволен.",
-  "Пользуюсь уже месяц, нареканий нет. Цена/качество на месте.",
-  "Взял в подарок — получателю очень понравилось.",
-  "Хороший магазин, товар как на фото. Буду заказывать ещё.",
-  "Свои деньги отрабатывает полностью. Пять звёзд.",
-];
-
 function buildSpecs(product: Product): [string, string][] {
   const base = SPECS_BY_CATEGORY[product.category] ?? SPECS_BY_CATEGORY.default;
   return [
@@ -250,21 +284,6 @@ function buildSpecs(product: Product): [string, string][] {
     ["Реализация", "В наличии"],
     ["Возврат", "14 дней"],
   ];
-}
-
-function buildReviews(product: Product): {
-  author: string;
-  rating: number;
-  text: string;
-  date: string;
-}[] {
-  const count = Math.min(3 + (product.reviewCount % 4), 6);
-  return Array.from({ length: count }, (_, i) => ({
-    author: REVIEW_AUTHORS[i % REVIEW_AUTHORS.length],
-    rating: 4 + ((product.reviewCount + i) % 2),
-    text: REVIEW_TEXTS[i % REVIEW_TEXTS.length],
-    date: `2 недели назад`,
-  }));
 }
 
 function Specs({ product }: { product: Product }) {
@@ -281,18 +300,23 @@ function Specs({ product }: { product: Product }) {
   );
 }
 
-function Reviews({ product }: { product: Product }) {
-  const reviews = buildReviews(product);
+function Reviews({ reviews }: { reviews: Review[] }) {
+  if (reviews.length === 0) {
+    return <p className={styles.detailsText}>Отзывов пока нет</p>;
+  }
+
+  const average = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+
   return (
     <div className={styles.reviewsList}>
       <div className={styles.reviewsSummary}>
-        <span className={styles.reviewsScore}>{product.rating.toFixed(1)}</span>
+        <span className={styles.reviewsScore}>{average.toFixed(1)}</span>
         <span className={styles.reviewsMeta}>
-          {product.rating.toFixed(1)} из 5 · {product.reviewCount} отзывов
+          {average.toFixed(1)} из 5 · {reviews.length} отзывов
         </span>
       </div>
-      {reviews.map((r, i) => (
-        <div key={i} className={styles.reviewCard}>
+      {reviews.map((r) => (
+        <div key={r.id} className={styles.reviewCard}>
           <div className={styles.reviewHead}>
             <span className={styles.reviewAuthor}>{r.author}</span>
             <span className={styles.reviewDate}>{r.date}</span>

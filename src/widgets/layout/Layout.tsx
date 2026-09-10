@@ -5,6 +5,7 @@ import BottomNav from './BottomNav/BottomNav';
 import BottomActionBar from './BottomActionBar/BottomActionBar';
 import PersistentHeader from './PersistentHeader/PersistentHeader';
 import ProductQuickView from '@widgets/product/ProductQuickView';
+import CheckoutSheet from '@widgets/checkout/CheckoutSheet';
 import styles from './Layout.module.scss';
 
 export default function Layout() {
@@ -30,6 +31,7 @@ export default function Layout() {
       {!hideBottomNav && <BottomNav />}
       <BottomActionBar />
       <ProductQuickView />
+      <CheckoutSheet />
     </div>
   );
 }

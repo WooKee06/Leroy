@@ -3,9 +3,10 @@ import {
   getTgUser,
   readyTelegramWebApp,
 } from '@shared/lib/telegram';
-import { userApi } from '@shared/api/userApi';
+import { leroyApi } from '@shared/api/leroyApi';
+import { getAuthToken, setAuthToken } from '@shared/api/client';
 
-export type UserRole = 'buyer' | 'seller';
+export type UserRole = 'buyer' | 'seller' | 'admin';
 
 const DEFAULT_AVATAR =
   'data:image/svg+xml;charset=utf-8,' +
@@ -17,11 +18,31 @@ const DEFAULT_AVATAR =
     </svg>`
   );
 
+const DEV_BUYER_INIT_DATA = `user=${encodeURIComponent(
+  JSON.stringify({
+    id: 300000001,
+    first_name: 'Иван',
+    last_name: 'Кузнецов',
+    username: 'ivan_k',
+  }),
+)}`;
+
+interface Profile {
+  firstName: string;
+  lastName?: string;
+  username?: string;
+  avatarUrl?: string;
+  role?: 'buyer' | 'seller' | 'admin';
+  id?: string;
+}
+
 class AccountStore {
   displayName: string = '';
   avatarUrl: string | undefined;
   username: string | undefined;
   role: UserRole = 'buyer';
+  userId: string | undefined;
+  isAuthenticated = false;
   initialized = false;
   stars = 1920;
 
@@ -38,71 +59,92 @@ class AccountStore {
     void this.loadUser();
   }
 
-  private async waitForTelegramUser(timeout = 5000): Promise<void> {
-    const start = Date.now();
-    while (Date.now() - start < timeout) {
-      if (getTgUser()) return;
-      await new Promise((r) => setTimeout(r, 150));
-    }
-  }
-
   private async loadUser() {
-    // DEBUG: временная диагностика — убрать, когда бэкенд/подтяжка заработает
-    console.log('[account] window.Telegram:', Boolean(window.Telegram));
-    console.log('[account] initData:', window.Telegram?.WebApp?.initData?.slice(0, 80));
-    console.log('[account] initDataUnsafe:', JSON.stringify(window.Telegram?.WebApp?.initDataUnsafe));
-
-    await this.waitForTelegramUser();
-
-    const tgUser = getTgUser();
     const initData = window.Telegram?.WebApp?.initData ?? '';
 
-    if (!initData) {
-      // Вне Telegram — демо-данные для предпросмотра
-      this.displayName = 'Александр';
-      return;
-    }
-
-    this.applyFromTelegram(tgUser);
-
-    try {
-      const profile = await userApi.getMe(initData);
-      this.applyFromApi(profile);
-    } catch {
+    const savedToken = getAuthToken();
+    if (savedToken) {
       try {
-        const profile = await userApi.auth(initData);
-        this.applyFromApi(profile);
+        const profile = await leroyApi.me();
+        this.applyProfile(profile);
+        this.isAuthenticated = true;
+        return;
       } catch {
-        // Бэкенд ещё не подключён — оставляем данные из Telegram initData.
+        setAuthToken(null);
       }
     }
+
+    try {
+      if (initData) {
+        await this.loginWithInitData(initData);
+        return;
+      }
+      if (import.meta.env.DEV) {
+        await this.loginWithInitData(DEV_BUYER_INIT_DATA);
+        return;
+      }
+    } catch (error) {
+      console.error('[account] auth failed', error);
+    }
+
+    this.applyFromTelegram(getTgUser());
   }
 
-  private applyFromTelegram(user?: { first_name?: string; last_name?: string; username?: string; photo_url?: string }) {
+  private async loginWithInitData(initData: string) {
+    const { token, user } = await leroyApi.authTelegram(initData);
+    setAuthToken(token);
+    this.applyProfile(user);
+    this.isAuthenticated = true;
+  }
+
+  private applyProfile(profile: Profile) {
+    if (profile.id) this.userId = profile.id;
+    this.displayName =
+      [profile.firstName, profile.lastName].filter(Boolean).join(' ').trim() ||
+      'Гость';
+    if (profile.username) this.username = profile.username;
+    if (profile.avatarUrl) this.avatarUrl = profile.avatarUrl;
+    if (profile.role) this.role = profile.role as UserRole;
+  }
+
+  private applyFromTelegram(user?: {
+    id?: number | string;
+    first_name?: string;
+    last_name?: string;
+    username?: string;
+    photo_url?: string;
+  }) {
     if (user) {
-      this.displayName = [user.first_name, user.last_name].filter(Boolean).join(' ').trim() || 'Гость';
+      this.displayName =
+        [user.first_name, user.last_name].filter(Boolean).join(' ').trim() ||
+        'Гость';
       this.username = user.username;
       this.avatarUrl = user.photo_url;
+      this.userId =
+        user.id !== undefined ? String(user.id) : undefined;
     } else {
       this.displayName = 'Гость';
     }
   }
 
-  private applyFromApi(profile: {
-    firstName: string;
-    lastName?: string;
-    username?: string;
-    avatarUrl?: string;
-    role?: 'buyer' | 'seller';
-  }) {
-    this.displayName = [profile.firstName, profile.lastName].filter(Boolean).join(' ').trim() || 'Гость';
-    if (profile.username) this.username = profile.username;
-    if (profile.avatarUrl) this.avatarUrl = profile.avatarUrl;
-    if (profile.role) this.role = profile.role;
-  }
-
   setRole(role: UserRole) {
     this.role = role;
+  }
+
+  async updateRole(role: UserRole): Promise<void> {
+    const { token, user } = await leroyApi.updateRole(role);
+    setAuthToken(token);
+    this.applyProfile(user);
+  }
+
+  logout() {
+    setAuthToken(null);
+    this.userId = undefined;
+    this.isAuthenticated = false;
+    this.username = undefined;
+    this.avatarUrl = undefined;
+    this.displayName = 'Гость';
+    this.role = 'buyer';
   }
 
   get avatar(): string {
@@ -110,7 +152,9 @@ class AccountStore {
   }
 
   get roleLabel(): string {
-    return this.role === 'seller' ? 'Продавец' : 'Покупатель';
+    if (this.role === 'seller') return 'Продавец';
+    if (this.role === 'admin') return 'Администратор';
+    return 'Покупатель';
   }
 }
 

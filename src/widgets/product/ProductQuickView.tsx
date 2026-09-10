@@ -5,7 +5,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
 import { FiCheck, FiArrowRight } from "react-icons/fi";
 import { observer } from "mobx-react-lite";
-import type { Product } from "@shared/api/mockData";
+import type { Product } from "@shared/api/models";
 import { quickViewStore } from "@shared/stores/quickViewStore";
 import { cartStore } from "@shared/stores/cartStore";
 import { favoritesStore } from "@shared/stores/favoritesStore";
@@ -135,7 +135,7 @@ const QuickViewBody = observer(function QuickViewBody({
           <div className={styles.favorite}>
             <FavoriteButton
               isActive={isFav}
-              onToggle={() => favoritesStore.toggle(product.id)}
+              onToggle={() => void favoritesStore.toggle(product.id, product)}
               size={20}
             />
           </div>
@@ -202,7 +202,7 @@ const QuickViewBody = observer(function QuickViewBody({
             onClick={handleAdd}
             whileTap={sizeChosen ? { scale: 0.94 } : undefined}
             animate={{
-              backgroundColor: inCart ? "#34c759" : "#111111",
+              backgroundColor: inCart ? "#34c759" : "--inverted",
               opacity: sizeChosen ? 1 : 0.5,
             }}
             transition={{ duration: 0.25 }}

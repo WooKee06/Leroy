@@ -1,5 +1,7 @@
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { categories } from '@shared/api/mockData';
+import { observer } from 'mobx-react-lite';
+import { catalogStore } from '@shared/stores/catalogStore';
 import styles from './CategoriesScroll.module.scss';
 
 interface Props {
@@ -7,7 +9,13 @@ interface Props {
   onChange: (id: string) => void;
 }
 
-export default function CategoriesScroll({ active, onChange }: Props) {
+function CategoriesScroll({ active, onChange }: Props) {
+  useEffect(() => {
+    void catalogStore.load();
+  }, []);
+
+  const categories = catalogStore.categories;
+
   return (
     <nav className={styles.categoriesScroll} aria-label="Категории">
       <motion.ul className={styles.categoriesScrollList} layout>
@@ -34,3 +42,5 @@ export default function CategoriesScroll({ active, onChange }: Props) {
     </nav>
   );
 }
+
+export default observer(CategoriesScroll);

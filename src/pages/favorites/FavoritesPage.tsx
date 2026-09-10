@@ -1,10 +1,8 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { observer } from "mobx-react-lite";
 import { FiHeart } from "react-icons/fi";
-import { getProductById } from "@shared/api/mockData";
-import type { Product } from "@shared/api/mockData";
 import { favoritesStore } from "@shared/stores/favoritesStore";
 import PageContainer from "@shared/ui/PageContainer";
 import ProductCard from "@widgets/product/ProductCard";
@@ -22,13 +20,11 @@ function FavoritesPage() {
   const navigate = useNavigate();
   const [filter, setFilter] = useState<Filter>("all");
 
-  const all = useMemo(
-    () =>
-      [...favoritesStore.favoriteIds]
-        .map((id) => getProductById(id))
-        .filter((p): p is Product => Boolean(p)),
-    [favoritesStore.favoriteIds],
-  );
+  useEffect(() => {
+    void favoritesStore.ensureLoaded();
+  }, []);
+
+  const all = favoritesStore.products;
 
   const items = useMemo(() => {
     if (filter === "discount")

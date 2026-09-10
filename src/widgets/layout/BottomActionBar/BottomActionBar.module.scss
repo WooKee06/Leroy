@@ -10,7 +10,7 @@
   max-width: 400px;
   height: $nav-height;
   z-index: 100;
-  background: rgb(26, 26, 26);
+  background: var(--inverted);
   backdrop-filter: blur(30px) saturate(150%);
   -webkit-backdrop-filter: blur(30px) saturate(150%);
   border-radius: 100px;
@@ -48,8 +48,8 @@
   width: 52px;
   height: 100%;
   border-radius: 50%;
-  background: rgb(255, 255, 255);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  background: var(--bg-surface);
+  box-shadow: inset 0 1px 0 var(--inset-highlight);
   color: $text-primary;
   display: flex;
   align-items: center;
@@ -67,8 +67,8 @@
   width: 52px;
   height: 100%;
   border-radius: 50%;
-  background: rgb(255, 255, 255);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  background: var(--bg-surface);
+  box-shadow: inset 0 1px 0 var(--inset-highlight);
   color: $text-primary;
   display: flex;
   align-items: center;
@@ -80,7 +80,7 @@
   text-align: center;
   font-size: 15px;
   font-weight: 700;
-  color: #ffffff;
+  color: var(--inverted-fg);
 }
 
 .totalLabel {
@@ -89,8 +89,8 @@
   min-width: 0;
   padding: 0 16px;
   border-radius: 100px;
-  background: rgb(255, 255, 255);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  background: var(--bg-surface);
+  box-shadow: inset 0 1px 0 var(--inset-highlight);
   color: $text-primary;
   font-size: 16px;
   font-weight: 700;
@@ -106,14 +106,14 @@
   height: 44px;
   flex-shrink: 0;
   border-radius: 50%;
-  color: rgb(26, 26, 26);
+  color: $text-primary;
   display: flex;
   align-items: center;
   justify-content: center;
   width: 52px;
   height: 100%;
   border-radius: 50%;
-  background: rgb(255, 255, 255);
+  background: var(--bg-surface);
 }
 
 .cartIcon {
@@ -124,7 +124,7 @@
   flex: 1;
   height: 100%;
   border-radius: 100px;
-  background: #ffffff;
+  background: var(--bg-surface);
   color: $text-primary;
   font-size: 15px;
   font-weight: 600;

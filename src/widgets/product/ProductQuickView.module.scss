@@ -18,7 +18,7 @@
   display: flex;
   flex-direction: column;
   max-height: 82dvh;
-  background: #ffffff;
+  background: var(--bg-surface);
   border-radius: 30px;
   box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.18);
   padding-bottom: env(safe-area-inset-bottom);
@@ -28,7 +28,7 @@
   width: 40px;
   height: 4px;
   border-radius: 2px;
-  background: #e3e3e7;
+  background: var(--bg-surface-secondary);
   margin: 10px auto 4px;
   flex-shrink: 0;
 }
@@ -39,8 +39,8 @@
   right: 10px;
   padding: 10px 30px;
   border-radius: 16px;
-  background: rgb(255 255 255);
-  color: #111111;
+  background: var(--bg-surface);
+  color: var(--text-primary);
   backdrop-filter: blur(13px);
   display: flex;
   align-items: center;
@@ -91,7 +91,7 @@
     width: 5px;
     height: 5px;
     border-radius: 3px;
-    background: #ffffff;
+    background: var(--text-primary);
     opacity: 0.6;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
     margin: 0 3px;
@@ -150,7 +150,7 @@
 }
 
 .starOff {
-  color: #e3e3e7;
+  color: var(--color-border);
 }
 
 .ratingValue {
@@ -184,13 +184,13 @@
 }
 
 .size {
-  background: #f2f2f4;
+  background: var(--bg-surface-secondary);
   color: $text-primary;
 }
 
 .sizeActive {
-  background: #111111;
-  color: #ffffff;
+  background: var(--inverted);
+  color: var(--inverted-fg);
 }
 
 .footer {
@@ -217,8 +217,8 @@
   flex: 1;
   height: 48px;
   border-radius: $radius-pill;
-  background: #111111;
-  color: #ffffff;
+  background: var(--inverted);
+  color: var(--inverted-fg);
   font-size: 15px;
   font-weight: 600;
   display: flex;
@@ -242,8 +242,8 @@
   height: 48px;
   flex-shrink: 0;
   border-radius: 50%;
-  background: #111111;
-  color: #ffffff;
+  background: var(--inverted);
+  color: var(--inverted-fg);
   display: flex;
   align-items: center;
   justify-content: center;

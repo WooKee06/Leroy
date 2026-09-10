@@ -41,7 +41,7 @@
   height: 36px;
   padding: 0 16px;
   border-radius: $radius-md;
-  background: #f2f2f4;
+  background: var(--bg-surface-secondary);
   color: $text-primary;
   font-size: 13px;
   font-weight: 600;
@@ -60,6 +60,6 @@
 }
 
 .filterChipActive {
-  background: #111111;
-  color: #ffffff;
+  background: var(--inverted);
+  color: var(--inverted-fg);
 }

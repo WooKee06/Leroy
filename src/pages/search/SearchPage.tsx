@@ -3,7 +3,10 @@ import { FiSliders } from 'react-icons/fi';
 import PageContainer from '@shared/ui/PageContainer';
 import SearchBar from '@shared/ui/SearchBar';
 import ProductCard from '@widgets/product/ProductCard';
-import { searchProducts, products } from '@shared/api/mockData';
+import type { Product } from '@shared/api/models';
+import { mapProduct } from '@shared/api/models';
+import { leroyApi } from '@shared/api/leroyApi';
+import { catalogStore } from '@shared/stores/catalogStore';
 import { pageActionsStore } from '@shared/stores/pageActionsStore';
 import { AnimatePresence, motion } from 'framer-motion';
 import styles from './SearchPage.module.scss';
@@ -11,24 +14,43 @@ import styles from './SearchPage.module.scss';
 export default function SearchPage() {
   const [query, setQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
+  const [results, setResults] = useState<Product[]>([]);
   const [sortBy, setSortBy] = useState<'popular' | 'priceAsc' | 'priceDesc'>('popular');
+
+  useEffect(() => {
+    void catalogStore.load();
+  }, []);
 
   useEffect(() => {
     pageActionsStore.set('filters', () => setShowFilters(true));
     return () => pageActionsStore.clear('filters');
   }, []);
 
-  const results = useMemo(() => {
-    if (query.trim() === '') return products;
-    return searchProducts(query);
+  useEffect(() => {
+    const q = query.trim();
+    if (!q) {
+      setResults([]);
+      return;
+    }
+    const handle = setTimeout(async () => {
+      try {
+        const res = await leroyApi.search(q);
+        setResults(res.products.map((p) => mapProduct(p)));
+      } catch {
+        setResults([]);
+      }
+    }, 300);
+    return () => clearTimeout(handle);
   }, [query]);
 
+  const allProducts = query.trim() === '' ? catalogStore.products : results;
+
   const sorted = useMemo(() => {
-    const arr = [...results];
+    const arr = [...allProducts];
     if (sortBy === 'priceAsc') return arr.sort((a, b) => a.price - b.price);
     if (sortBy === 'priceDesc') return arr.sort((a, b) => b.price - a.price);
     return arr;
-  }, [results, sortBy]);
+  }, [allProducts, sortBy]);
 
   const isSearching = query.trim() !== '';
 

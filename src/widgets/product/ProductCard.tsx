@@ -4,7 +4,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
 import { FiArrowRight } from "react-icons/fi";
 import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
-import type { Product } from "@shared/api/mockData";
+import type { Product } from "@shared/api/models";
 import { quickViewStore } from "@shared/stores/quickViewStore";
 import { favoritesStore } from "@shared/stores/favoritesStore";
 import styles from "./ProductCard.module.scss";
@@ -84,7 +84,7 @@ function ProductCard({ product, variant, showSeller = false }: Props) {
           className={`${styles.like}${isFav ? ` ${styles.likeActive}` : ""}`}
           onClick={(e) => {
             e.stopPropagation();
-            favoritesStore.toggle(product.id);
+            void favoritesStore.toggle(product.id, product);
           }}
           whileTap={{ scale: 0.85 }}
           aria-label={isFav ? "Убрать из избранного" : "В избранное"}

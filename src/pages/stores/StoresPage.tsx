@@ -1,4 +1,4 @@
-import { useMemo, useRef, useState, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
@@ -15,9 +15,8 @@ import {
   FiLayers,
 } from "react-icons/fi";
 import { RiSearch2Line } from "react-icons/ri";
-import { sellers, categories, getProductsBySeller } from "@shared/api/mockData";
+import { catalogStore } from "@shared/stores/catalogStore";
 import PageContainer from "@shared/ui/PageContainer";
-// import PromoSlider from "@widgets/home/PromoSlider/PromoSlider";
 import styles from "./StoresPage.module.scss";
 
 const catIcons: Record<string, ReactNode> = {
@@ -45,23 +44,25 @@ function formatOrders(n: number): string {
   return String(n);
 }
 
-function storeCategory(sellerId: string): string | undefined {
-  return getProductsBySeller(sellerId)[0]?.category;
-}
-
 function StoresPage() {
   const navigate = useNavigate();
   const [query, setQuery] = useState("");
   const [activeCat, setActiveCat] = useState("all");
 
+  useEffect(() => {
+    void catalogStore.load();
+  }, []);
+
+  const sellers = catalogStore.stores;
+
   const popular = useMemo(
     () => [...sellers].sort((a, b) => b.orderCount - a.orderCount),
-    [],
+    [sellers],
   );
 
   const catMeta = useMemo(() => {
     const map = new Map<string, { label: string; icon?: ReactNode }>();
-    categories.forEach((c) =>
+    catalogStore.categories.forEach((c) =>
       map.set(c.id, { label: c.name, icon: catIcons[c.id] }),
     );
     return map;
@@ -70,16 +71,16 @@ function StoresPage() {
   const storeCats = useMemo(() => {
     const set = new Set<string>();
     sellers.forEach((s) => {
-      const cat = storeCategory(s.id);
+      const cat = catalogStore.storeCategory(s.id);
       if (cat) set.add(cat);
     });
     return Array.from(set);
-  }, []);
+  }, [sellers]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return sellers.filter((s) => {
-      if (activeCat !== "all" && storeCategory(s.id) !== activeCat)
+      if (activeCat !== "all" && catalogStore.storeCategory(s.id) !== activeCat)
         return false;
       if (
         q &&
@@ -89,7 +90,7 @@ function StoresPage() {
         return false;
       return true;
     });
-  }, [query, activeCat]);
+  }, [query, activeCat, sellers]);
 
   const noResults = filtered.length === 0;
   const cardsRef = useRef<HTMLDivElement>(null);
@@ -188,7 +189,7 @@ function StoresPage() {
           </h2>
           <div className={styles.storesList}>
             {filtered.map((s) => {
-              const cat = storeCategory(s.id);
+              const cat = catalogStore.storeCategory(s.id);
               const catLabel = cat
                 ? (catMeta.get(cat)?.label ?? cat)
                 : "Магазин";
@@ -199,11 +200,14 @@ function StoresPage() {
                   onClick={() => navigate(`/store/${s.id}`)}
                   whileTap={{ scale: 0.98 }}
                 >
-                  <img
-                    className={styles.storeRowLogo}
-                    src={s.avatar}
-                    alt={s.name}
-                  />
+                  {s.avatar && (
+                    <img
+                      className={styles.storeRowBg}
+                      src={s.avatar}
+                      alt=""
+                      aria-hidden
+                    />
+                  )}
                   <span className={styles.storeRowInfo}>
                     <span className={styles.storeRowName}>
                       {s.name}

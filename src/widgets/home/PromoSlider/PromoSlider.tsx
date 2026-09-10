@@ -1,47 +1,34 @@
+import { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
+import { observer } from "mobx-react-lite";
 import { FiActivity, FiCheck, FiGrid, FiHeart } from "react-icons/fi";
-import { getProductsBySeller, getSellerById } from "@shared/api/mockData";
+import { catalogStore } from "@shared/stores/catalogStore";
 import styles from "./PromoSlider.module.scss";
 import "swiper/css";
 import "swiper/css/pagination";
 
-interface SlideData {
-  id: string;
-  badge: string;
-  image: string;
-  to: string;
-}
-
-const slides: SlideData[] = [
-  {
-    id: "nike",
-    badge: "-15%",
-    image:
-      "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&h=600&fit=crop",
-    to: "/store/nike-store",
-  },
-  {
-    id: "beauty",
-    badge: "-20%",
-    image:
-      "https://images.unsplash.com/photo-1541643600914-78b084683601?w=800&h=600&fit=crop",
-    to: "/store/beauty-bar",
-  },
-  {
-    id: "urban",
-    badge: "-40%",
-    image:
-      "https://images.unsplash.com/photo-1556906781-9a412961c28c?w=800&h=600&fit=crop",
-    to: "/store/urban-fit",
-  },
+const slideImages = [
+  "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=800&h=600&fit=crop",
+  "https://images.unsplash.com/photo-1541643600914-78b084683601?w=800&h=600&fit=crop",
+  "https://images.unsplash.com/photo-1556906781-9a412961c28c?w=800&h=600&fit=crop",
 ];
+
+const slideBadges = ["-15%", "-20%", "-40%"];
 
 const fmt = (n: number) => n.toLocaleString("ru-RU");
 
-export default function PromoSlider() {
+function PromoSlider() {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    void catalogStore.load();
+  }, []);
+
+  const slides = useMemo(() => catalogStore.stores.slice(0, 3), [
+    catalogStore.stores,
+  ]);
 
   return (
     <div className={styles.wrap}>
@@ -60,37 +47,36 @@ export default function PromoSlider() {
         pagination={{ clickable: true }}
         className={styles.deck}
       >
-        {slides.map((slide) => {
-          const seller = getSellerById(slide.to.replace("/store/", ""));
-          const sellerProducts = seller ? getProductsBySeller(seller.id) : [];
-          const minPrice = sellerProducts.length
-            ? Math.min(...sellerProducts.map((p) => p.price))
+        {slides.map((store, i) => {
+          const storeProducts = catalogStore.products.filter(
+            (p) => p.seller?.id === store.id,
+          );
+          const minPrice = storeProducts.length
+            ? Math.min(...storeProducts.map((p) => p.price))
             : null;
-          const name = seller?.name ?? "";
-          const verified = seller?.verified ?? false;
 
           return (
-            <SwiperSlide key={slide.id} className={styles.slide}>
+            <SwiperSlide key={store.id} className={styles.slide}>
               <div
                 className={styles.card}
-                onClick={() => navigate(slide.to)}
+                onClick={() => navigate(`/store/${store.id}`)}
                 role="button"
                 tabIndex={0}
               >
                 <div className={styles.imageWrap}>
                   <img
                     className={styles.image}
-                    src={slide.image}
-                    alt={name}
+                    src={store.avatar || slideImages[i % slideImages.length]}
+                    alt={store.name}
                     loading="lazy"
                   />
                   <span className={styles.overlayRow}>
                     <button
                       className={styles.overlayValue}
                       onClick={(e) => e.stopPropagation()}
-                      aria-label={slide.badge}
+                      aria-label={slideBadges[i % slideBadges.length]}
                     >
-                      {slide.badge}
+                      {slideBadges[i % slideBadges.length]}
                     </button>
                     <button
                       className={styles.overlayIcon}
@@ -104,8 +90,8 @@ export default function PromoSlider() {
 
                 <div className={styles.info}>
                   <div className={styles.nameRow}>
-                    <span className={styles.name}>{name}</span>
-                    {verified && (
+                    <span className={styles.name}>{store.name}</span>
+                    {store.verified && (
                       <span className={styles.check}>
                         <FiCheck size={12} />
                       </span>
@@ -136,3 +122,5 @@ export default function PromoSlider() {
     </div>
   );
 }
+
+export default observer(PromoSlider);

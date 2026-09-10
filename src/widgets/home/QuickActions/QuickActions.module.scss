@@ -29,12 +29,12 @@
   width: 60px;
   height: 50px;
   border-radius: 17px;
-  background: #f4f4f6;
+  background: var(--bg-surface-secondary);
   border: 1px solid rgba(0, 0, 0, 0.03);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: #111111;
+  color: var(--text-primary);
 }
 
 .quickActionLabel {

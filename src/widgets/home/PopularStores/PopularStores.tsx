@@ -1,16 +1,24 @@
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { observer } from "mobx-react-lite";
 import { FiCheck, FiArrowRight } from "react-icons/fi";
-import { sellers } from "@shared/api/mockData";
+import { catalogStore } from "@shared/stores/catalogStore";
 import styles from "./PopularStores.module.scss";
 
-export default function PopularStores() {
+function PopularStores() {
   const navigate = useNavigate();
 
+  useEffect(() => {
+    void catalogStore.load();
+  }, []);
+
   const popular = useMemo(
-    () => [...sellers].sort((a, b) => b.orderCount - a.orderCount).slice(0, 8),
-    [],
+    () =>
+      [...catalogStore.stores]
+        .sort((a, b) => b.orderCount - a.orderCount)
+        .slice(0, 8),
+    [catalogStore.stores],
   );
 
   return (
@@ -55,3 +63,5 @@ export default function PopularStores() {
     </section>
   );
 }
+
+export default observer(PopularStores);

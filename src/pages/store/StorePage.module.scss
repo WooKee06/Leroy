@@ -16,12 +16,7 @@
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(
-      180deg,
-      rgba(255, 255, 255, 0) 55%,
-      rgb(255 255 255) 100%,
-      rgba(255, 255, 255, 0.9) 100%
-    );
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0) 55%, var(--bg-primary) 100%);
     pointer-events: none;
   }
 }
@@ -146,8 +141,8 @@
   flex: 1;
   padding: $space-md $space-lg;
   border-radius: $radius-pill;
-  background: $text-primary;
-  color: #ffffff;
+  background: var(--inverted);
+  color: var(--inverted-fg);
   font-size: 14px;
   font-weight: 600;
   text-align: center;

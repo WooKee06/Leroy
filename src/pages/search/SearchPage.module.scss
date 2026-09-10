@@ -85,8 +85,8 @@
 }
 
 .bottomSheetOptionActive {
-  background: $text-primary;
-  color: #ffffff;
+  background: var(--inverted);
+  color: var(--inverted-fg);
 
   padding: $space-lg $space-md;
   border-radius: $radius-md;
@@ -100,8 +100,8 @@
   width: 100%;
   padding: $space-lg;
   border-radius: $radius-lg;
-  background: $text-primary;
-  color: #ffffff;
+  background: var(--inverted);
+  color: var(--inverted-fg);
   font-size: 16px;
   font-weight: 600;
 }

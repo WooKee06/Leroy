@@ -1,5 +1,5 @@
 import { makeAutoObservable } from "mobx";
-import type { Product } from "@shared/api/mockData";
+import type { Product } from "@shared/api/models";
 
 class QuickViewStore {
   product: Product | null = null;

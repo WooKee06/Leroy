@@ -1,14 +1,14 @@
-$bg-primary: #ffffff;
-$bg-surface: #ffffff;
-$bg-surface-secondary: #f0f0f275;
+$bg-primary: var(--bg-primary);
+$bg-surface: var(--bg-surface);
+$bg-surface-secondary: var(--bg-surface-secondary);
 
-$text-primary: #1a1a1a;
-$text-secondary: #8e8e93;
-$text-tertiary: #aeaeb2;
-$text-accent: #1a1a1a;
+$text-primary: var(--text-primary);
+$text-secondary: var(--text-secondary);
+$text-tertiary: var(--text-tertiary);
+$text-accent: var(--text-accent);
 
-$color-border: #e5e5ea;
-$color-divider: #f2f2f7;
+$color-border: var(--color-border);
+$color-divider: var(--color-divider);
 
 $color-success: #34c759;
 $color-error: #ff3b30;

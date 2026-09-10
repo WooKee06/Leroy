@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { observer } from "mobx-react-lite";
@@ -14,39 +15,62 @@ import {
   FiStar,
   FiTruck,
 } from "react-icons/fi";
-import { getProductById } from "@shared/api/mockData";
+import type { Order } from "@shared/api/models";
+import { leroyApi } from "@shared/api/leroyApi";
 import { accountStore } from "@shared/stores/accountStore";
 import { favoritesStore } from "@shared/stores/favoritesStore";
+import { catalogStore } from "@shared/stores/catalogStore";
 import PageContainer from "@shared/ui/PageContainer";
 import BalanceCard from "@widgets/home/BalanceCard/BalanceCard";
 import ProductCard from "@widgets/product/ProductCard";
 import styles from "./ProfilePage.module.scss";
 
-const RECOMMENDED_IDS = ["4", "7", "12", "15", "19"];
-
 function ProfilePage() {
   const navigate = useNavigate();
+  const [orders, setOrders] = useState<Order[]>([]);
 
-  const favoriteItems = [...favoritesStore.favoriteIds]
-    .map((id) => getProductById(id))
-    .filter((p): p is NonNullable<typeof p> => Boolean(p));
+  useEffect(() => {
+    void favoritesStore.ensureLoaded();
+    void catalogStore.load();
+    void leroyApi
+      .myOrders()
+      .then(setOrders)
+      .catch(() => setOrders([]));
+  }, []);
 
-  const recommended = RECOMMENDED_IDS.map((id) => getProductById(id)).filter(
-    (p): p is NonNullable<typeof p> => Boolean(p),
-  );
+  const favoriteItems = favoritesStore.products;
 
-  const orderStats = [
-    { value: 12, label: "Заказы" },
-    { value: favoriteItems.length, label: "Избранное" },
-    { value: 5, label: "Отзывы" },
-  ];
+  const recommended = catalogStore.products.slice(0, 5);
 
-  const orderTiles = [
-    { icon: <FiPackage size={20} />, label: "Заказы", value: 12, tint: "#111111" },
-    { icon: <FiClock size={20} />, label: "Ожидают", value: 2, tint: "#f5a623" },
-    { icon: <FiTruck size={20} />, label: "В пути", value: 3, tint: "#007aff" },
-    { icon: <FiCheck size={20} />, label: "Получены", value: 7, tint: "#34c759" },
-  ];
+  const orderStats = useMemo(() => {
+    const bought = orders.reduce(
+      (sum, o) => sum + o.items.reduce((s, i) => s + i.quantity, 0),
+      0,
+    );
+    return [
+      { value: orders.length, label: "Заказы" },
+      { value: favoriteItems.length, label: "Избранное" },
+      { value: bought, label: "Товаров" },
+    ];
+  }, [orders, favoriteItems.length]);
+
+  const orderTiles = useMemo(() => {
+    const awaiting = orders.filter((o) =>
+      ["pending", "accepted", "paid"].includes(o.status),
+    ).length;
+    const shipping = orders.filter((o) =>
+      ["preparing", "ready_for_delivery", "shipped"].includes(o.status),
+    ).length;
+    const received = orders.filter((o) =>
+      ["delivered", "completed"].includes(o.status),
+    ).length;
+    return [
+      { icon: <FiPackage size={20} />, label: "Заказы", value: orders.length, tint: "#111111" },
+      { icon: <FiClock size={20} />, label: "Ожидают", value: awaiting, tint: "#f5a623" },
+      { icon: <FiTruck size={20} />, label: "В пути", value: shipping, tint: "#007aff" },
+      { icon: <FiCheck size={20} />, label: "Получены", value: received, tint: "#34c759" },
+    ];
+  }, [orders]);
 
   const menu: {
     icon: React.ReactNode;
@@ -58,7 +82,7 @@ function ProfilePage() {
   }[] = [
     {
       icon: <FiHeart size={20} />,
-      iconBg: "#fff0f0",
+      iconBg: "var(--tint-red)",
       iconColor: "#ff3b30",
       label: "Избранное",
       desc: `${favoriteItems.length} товара`,
@@ -66,37 +90,38 @@ function ProfilePage() {
     },
     {
       icon: <FiMapPin size={20} />,
-      iconBg: "#f0f4ff",
+      iconBg: "var(--tint-blue)",
       iconColor: "#007aff",
       label: "Адреса доставки",
       desc: "2 адреса",
     },
     {
       icon: <FiCreditCard size={20} />,
-      iconBg: "#f0fbf3",
+      iconBg: "var(--tint-green)",
       iconColor: "#34c759",
       label: "Способы оплаты",
       desc: "Telegram Stars",
     },
     {
       icon: <FiStar size={20} />,
-      iconBg: "#fff4e0",
+      iconBg: "var(--tint-orange)",
       iconColor: "#f5a623",
       label: "Stars / Баланс",
       desc: `${accountStore.stars.toLocaleString("ru-RU")} Telegram Stars`,
     },
     {
       icon: <FiGift size={20} />,
-      iconBg: "#f3f0ff",
+      iconBg: "var(--tint-purple)",
       iconColor: "#8e5cf7",
       label: "Мои подарки",
       desc: "3 подарка",
     },
     {
       icon: <FiSettings size={20} />,
-      iconBg: "#f2f2f3",
+      iconBg: "var(--tint-gray)",
       iconColor: "#8e8e93",
       label: "Настройки",
+      path: "/settings",
     },
   ];
 
@@ -118,13 +143,6 @@ function ProfilePage() {
               <span className={styles.role}>{accountStore.roleLabel}</span>
             )}
           </div>
-          <button
-            className={styles.settingsBtn}
-            onClick={() => {}}
-            aria-label="Настройки"
-          >
-            <FiSettings size={20} />
-          </button>
         </div>
 
         <div className={styles.stats}>

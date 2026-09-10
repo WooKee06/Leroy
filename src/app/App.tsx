@@ -6,6 +6,8 @@ import ProductPage from '@pages/product/ProductPage';
 import StorePage from '@pages/store/StorePage';
 import CartPage from '@pages/cart/CartPage';
 import ProfilePage from '@pages/profile/ProfilePage';
+import SettingsPage from '@pages/settings/SettingsPage';
+import RolePage from '@pages/role/RolePage';
 import StoresPage from '@pages/stores/StoresPage';
 import FavoritesPage from '@pages/favorites/FavoritesPage';
 import { DiscoverPlaceholder } from '@pages/placeholders';
@@ -24,6 +26,8 @@ export default function App() {
           <Route path="/discover" element={<DiscoverPlaceholder />} />
           <Route path="/favorites" element={<FavoritesPage />} />
           <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/role" element={<RolePage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Route>
       </Routes>

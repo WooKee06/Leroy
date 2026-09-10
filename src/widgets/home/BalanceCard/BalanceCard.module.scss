@@ -6,7 +6,7 @@
   justify-content: space-between;
   gap: $space-md;
   padding: 14px 16px;
-  background: linear-gradient(180deg, #ffffff 0%, #f7f8fb 100%);
+  background: linear-gradient(180deg, var(--bg-surface) 0%, var(--bg-surface-secondary) 100%);
   border: 1px solid $color-border;
   border-radius: $radius-xl;
   box-shadow: $shadow-card;
@@ -24,7 +24,7 @@
   height: 44px;
   flex-shrink: 0;
   border-radius: 15px;
-  background: #fff4e0;
+  background: var(--tint-orange);
   color: #f5a623;
   display: flex;
   align-items: center;
@@ -62,8 +62,8 @@
   height: 40px;
   padding: 0 16px;
   border-radius: $radius-pill;
-  background: #111111;
-  color: #ffffff;
+  background: var(--inverted);
+  color: var(--inverted-fg);
   font-size: 13px;
   font-weight: 600;
   transition: transform 0.15s ease;

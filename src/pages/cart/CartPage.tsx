@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { observer } from "mobx-react-lite";
@@ -8,8 +9,27 @@ import styles from "./CartPage.module.scss";
 
 function CartPage() {
   const navigate = useNavigate();
+
+  useEffect(() => {
+    void cartStore.load();
+  }, []);
+
   const isEmpty = cartStore.items.length === 0;
+  const loading = cartStore.loading && isEmpty;
   const sellers = cartStore.itemsBySeller;
+
+  if (loading) {
+    return (
+      <div className={`page-wrapper ${styles.cartPage}`}>
+        <PageContainer>
+          <h1 className={styles["cartPage-heading"]}>Корзина</h1>
+          <p style={{ color: "var(--text-secondary)", textAlign: "center", paddingTop: 24 }}>
+            Загрузка…
+          </p>
+        </PageContainer>
+      </div>
+    );
+  }
 
   return (
     <div className={`page-wrapper ${styles.cartPage}`}>
@@ -23,11 +43,11 @@ function CartPage() {
                 width: 72,
                 height: 72,
                 borderRadius: 24,
-                background: "#EFEFF1",
+                background: "var(--bg-surface-secondary)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                color: "#8E8E93",
+                color: "var(--text-secondary)",
                 fontSize: 32,
               }}
             >
@@ -61,7 +81,7 @@ function CartPage() {
                       <span className={styles["cartPage-seller-name"]}>
                         {seller.name}
                       </span>
-                      <FiChevronRight size={18} style={{ color: "#AEAEB2" }} />
+                      <FiChevronRight size={18} style={{ color: "var(--text-tertiary)" }} />
                     </button>
 
                     <div className={styles["cartPage-items"]}>

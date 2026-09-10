@@ -1,6 +1,86 @@
 @use 'variables' as *;
 @use 'typography';
 
+:root,
+:root[data-theme='dark'] {
+  --bg-primary: #0c0d12;
+  --bg-surface: #17181f;
+  --bg-surface-secondary: #20222b;
+  --text-primary: #f2f3f7;
+  --text-secondary: #9ba0ad;
+  --text-tertiary: #6a6f7d;
+  --text-accent: #f2f3f7;
+  --color-border: #2a2c36;
+  --color-divider: #20222b;
+  --bg-overlay: rgba(23, 24, 31, 0.78);
+  --tint-red: rgba(255, 59, 48, 0.16);
+  --tint-blue: rgba(0, 122, 255, 0.16);
+  --tint-green: rgba(52, 199, 89, 0.16);
+  --tint-orange: rgba(245, 166, 35, 0.16);
+  --tint-purple: rgba(142, 92, 247, 0.16);
+  --tint-gray: rgba(142, 142, 147, 0.18);
+  --inverted: #f2f3f7;
+  --inverted-fg: #0c0d12;
+  --inset-highlight: rgba(255, 255, 255, 0.06);
+  --bg-glow:
+    radial-gradient(55% 38% at 12% -4%, rgba(60, 90, 160, 0.22), transparent 62%),
+    radial-gradient(46% 34% at 88% 4%, rgba(90, 70, 150, 0.18), transparent 60%),
+    radial-gradient(52% 40% at 0% 100%, rgba(40, 110, 110, 0.16), transparent 62%);
+}
+
+:root[data-theme='light'] {
+  --bg-primary: #ffffff;
+  --bg-surface: #ffffff;
+  --bg-surface-secondary: #f0f0f275;
+  --text-primary: #1a1a1a;
+  --text-secondary: #8e8e93;
+  --text-tertiary: #aeaeb2;
+  --text-accent: #1a1a1a;
+  --color-border: #e5e5ea;
+  --color-divider: #f2f2f7;
+  --bg-overlay: rgba(255, 255, 255, 0.72);
+  --tint-red: rgba(255, 59, 48, 0.1);
+  --tint-blue: rgba(0, 122, 255, 0.1);
+  --tint-green: rgba(52, 199, 89, 0.1);
+  --tint-orange: rgba(245, 166, 35, 0.1);
+  --tint-purple: rgba(142, 92, 247, 0.1);
+  --tint-gray: rgba(142, 142, 147, 0.14);
+  --inverted: #1a1a1a;
+  --inverted-fg: #ffffff;
+  --inset-highlight: rgba(255, 255, 255, 0.8);
+  --bg-glow:
+    radial-gradient(55% 38% at 12% -4%, rgba(186, 211, 255, 0.18), transparent 62%),
+    radial-gradient(46% 34% at 88% 4%, rgba(226, 218, 255, 0.16), transparent 60%),
+    radial-gradient(52% 40% at 0% 100%, rgba(203, 238, 232, 0.14), transparent 62%);
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme]) {
+    --bg-primary: #ffffff;
+    --bg-surface: #ffffff;
+    --bg-surface-secondary: #f0f0f275;
+    --text-primary: #1a1a1a;
+    --text-secondary: #8e8e93;
+    --text-tertiary: #aeaeb2;
+    --text-accent: #1a1a1a;
+    --color-border: #e5e5ea;
+    --color-divider: #f2f2f7;
+    --bg-overlay: rgba(255, 255, 255, 0.72);
+    --tint-red: rgba(255, 59, 48, 0.1);
+    --tint-blue: rgba(0, 122, 255, 0.1);
+    --tint-green: rgba(52, 199, 89, 0.1);
+    --tint-orange: rgba(245, 166, 35, 0.1);
+    --tint-purple: rgba(142, 92, 247, 0.1);
+    --tint-gray: rgba(142, 142, 147, 0.14);
+    --inverted: #1a1a1a;
+    --inverted-fg: #ffffff;
+    --bg-glow:
+      radial-gradient(55% 38% at 12% -4%, rgba(186, 211, 255, 0.18), transparent 62%),
+      radial-gradient(46% 34% at 88% 4%, rgba(226, 218, 255, 0.16), transparent 60%),
+      radial-gradient(52% 40% at 0% 100%, rgba(203, 238, 232, 0.14), transparent 62%);
+  }
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -18,15 +98,13 @@ html {
 body {
   font-family: $font-family;
   background-color: $bg-primary;
-  background-image:
-    radial-gradient(55% 38% at 12% -4%, rgba(186, 211, 255, 0.18), transparent 62%),
-    radial-gradient(46% 34% at 88% 4%, rgba(226, 218, 255, 0.16), transparent 60%),
-    radial-gradient(52% 40% at 0% 100%, rgba(203, 238, 232, 0.14), transparent 62%);
+  background-image: var(--bg-glow);
   background-repeat: no-repeat;
   color: $text-primary;
   min-height: 100dvh;
   overflow-x: hidden;
   line-height: 1.5;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 #root {

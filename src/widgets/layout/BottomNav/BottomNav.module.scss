@@ -9,7 +9,7 @@
   width: calc(100% - 130px);
   max-width: 400px;
   z-index: 100;
-  background: rgb(26 26 26);
+  background: var(--inverted);
   backdrop-filter: blur(30px);
   -webkit-backdrop-filter: blur(20px);
   border-radius: 100px;
@@ -43,11 +43,11 @@
 }
 
 .bottomNavItemCenter .bottomNavItemIcon {
-  color: #ffffff;
+  color: var(--inverted-fg);
 }
 
 .bottomNavItemActive {
-  color: #000000;
+  color: var(--text-primary);
   border-radius: 100px;
 }
 
@@ -59,7 +59,7 @@
   position: absolute;
   inset: 0;
   border-radius: 100px;
-  background: #fff;
+  background: var(--bg-surface);
 }
 
 .bottomNavItemIcon {

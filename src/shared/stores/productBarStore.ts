@@ -1,5 +1,5 @@
 import { makeAutoObservable } from "mobx";
-import type { Product } from "@shared/api/mockData";
+import type { Product } from "@shared/api/models";
 import { cartStore } from "@shared/stores/cartStore";
 
 class ProductBarStore {
@@ -47,16 +47,21 @@ class ProductBarStore {
     return (this.qty * this.product.price).toLocaleString("ru-RU");
   }
 
-  toggleCart() {
+  async toggleCart() {
     if (!this.product) return;
-    const id = this.product.id;
     if (this.inCart) {
-      cartStore.removeItem(id, this.selectedSize, this.selectedColor);
+      await cartStore.removeItem(
+        this.product.id,
+        this.selectedSize,
+        this.selectedColor,
+      );
     } else {
-      cartStore.addItem(this.product, this.selectedSize, this.selectedColor);
-      if (this.qty > 1) {
-        cartStore.updateQuantity(id, this.qty, this.selectedSize, this.selectedColor);
-      }
+      await cartStore.addItem(
+        this.product,
+        this.selectedSize,
+        this.selectedColor,
+        this.qty,
+      );
     }
   }
 }

@@ -2,18 +2,17 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion, type Variants } from "framer-motion";
 import { observer } from "mobx-react-lite";
-import { FiArrowLeft, FiSearch, FiShare, FiSliders } from "react-icons/fi";
+import { FiArrowLeft, FiSearch, FiSettings, FiShare, FiSliders } from "react-icons/fi";
 import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
 import { BsCartDash } from "react-icons/bs";
 import { accountStore } from "@shared/stores/accountStore";
 import { favoritesStore } from "@shared/stores/favoritesStore";
 import { pageActionsStore } from "@shared/stores/pageActionsStore";
-import { getProductById } from "@shared/api/mockData";
 import hStyles from "@widgets/home/HeroSection/HomeHeader.module.scss";
 import styles from "./PersistentHeader.module.scss";
 
 type LeftId = "profile" | "back";
-type ActionId = "search" | "favorites" | "cart" | "favorite" | "share" | "filters";
+type ActionId = "search" | "favorites" | "cart" | "favorite" | "share" | "filters" | "settings";
 
 interface HeaderShape {
   left: LeftId;
@@ -21,11 +20,12 @@ interface HeaderShape {
 }
 
 function resolveShape(pathname: string): HeaderShape {
-  if (pathname === "/") return { left: "profile", right: ["search", "favorites", "cart"] };
+  if (pathname === "/") return { left: "profile", right: ["settings", "search", "favorites", "cart"] };
   if (pathname.startsWith("/search")) return { left: "back", right: ["filters"] };
   if (pathname.startsWith("/product/")) return { left: "back", right: ["favorite", "share"] };
   if (pathname.startsWith("/store/")) return { left: "back", right: ["share"] };
-  if (pathname === "/profile") return { left: "back", right: [] };
+  if (pathname === "/profile") return { left: "back", right: ["settings"] };
+  if (pathname === "/settings" || pathname === "/role") return { left: "back", right: [] };
   return { left: "back", right: [] };
 }
 
@@ -53,8 +53,7 @@ function PersistentHeader() {
   const productId = location.pathname.startsWith("/product/")
     ? location.pathname.slice("/product/".length)
     : undefined;
-  const product = productId ? getProductById(productId) : undefined;
-  const productFav = product ? favoritesStore.isFavorite(product.id) : false;
+  const productFav = productId ? favoritesStore.isFavorite(productId) : false;
 
   const share = () => {
     if (navigator.share) {
@@ -124,10 +123,10 @@ function PersistentHeader() {
           <BsCartDash size={16} />
         </button>
       )}
-      {shape.right.includes("favorite") && product && (
+      {shape.right.includes("favorite") && productId && (
         <button
           className={hStyles.homeHeaderIconBtn}
-          onClick={() => favoritesStore.toggle(product.id)}
+          onClick={() => favoritesStore.toggle(productId)}
           aria-label={productFav ? "Убрать из избранного" : "В избранное"}
           aria-pressed={productFav}
         >
@@ -141,6 +140,15 @@ function PersistentHeader() {
       {shape.right.includes("share") && (
         <button className={hStyles.homeHeaderIconBtn} onClick={share} aria-label="Поделиться">
           <FiShare size={20} />
+        </button>
+      )}
+      {shape.right.includes("settings") && (
+        <button
+          className={hStyles.homeHeaderIconBtn}
+          onClick={() => navigate("/settings")}
+          aria-label="Настройки"
+        >
+          <FiSettings size={20} />
         </button>
       )}
       {shape.right.includes("filters") && (

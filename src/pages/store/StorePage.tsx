@@ -1,8 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { FiCheck } from "react-icons/fi";
-import { getSellerById, getProductsBySeller } from "@shared/api/mockData";
+import type { Product, Seller } from "@shared/api/models";
+import { mapProduct, mapSeller } from "@shared/api/models";
+import { leroyApi } from "@shared/api/leroyApi";
 import { favoritesStore } from "@shared/stores/favoritesStore";
 import PageContainer from "@shared/ui/PageContainer";
 import ProductCard from "@widgets/product/ProductCard";
@@ -23,10 +25,39 @@ export default function StorePage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>("items");
+  const [seller, setSeller] = useState<Seller | undefined>(undefined);
+  const [sellerProducts, setSellerProducts] = useState<Product[]>([]);
+  const [notFound, setNotFound] = useState(false);
 
-  const seller = id ? getSellerById(id) : undefined;
+  useEffect(() => {
+    if (!id) {
+      setNotFound(true);
+      return;
+    }
+    let alive = true;
+    setSeller(undefined);
+    setSellerProducts([]);
+    setNotFound(false);
 
-  if (!seller) {
+    Promise.all([
+      leroyApi.store(id).then(mapSeller),
+      leroyApi.storeProducts(id).then((res) => res.items),
+    ])
+      .then(([store, products]) => {
+        if (!alive) return;
+        setSeller(store);
+        setSellerProducts(products.map((p) => mapProduct(p, store)));
+      })
+      .catch(() => {
+        if (alive) setNotFound(true);
+      });
+
+    return () => {
+      alive = false;
+    };
+  }, [id]);
+
+  if (notFound) {
     return (
       <div className="page-wrapper" style={{ padding: 40, textAlign: "center" }}>
         <p>Магазин не найден</p>
@@ -35,7 +66,14 @@ export default function StorePage() {
     );
   }
 
-  const sellerProducts = getProductsBySeller(seller.id);
+  if (!seller) {
+    return (
+      <div className="page-wrapper" style={{ padding: 40, textAlign: "center", color: "var(--text-secondary)" }}>
+        Загрузка…
+      </div>
+    );
+  }
+
   const totalReviews = sellerProducts.reduce((sum, p) => sum + p.reviewCount, 0);
 
   const stats = [

@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import type { Product } from "@shared/api/mockData";
+import type { Product } from "@shared/api/models";
 import ProductCard from "@widgets/product/ProductCard";
 import styles from "./FeaturedProducts.module.scss";
 
