@@ -45,6 +45,7 @@ class AccountStore {
   isAuthenticated = false;
   initialized = false;
   stars = 1920;
+  balance = 0;
 
   constructor() {
     makeAutoObservable(this);
@@ -129,6 +130,10 @@ class AccountStore {
 
   setRole(role: UserRole) {
     this.role = role;
+  }
+
+  topUp(amount: number) {
+    this.balance += amount;
   }
 
   async updateRole(role: UserRole): Promise<void> {

@@ -87,7 +87,7 @@ export default function StorePage() {
   return (
     <div className={styles.page}>
       <div className={styles.cover}>
-        <img className={styles.coverImage} src={wide(seller.avatar)} alt="" />
+        <img className={styles.coverImage} src={wide(seller.cover ?? '')} alt="" />
       </div>
 
       <PageContainer>

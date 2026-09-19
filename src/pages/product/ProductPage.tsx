@@ -169,6 +169,22 @@ function ProductPage() {
             </span>
           </div>
 
+          <button
+            className={styles.seller}
+            onClick={() => navigate(`/store/${product.seller.id}`)}
+          >
+            <img
+              className={styles.sellerAvatar}
+              src={product.seller.avatar}
+              alt={product.seller.name}
+            />
+            <span className={styles.sellerInfo}>
+              <span className={styles.sellerLabel}>Продавец</span>
+              <span className={styles.sellerName}>{product.seller.name}</span>
+            </span>
+            <FiChevronRight size={18} className={styles.sellerChevron} />
+          </button>
+
           {product.sizes && (
             <div className={styles.sizes}>
               {product.sizes.map((size) => (

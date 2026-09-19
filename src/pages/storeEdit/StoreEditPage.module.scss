@@ -1,0 +1,104 @@
+@use "../../app/styles/variables" as *;
+
+.page {
+  min-height: 100dvh;
+  padding-bottom: calc(#{$nav-height} + #{$nav-bottom} * 2 + 16px);
+}
+
+.title {
+  padding: $space-lg 0 $space-xl;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+
+.preview {
+  position: relative;
+}
+
+.cover {
+  width: 100%;
+  height: 160px;
+  border-radius: $radius-lg;
+  object-fit: cover;
+  background: var(--bg-surface-secondary);
+}
+
+.avatar {
+  position: absolute;
+  left: $space-lg;
+  bottom: -$space-2xl;
+  width: 84px;
+  height: 84px;
+  border-radius: $radius-xl;
+  object-fit: cover;
+  border: 3px solid var(--bg-surface);
+  background: var(--bg-surface-secondary);
+  box-shadow: $shadow-soft;
+}
+
+.form {
+  padding-top: $space-3xl;
+}
+
+.field {
+  display: block;
+  margin-bottom: $space-lg;
+}
+
+.fieldLabel {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: $text-secondary;
+  margin-bottom: 8px;
+}
+
+.input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  font-size: 15px;
+  background: var(--bg-surface-secondary);
+  outline: none;
+  color: $text-primary;
+
+  &:focus {
+    border-color: var(--text-primary);
+    background: var(--bg-surface);
+  }
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 96px;
+  font-family: inherit;
+}
+
+.error {
+  color: $color-error;
+  font-size: 13px;
+  margin: 0 0 $space-lg;
+}
+
+.saveBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--inverted);
+  color: var(--inverted-fg);
+  border: none;
+  border-radius: 16px;
+  padding: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.6;
+  }
+}

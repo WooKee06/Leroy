@@ -2,7 +2,13 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { observer } from "mobx-react-lite";
-import { FiChevronRight, FiShoppingBag } from "react-icons/fi";
+import {
+  FiChevronRight,
+  FiMinus,
+  FiPlus,
+  FiShoppingBag,
+  FiTrash2,
+} from "react-icons/fi";
 import { cartStore } from "@shared/stores/cartStore";
 import PageContainer from "@shared/ui/PageContainer";
 import styles from "./CartPage.module.scss";
@@ -128,10 +134,6 @@ function CartPage() {
                                   {item.product.price.toLocaleString("ru-RU")} ₽
                                 </span>
                               </div>
-
-                              <span className={styles["cartPage-item-qty"]}>
-                                ×{item.quantity}
-                              </span>
                             </div>
 
                             <div className={styles["cartPage-item-divider"]} />
@@ -157,11 +159,64 @@ function CartPage() {
                                 </span>
                               </div>
                               <div className={styles["cartPage-item-actions"]}>
+                                <div className={styles["cartPage-item-stepper"]}>
+                                  <motion.button
+                                    className={
+                                      styles["cartPage-item-stepper-btn"]
+                                    }
+                                    disabled={item.quantity <= 1}
+                                    onClick={() =>
+                                      void cartStore.updateQuantity(
+                                        item.product.id,
+                                        item.quantity - 1,
+                                        item.selectedSize,
+                                        item.selectedColor,
+                                      )
+                                    }
+                                    whileTap={{ scale: 0.88 }}
+                                    aria-label="Меньше"
+                                  >
+                                    <FiMinus size={15} />
+                                  </motion.button>
+                                  <span
+                                    className={
+                                      styles["cartPage-item-stepper-value"]
+                                    }
+                                  >
+                                    {item.quantity}
+                                  </span>
+                                  <motion.button
+                                    className={
+                                      styles["cartPage-item-stepper-btn"]
+                                    }
+                                    onClick={() =>
+                                      void cartStore.updateQuantity(
+                                        item.product.id,
+                                        item.quantity + 1,
+                                        item.selectedSize,
+                                        item.selectedColor,
+                                      )
+                                    }
+                                    whileTap={{ scale: 0.88 }}
+                                    aria-label="Больше"
+                                  >
+                                    <FiPlus size={15} />
+                                  </motion.button>
+                                </div>
                                 <button
-                                  className={styles["cartPage-item-order-btn"]}
-                                  onClick={() => {}}
+                                  className={
+                                    styles["cartPage-item-remove-btn"]
+                                  }
+                                  onClick={() =>
+                                    void cartStore.removeItem(
+                                      item.product.id,
+                                      item.selectedSize,
+                                      item.selectedColor,
+                                    )
+                                  }
+                                  aria-label="Удалить"
                                 >
-                                  Order Received
+                                  <FiTrash2 size={16} />
                                 </button>
                               </div>
                             </div>

@@ -187,15 +187,52 @@
     gap: 10px;
   }
 
-  &-item-order-btn {
-    min-height: 40px;
-    padding: 0 19px;
-    border-radius: 100px;
-    background: var(--inverted);
-    color: var(--inverted-fg);
-    font-size: 13px;
-    font-weight: 600;
-    white-space: nowrap;
+  &-item-stepper {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 4px;
+    background: $bg-surface-secondary;
+    border-radius: $radius-pill;
+  }
+
+  &-item-stepper-btn {
+    width: 30px;
+    height: 30px;
+    min-height: 30px;
+    border-radius: 50%;
+    background: $bg-surface;
+    box-shadow: $shadow-card;
+    color: $text-primary;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.15s ease;
+
+    &:disabled {
+      opacity: 0.4;
+    }
+  }
+
+  &-item-stepper-value {
+    min-width: 26px;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 700;
+    color: $text-primary;
+  }
+
+  &-item-remove-btn {
+    width: 38px;
+    height: 38px;
+    min-height: 38px;
+    border-radius: 50%;
+    background: $bg-surface;
+    border: 1px solid $color-divider;
+    color: $color-error;
+    display: flex;
+    align-items: center;
+    justify-content: center;
   }
 
   &-item-round-btn {

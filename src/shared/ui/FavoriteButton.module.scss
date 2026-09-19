@@ -1,4 +1,4 @@
-@use '../../app/styles/variables' as *;
+@use "../../app/styles/variables" as *;
 
 .favoriteButton {
   width: 36px;
@@ -15,6 +15,13 @@
   flex-shrink: 0;
 }
 
+svg path {
+  transition: all 0.2s ease;
+}
+
 .favoriteButtonActive {
   background: var(--bg-surface);
+  svg path {
+    stroke: var(--text-primary);
+  }
 }

@@ -148,6 +148,55 @@
   color: $text-secondary;
 }
 
+.seller {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin-top: $space-xl;
+  padding: 10px;
+  border-radius: $radius-md;
+  background: $bg-surface;
+  box-shadow: $shadow-card;
+  text-align: left;
+  cursor: pointer;
+}
+
+.sellerAvatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  object-fit: cover;
+  background: var(--bg-surface-secondary);
+  flex-shrink: 0;
+}
+
+.sellerInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.sellerLabel {
+  font-size: 12px;
+  color: $text-secondary;
+}
+
+.sellerName {
+  font-size: 15px;
+  font-weight: 600;
+  color: $text-primary;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sellerChevron {
+  color: $text-tertiary;
+  flex-shrink: 0;
+}
+
 .sizes {
   display: flex;
   flex-wrap: wrap;

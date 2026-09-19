@@ -67,6 +67,18 @@ export const leroyApi = {
     return http.get<Paginated<ProductDto>>(`/stores/${id}/products`, { page, limit });
   },
 
+  async myStore(userId?: string): Promise<StoreDto | null> {
+    const res = await this.stores(100);
+    return userId ? res.items.find((s) => s.ownerId === userId) ?? null : null;
+  },
+
+  updateStore(
+    id: string,
+    dto: { name?: string; description?: string; logoUrl?: string; coverUrl?: string },
+  ): Promise<StoreDto> {
+    return http.patch<StoreDto>(`/stores/${id}`, dto);
+  },
+
   search(query: string, page = 1, limit = 20): Promise<SearchResultDto> {
     return http.get<SearchResultDto>('/search', { q: query, page, limit });
   },

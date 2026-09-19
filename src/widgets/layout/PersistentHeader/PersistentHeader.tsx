@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion, type Variants } from "framer-motion";
 import { observer } from "mobx-react-lite";
-import { FiArrowLeft, FiSearch, FiSettings, FiShare, FiSliders } from "react-icons/fi";
+import { FiArrowLeft, FiEdit, FiSearch, FiSettings, FiShare, FiSliders } from "react-icons/fi";
 import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
 import { BsCartDash } from "react-icons/bs";
 import { accountStore } from "@shared/stores/accountStore";
@@ -12,7 +12,7 @@ import hStyles from "@widgets/home/HeroSection/HomeHeader.module.scss";
 import styles from "./PersistentHeader.module.scss";
 
 type LeftId = "profile" | "back";
-type ActionId = "search" | "favorites" | "cart" | "favorite" | "share" | "filters" | "settings";
+type ActionId = "search" | "favorites" | "cart" | "favorite" | "share" | "filters" | "settings" | "edit";
 
 interface HeaderShape {
   left: LeftId;
@@ -24,6 +24,7 @@ function resolveShape(pathname: string): HeaderShape {
   if (pathname.startsWith("/search")) return { left: "back", right: ["filters"] };
   if (pathname.startsWith("/product/")) return { left: "back", right: ["favorite", "share"] };
   if (pathname.startsWith("/store/")) return { left: "back", right: ["share"] };
+  if (pathname === "/my-store") return { left: "back", right: ["edit"] };
   if (pathname === "/profile") return { left: "back", right: ["settings"] };
   if (pathname === "/settings" || pathname === "/role") return { left: "back", right: [] };
   return { left: "back", right: [] };
@@ -158,6 +159,15 @@ function PersistentHeader() {
           aria-label="Фильтры"
         >
           <FiSliders size={20} />
+        </button>
+      )}
+      {shape.right.includes("edit") && (
+        <button
+          className={hStyles.homeHeaderIconBtn}
+          onClick={() => navigate("/my-store/edit")}
+          aria-label="Редактировать магазин"
+        >
+          <FiEdit size={18} />
         </button>
       )}
     </>

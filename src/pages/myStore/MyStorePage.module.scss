@@ -1,0 +1,67 @@
+@use "../../app/styles/variables" as *;
+
+.page {
+  min-height: 100dvh;
+  padding-bottom: calc(#{$nav-height} + #{$nav-bottom} * 2 + 16px);
+}
+
+.addBtn {
+  width: 100%;
+  min-height: 48px;
+  margin-bottom: $space-xl;
+  border-radius: $radius-pill;
+  background: var(--inverted);
+  color: var(--inverted-fg);
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: $shadow-soft;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 80px $space-xl;
+  gap: $space-lg;
+
+  h1 {
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  p {
+    font-size: 15px;
+    color: $text-secondary;
+  }
+}
+
+.emptyIcon {
+  width: 72px;
+  height: 72px;
+  border-radius: 24px;
+  background: var(--bg-surface-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $text-secondary;
+}
+
+.emptyBtn {
+  margin-top: $space-sm;
+  padding: $space-lg $space-3xl;
+  border-radius: $radius-pill;
+  background: var(--inverted);
+  color: var(--inverted-fg);
+  font-size: 16px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}

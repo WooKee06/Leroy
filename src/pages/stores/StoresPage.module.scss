@@ -94,6 +94,21 @@
   text-align: left;
   position: relative;
   overflow: hidden;
+  background-color: var(--bg-surface-secondary);
+  background-size: cover;
+  background-position: center;
+}
+
+.popularScrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    180deg,
+    rgba(0, 0, 0, 0.12) 0%,
+    rgba(0, 0, 0, 0) 35%,
+    rgba(0, 0, 0, 0.55) 100%
+  );
+  pointer-events: none;
 }
 
 .popularRank {
@@ -117,6 +132,8 @@
 }
 
 .popularName {
+  position: relative;
+  z-index: 1;
   font-size: 15px;
   font-weight: 700;
   line-height: 1.15;
@@ -137,6 +154,8 @@
 }
 
 .popularMeta {
+  position: relative;
+  z-index: 1;
   margin-top: 4px;
   font-size: 12px;
   font-weight: 500;

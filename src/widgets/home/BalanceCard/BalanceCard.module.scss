@@ -6,7 +6,11 @@
   justify-content: space-between;
   gap: $space-md;
   padding: 14px 16px;
-  background: linear-gradient(180deg, var(--bg-surface) 0%, var(--bg-surface-secondary) 100%);
+  background: linear-gradient(
+    180deg,
+    var(--bg-surface) 0%,
+    var(--bg-surface-secondary) 100%
+  );
   border: 1px solid $color-border;
   border-radius: $radius-xl;
   box-shadow: $shadow-card;
@@ -19,23 +23,38 @@
   min-width: 0;
 }
 
-.balanceStar {
+.balanceIcon {
   width: 44px;
   height: 44px;
   flex-shrink: 0;
   border-radius: 15px;
-  background: var(--tint-orange);
-  color: #f5a623;
+  background: linear-gradient(135deg, #5b8def 0%, #7c4dff 100%);
+  color: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 4px 12px rgba(91, 141, 239, 0.35);
+}
+
+.balanceIconChar {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
 }
 
 .balanceInfo {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: 2px;
   min-width: 0;
+}
+
+.balanceLabel {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+  color: $text-secondary;
 }
 
 .balanceValue {
@@ -47,10 +66,10 @@
   white-space: nowrap;
 }
 
-.balanceUnit {
-  font-size: 12px;
+.balanceHint {
+  font-size: 11px;
   font-weight: 500;
-  color: $text-secondary;
+  color: $text-tertiary;
   white-space: nowrap;
 }
 
@@ -59,8 +78,8 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  height: 40px;
-  padding: 0 16px;
+  height: 36px;
+  padding: 0 14px;
   border-radius: $radius-pill;
   background: var(--inverted);
   color: var(--inverted-fg);
@@ -71,4 +90,165 @@
   &:active {
     transform: scale(0.95);
   }
+}
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(2px);
+}
+
+.sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 101;
+  background: var(--bg-surface);
+  border-radius: 24px 24px 0 0;
+  padding: 12px 20px calc(24px + env(safe-area-inset-bottom));
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.18);
+}
+
+.handle {
+  width: 40px;
+  height: 4px;
+  border-radius: 4px;
+  background: var(--bg-surface-secondary);
+  margin: 0 auto 12px;
+}
+
+.closeBtn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--bg-surface-secondary);
+  color: $text-secondary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.sheetTitle {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  margin: 8px 0 4px;
+}
+
+.sheetSubtitle {
+  font-size: 13px;
+  color: $text-secondary;
+}
+
+.amountGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: $space-sm;
+  margin: $space-lg 0;
+}
+
+.amountChip,
+.amountChipActive {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  border-radius: $radius-md;
+  background: var(--bg-surface-secondary);
+  color: $text-primary;
+  font-size: 15px;
+  font-weight: 600;
+  border: 1px solid $color-border;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease;
+}
+
+.amountChipActive {
+  background: var(--inverted);
+  color: var(--inverted-fg);
+  border-color: var(--inverted);
+}
+
+.field {
+  display: block;
+  margin-bottom: $space-lg;
+}
+
+.fieldLabel {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: $text-secondary;
+  margin-bottom: 8px;
+}
+
+.input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  font-size: 15px;
+  background: var(--bg-surface-secondary);
+  outline: none;
+  color: $text-primary;
+
+  &:focus {
+    border-color: var(--text-primary);
+    background: var(--bg-surface);
+  }
+}
+
+.confirmBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  border-radius: $radius-pill;
+  background: var(--inverted);
+  color: var(--inverted-fg);
+  font-size: 15px;
+  font-weight: 600;
+  box-shadow: $shadow-soft;
+  transition: opacity 0.15s ease;
+
+  &:disabled {
+    opacity: 0.5;
+  }
+}
+
+.successBlock {
+  text-align: center;
+  padding: 28px 0 12px;
+}
+
+.successIcon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: $color-success;
+  color: #ffffff;
+  font-size: 28px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+}
+
+.successText {
+  color: $text-secondary;
+  font-size: 15px;
+  line-height: 1.5;
+  margin: 0;
 }

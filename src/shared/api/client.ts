@@ -2,7 +2,7 @@ const API_BASE: string =
   (import.meta.env.VITE_API_BASE as string | undefined) ??
   "http://localhost:4000/api";
 
-const TOKEN_KEY = "8676979215:AAFjqIR60Wz-zxO_KJoa-ELmi7EddWYifQM";
+const TOKEN_KEY = "leroy_auth_token";
 
 export class ApiError extends Error {
   status: number;

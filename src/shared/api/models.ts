@@ -20,6 +20,7 @@ export interface Seller {
   id: string;
   name: string;
   avatar: string;
+  cover?: string;
   logo?: string;
   verified: boolean;
   rating: number;
@@ -223,10 +224,13 @@ export interface SearchResultDto {
   totalPages: number;
 }
 
+import { DEFAULT_STORE_AVATAR, DEFAULT_STORE_COVER } from '@shared/lib/placeholders';
+
 const EMPTY_SELLER: Seller = {
   id: '',
   name: 'Магазин',
-  avatar: '',
+  avatar: DEFAULT_STORE_AVATAR,
+  cover: DEFAULT_STORE_COVER,
   verified: false,
   rating: 0,
   productCount: 0,
@@ -239,7 +243,8 @@ export function mapSeller(store?: StoreDto | null): Seller {
   return {
     id: store.id,
     name: store.name,
-    avatar: store.logoUrl ?? store.coverUrl ?? '',
+    avatar: store.logoUrl ?? store.coverUrl ?? DEFAULT_STORE_AVATAR,
+    cover: store.coverUrl ?? DEFAULT_STORE_COVER,
     logo: store.logoUrl,
     verified: !!store.isVerified,
     rating: Number(store.rating ?? 0),

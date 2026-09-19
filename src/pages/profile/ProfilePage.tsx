@@ -12,6 +12,7 @@ import {
   FiMapPin,
   FiPackage,
   FiSettings,
+  FiShoppingBag,
   FiStar,
   FiTruck,
 } from "react-icons/fi";
@@ -80,6 +81,14 @@ function ProfilePage() {
     desc?: string;
     path?: string;
   }[] = [
+    {
+      icon: <FiShoppingBag size={20} />,
+      iconBg: "var(--tint-blue)",
+      iconColor: "#007aff",
+      label: "Мой магазин",
+      desc: "Управление товарами",
+      path: "/my-store",
+    },
     {
       icon: <FiHeart size={20} />,
       iconBg: "var(--tint-red)",

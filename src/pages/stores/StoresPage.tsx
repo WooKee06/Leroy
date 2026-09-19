@@ -28,18 +28,7 @@ const catIcons: Record<string, ReactNode> = {
   accessories: <FiWatch size={15} />,
 };
 
-const cardGradients = [
-  "linear-gradient(135deg, #141E30 0%, #243B55 100%)",
-  "linear-gradient(135deg, #0F2027 0%, #203A43 50%, #2C5364 100%)",
-  "linear-gradient(135deg, #1A1A2E 0%, #16213E 100%)",
-  "linear-gradient(135deg, #134E5E 0%, #2E4A62 100%)",
-  "linear-gradient(135deg, #41295A 0%, #2F0743 100%)",
-  "linear-gradient(135deg, #2C3E50 0%, #1A1A2E 100%)",
-  "linear-gradient(135deg, #200122 0%, #6F0000 100%)",
-  "linear-gradient(135deg, #101820 0%, #2C3E50 100%)",
-];
-
-function formatOrders(n: number): string {
+const formatOrders = (n: number): string => {
   if (n >= 1000) return `${(n / 1000).toFixed(1).replace(".", ",")}k`;
   return String(n);
 }
@@ -124,10 +113,11 @@ function StoresPage() {
               <motion.button
                 key={s.id}
                 className={styles.popularCard}
-                style={{ background: cardGradients[i % cardGradients.length] }}
+                style={{ backgroundImage: `url(${s.avatar})` }}
                 onClick={() => navigate(`/store/${s.id}`)}
                 whileTap={{ scale: 0.96 }}
               >
+                <span className={styles.popularScrim} aria-hidden />
                 <span className={styles.popularRank}>
                   #{String(i + 1).padStart(2, "0")}
                 </span>
