@@ -65,6 +65,14 @@ class FavoritesStore {
     return this.favoriteIds.size;
   }
 
+  countForStore(storeId: string): number {
+    let count = 0;
+    this.productsById.forEach((product) => {
+      if (product.seller.id === storeId) count += 1;
+    });
+    return count;
+  }
+
   async toggle(productId: string, product?: Product) {
     const wasFavorite = this.favoriteIds.has(productId);
 

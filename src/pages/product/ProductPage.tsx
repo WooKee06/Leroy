@@ -10,6 +10,7 @@ import {
   FiInfo,
   FiStar,
   FiTag,
+  FiX,
 } from "react-icons/fi";
 import { observer } from "mobx-react-lite";
 import type { Product, Review } from "@shared/api/models";
@@ -29,7 +30,10 @@ function ProductPage() {
   const [notFound, setNotFound] = useState(false);
 
   const [selectedSize, setSelectedSize] = useState<string | undefined>(undefined);
-  const selectedColor = product?.colors?.[0]?.name;
+  const [colorName, setColorName] = useState<string | undefined>(undefined);
+  const selectedColor = colorName ?? product?.colors?.[0]?.name;
+  const [reviewOpen, setReviewOpen] = useState(false);
+  const [reviewsTick, setReviewsTick] = useState(0);
   const [activeTab, setActiveTab] = useState<"description" | "specs" | "reviews">(
     "description",
   );
@@ -66,11 +70,11 @@ function ProductPage() {
     return () => {
       alive = false;
     };
-  }, [id]);
+  }, [id, reviewsTick]);
 
   useEffect(() => {
     if (product) {
-      const size = selectedSize ?? product.sizes?.[2];
+      const size = selectedSize ?? product.sizes?.[0];
       productBarStore.set(product, 1, size, selectedColor);
     }
   }, [product?.id, selectedSize, selectedColor]); // eslint-disable-line
@@ -185,6 +189,30 @@ function ProductPage() {
             <FiChevronRight size={18} className={styles.sellerChevron} />
           </button>
 
+          {product.colors && (
+            <div className={styles.colors}>
+              <div className={styles.colorsMeta}>
+                <span className={styles.colorsLabel}>Цвет</span>
+                <span className={styles.colorsValue}>{selectedColor}</span>
+              </div>
+              <div className={styles.colorsList}>
+                {product.colors.map((color) => {
+                  const active = selectedColor === color.name;
+                  return (
+                    <button
+                      key={color.name}
+                      aria-label={color.name}
+                      aria-pressed={active}
+                      className={active ? styles.colorActive : styles.colorBtn}
+                      style={{ background: color.hex }}
+                      onClick={() => setColorName(color.name)}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
           {product.sizes && (
             <div className={styles.sizes}>
               {product.sizes.map((size) => (
@@ -243,13 +271,34 @@ function ProductPage() {
                 {activeTab === "description" && (
                   <p className={styles.detailsText}>{product.description}</p>
                 )}
-                {activeTab === "specs" && <Specs product={product} />}
-                {activeTab === "reviews" && <Reviews reviews={reviews} />}
+                {activeTab === "specs" && (
+                  <Specs
+                    product={product}
+                    color={selectedColor}
+                    size={selectedSize}
+                  />
+                )}
+                {activeTab === "reviews" && (
+                  <Reviews
+                    reviews={reviews}
+                    onWrite={() => setReviewOpen(true)}
+                  />
+                )}
               </motion.div>
             </AnimatePresence>
           </div>
         </div>
       </PageContainer>
+
+      <ReviewFormSheet
+        open={reviewOpen}
+        product={product}
+        onClose={() => setReviewOpen(false)}
+        onDone={() => {
+          setReviewOpen(false);
+          setReviewsTick((t) => t + 1);
+        }}
+      />
     </div>
   );
 }
@@ -292,9 +341,17 @@ const SPECS_BY_CATEGORY: Record<string, [string, string][]> = {
   ],
 };
 
-function buildSpecs(product: Product): [string, string][] {
+function buildSpecs(
+  product: Product,
+  color?: string,
+  size?: string,
+): [string, string][] {
   const base = SPECS_BY_CATEGORY[product.category] ?? SPECS_BY_CATEGORY.default;
+  const options: [string, string][] = [];
+  if (color) options.push(["Цвет", color]);
+  if (size) options.push(["Размер", size]);
   return [
+    ...options,
     ...base,
     ["Продавец", product.seller.name],
     ["Реализация", "В наличии"],
@@ -302,8 +359,16 @@ function buildSpecs(product: Product): [string, string][] {
   ];
 }
 
-function Specs({ product }: { product: Product }) {
-  const specs = buildSpecs(product);
+function Specs({
+  product,
+  color,
+  size,
+}: {
+  product: Product;
+  color?: string;
+  size?: string;
+}) {
+  const specs = buildSpecs(product, color, size);
   return (
     <div className={styles.specsList}>
       {specs.map(([label, value]) => (
@@ -316,41 +381,171 @@ function Specs({ product }: { product: Product }) {
   );
 }
 
-function Reviews({ reviews }: { reviews: Review[] }) {
-  if (reviews.length === 0) {
-    return <p className={styles.detailsText}>Отзывов пока нет</p>;
-  }
-
-  const average = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+function Reviews({
+  reviews,
+  onWrite,
+}: {
+  reviews: Review[];
+  onWrite: () => void;
+}) {
+  const average =
+    reviews.length > 0
+      ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
+      : 0;
 
   return (
-    <div className={styles.reviewsList}>
-      <div className={styles.reviewsSummary}>
-        <span className={styles.reviewsScore}>{average.toFixed(1)}</span>
-        <span className={styles.reviewsMeta}>
-          {average.toFixed(1)} из 5 · {reviews.length} отзывов
-        </span>
-      </div>
-      {reviews.map((r) => (
-        <div key={r.id} className={styles.reviewCard}>
-          <div className={styles.reviewHead}>
-            <span className={styles.reviewAuthor}>{r.author}</span>
-            <span className={styles.reviewDate}>{r.date}</span>
-          </div>
-          <div className={styles.reviewStars}>
-            {[1, 2, 3, 4, 5].map((s) => (
-              <span
-                key={s}
-                className={s <= r.rating ? styles.filledStar : styles.emptyStar}
-              >
-                ★
-              </span>
-            ))}
-          </div>
-          <p className={styles.reviewText}>{r.text}</p>
+    <div className={styles.reviewsBlock}>
+      {reviews.length > 0 && (
+        <div className={styles.reviewsSummary}>
+          <span className={styles.reviewsScore}>{average.toFixed(1)}</span>
+          <span className={styles.reviewsMeta}>
+            {average.toFixed(1)} из 5 · {reviews.length} отзывов
+          </span>
         </div>
-      ))}
+      )}
+
+      <button className={styles.writeReview} onClick={onWrite}>
+        {reviews.length === 0 ? "Написать первый отзыв" : "Написать отзыв"}
+      </button>
+
+      {reviews.length === 0 ? (
+        <p className={styles.detailsText}>Отзывов пока нет</p>
+      ) : (
+        <div className={styles.reviewsList}>
+          {reviews.map((r) => (
+            <div key={r.id} className={styles.reviewCard}>
+              <div className={styles.reviewHead}>
+                <span className={styles.reviewAuthor}>{r.author}</span>
+                <span className={styles.reviewDate}>{r.date}</span>
+              </div>
+              <div className={styles.reviewStars}>
+                {[1, 2, 3, 4, 5].map((s) => (
+                  <span
+                    key={s}
+                    className={s <= r.rating ? styles.filledStar : styles.emptyStar}
+                  >
+                    ★
+                  </span>
+                ))}
+              </div>
+              <p className={styles.reviewText}>{r.text}</p>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
+  );
+}
+
+function ReviewFormSheet({
+  open,
+  product,
+  onClose,
+  onDone,
+}: {
+  open: boolean;
+  product: Product;
+  onClose: () => void;
+  onDone: () => void;
+}) {
+  const [rating, setRating] = useState(5);
+  const [text, setText] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (open) {
+      setRating(5);
+      setText("");
+      setError(null);
+    }
+  }, [open]);
+
+  const submit = async () => {
+    if (!text.trim()) {
+      setError("Напишите пару слов о товаре");
+      return;
+    }
+    setSaving(true);
+    setError(null);
+    try {
+      await leroyApi.createReview({
+        productId: product.id,
+        rating,
+        text: text.trim(),
+      });
+      onDone();
+    } catch {
+      setError("Не удалось отправить отзыв. Попробуйте ещё раз");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <AnimatePresence>
+      {open && (
+        <>
+          <motion.div
+            className={styles.backdrop}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            aria-hidden="true"
+          />
+          <motion.div
+            className={styles.sheet}
+            role="dialog"
+            aria-modal="true"
+            aria-label="Написать отзыв"
+            initial={{ y: "100%" }}
+            animate={{ y: 0 }}
+            exit={{ y: "100%" }}
+            transition={{ type: "spring", stiffness: 320, damping: 34 }}
+          >
+            <div className={styles.handle} />
+            <button className={styles.sheetClose} onClick={onClose} aria-label="Закрыть">
+              <FiX size={18} />
+            </button>
+
+            <h2 className={styles.sheetTitle}>Оценка товара</h2>
+            <p className={styles.sheetProduct}>{product.name}</p>
+
+            <div className={styles.ratingPicker}>
+              {[1, 2, 3, 4, 5].map((s) => (
+                <button
+                  key={s}
+                  aria-label={`Оценка ${s}`}
+                  className={s <= rating ? styles.ratingStarActive : styles.ratingStar}
+                  onClick={() => setRating(s)}
+                >
+                  <FiStar size={26} />
+                </button>
+              ))}
+            </div>
+
+            <textarea
+              className={styles.sheetTextarea}
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+              placeholder="Поделитесь впечатлениями о товаре"
+              rows={4}
+            />
+
+            {error && <p className={styles.sheetError}>{error}</p>}
+
+            <button
+              className={styles.sheetSubmit}
+              onClick={() => void submit()}
+              disabled={saving}
+            >
+              {saving ? "Отправляем…" : "Опубликовать отзыв"}
+            </button>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
   );
 }
 

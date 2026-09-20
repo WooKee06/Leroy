@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
-import { FiHome, FiSearch, FiUser } from "react-icons/fi";
+import { FiHome, FiSearch, FiShoppingCart, FiUser } from "react-icons/fi";
 import { observer } from "mobx-react-lite";
 import { cartStore } from "@shared/stores/cartStore";
 import styles from "./BottomNav.module.scss";
@@ -31,6 +31,12 @@ const items: NavItem[] = [
     path: "/stores",
     label: "Магазины",
     icon: () => <AiTwotoneShop strokeWidth={1} />,
+  },
+  {
+    key: "cart",
+    path: "/cart",
+    label: "Корзина",
+    icon: () => <FiShoppingCart strokeWidth={1} />,
   },
   {
     key: "profile",
@@ -90,7 +96,7 @@ function BottomNav() {
               {item.icon(active)}
             </span>
 
-            {item.key === "profile" && cartCount > 0 && (
+            {item.key === "cart" && cartCount > 0 && (
               <span className={styles.bottomNavBadge}>{cartCount}</span>
             )}
           </motion.button>

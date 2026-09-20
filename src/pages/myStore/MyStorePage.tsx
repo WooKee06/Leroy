@@ -7,6 +7,10 @@ import { leroyApi } from "@shared/api/leroyApi";
 import { accountStore } from "@shared/stores/accountStore";
 import PageContainer from "@shared/ui/PageContainer";
 import ProductCard from "@widgets/product/ProductCard";
+import {
+  ProductFormSheet,
+  StoreCreateSheet,
+} from "@widgets/store/CreateSheets";
 import storeStyles from "@pages/store/StorePage.module.scss";
 import styles from "./MyStorePage.module.scss";
 
@@ -26,10 +30,15 @@ export default function MyStorePage() {
   const [seller, setSeller] = useState<Seller | undefined>(undefined);
   const [sellerProducts, setSellerProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [tick, setTick] = useState(0);
+  const [storeOpen, setStoreOpen] = useState(false);
+  const [productOpen, setProductOpen] = useState(false);
 
   useEffect(() => {
     let alive = true;
     setLoading(true);
+    setSeller(undefined);
+    setSellerProducts([]);
     leroyApi
       .myStore(accountStore.userId)
       .then((store) => {
@@ -52,7 +61,9 @@ export default function MyStorePage() {
     return () => {
       alive = false;
     };
-  }, []);
+  }, [tick]);
+
+  const reload = () => setTick((t) => t + 1);
 
   if (loading) {
     return (
@@ -78,11 +89,20 @@ export default function MyStorePage() {
               <h1>Магазин ещё не создан</h1>
               <p>Создайте магазин и добавьте первые товары</p>
             </div>
-            <button className={styles.emptyBtn} onClick={() => {}}>
-              <FiPlus size={18} /> Добавить товар
+            <button className={styles.emptyBtn} onClick={() => setStoreOpen(true)}>
+              <FiPlus size={18} /> Создать магазин
             </button>
           </div>
         </PageContainer>
+
+        <StoreCreateSheet
+          open={storeOpen}
+          onClose={() => setStoreOpen(false)}
+          onDone={() => {
+            setStoreOpen(false);
+            reload();
+          }}
+        />
       </div>
     );
   }
@@ -208,7 +228,10 @@ export default function MyStorePage() {
                 </div>
               ) : (
                 <>
-                  <button className={styles.addBtn} onClick={() => {}}>
+                  <button
+                    className={styles.addBtn}
+                    onClick={() => setProductOpen(true)}
+                  >
                     <FiPlus size={18} /> Добавить товар
                   </button>
                   <div className={storeStyles.grid}>
@@ -226,6 +249,15 @@ export default function MyStorePage() {
           </AnimatePresence>
         </div>
       </PageContainer>
+
+      <ProductFormSheet
+        open={productOpen}
+        onClose={() => setProductOpen(false)}
+        onDone={() => {
+          setProductOpen(false);
+          reload();
+        }}
+      />
     </div>
   );
 }

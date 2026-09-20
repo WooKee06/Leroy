@@ -81,7 +81,7 @@ export default function StorePage() {
     { value: seller.productCount, label: "Товаров" },
     { value: seller.rating.toFixed(1), label: "Рейтинг" },
     { value: totalReviews, label: "Отзывов" },
-    { value: favoritesStore.count, label: "В избранном" },
+    { value: favoritesStore.countForStore(seller.id), label: "В избранном" },
   ];
 
   return (

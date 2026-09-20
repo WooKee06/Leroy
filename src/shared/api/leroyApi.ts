@@ -79,6 +79,25 @@ export const leroyApi = {
     return http.patch<StoreDto>(`/stores/${id}`, dto);
   },
 
+  createStore(dto: {
+    name: string;
+    description?: string;
+    logoUrl?: string;
+    coverUrl?: string;
+  }): Promise<StoreDto> {
+    return http.post<StoreDto>('/stores', dto);
+  },
+
+  createProduct(dto: {
+    name: string;
+    price: number;
+    description?: string;
+    categoryId?: string;
+    images?: string[];
+  }): Promise<ProductDto> {
+    return http.post<ProductDto>('/products', dto);
+  },
+
   search(query: string, page = 1, limit = 20): Promise<SearchResultDto> {
     return http.get<SearchResultDto>('/search', { q: query, page, limit });
   },
@@ -136,10 +155,10 @@ export const leroyApi = {
       .then((orders) => orders.map((order) => mapOrder(order)));
   },
 
-  pay(order: OrderView): Promise<{ id: string; status: string }> {
+  pay(order: OrderView, provider = 'mock'): Promise<{ id: string; status: string }> {
     return http.post<{ id: string; status: string }>('/payments', {
       orderId: order.id,
-      provider: 'mock',
+      provider,
     });
   },
 

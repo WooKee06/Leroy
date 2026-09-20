@@ -45,7 +45,8 @@ class CheckoutStore {
         deliveryMethod: this.deliveryMethod,
         paymentMethod: this.paymentMethod,
       });
-      await leroyApi.pay(order);
+      const provider = this.paymentMethod === 'stars' ? 'telegram_stars' : 'mock';
+      await leroyApi.pay(order, provider);
       this.order = order;
       this.step = 'success';
       await cartStore.clear();

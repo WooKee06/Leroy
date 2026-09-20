@@ -55,8 +55,12 @@ function RolePage() {
     try {
       await accountStore.updateRole(role);
       navigate("/settings");
-    } catch {
-      setError("Не удалось сменить роль. Попробуйте ещё раз");
+    } catch (e) {
+      setError(
+        e instanceof Error && e.message
+          ? e.message
+          : "Не удалось сменить роль. Попробуйте ещё раз",
+      );
     } finally {
       setSaving(false);
     }

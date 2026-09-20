@@ -13,7 +13,6 @@ import {
   FiPackage,
   FiSettings,
   FiShoppingBag,
-  FiStar,
   FiTruck,
 } from "react-icons/fi";
 import type { Order } from "@shared/api/models";
@@ -66,10 +65,10 @@ function ProfilePage() {
       ["delivered", "completed"].includes(o.status),
     ).length;
     return [
-      { icon: <FiPackage size={20} />, label: "Заказы", value: orders.length, tint: "#111111" },
-      { icon: <FiClock size={20} />, label: "Ожидают", value: awaiting, tint: "#f5a623" },
-      { icon: <FiTruck size={20} />, label: "В пути", value: shipping, tint: "#007aff" },
-      { icon: <FiCheck size={20} />, label: "Получены", value: received, tint: "#34c759" },
+      { icon: <FiPackage size={20} />, label: "Заказы", value: orders.length, tint: "#111111", tab: "all" },
+      { icon: <FiClock size={20} />, label: "Ожидают", value: awaiting, tint: "#f5a623", tab: "awaiting" },
+      { icon: <FiTruck size={20} />, label: "В пути", value: shipping, tint: "#007aff", tab: "shipping" },
+      { icon: <FiCheck size={20} />, label: "Получены", value: received, tint: "#34c759", tab: "received" },
     ];
   }, [orders]);
 
@@ -81,14 +80,18 @@ function ProfilePage() {
     desc?: string;
     path?: string;
   }[] = [
-    {
-      icon: <FiShoppingBag size={20} />,
-      iconBg: "var(--tint-blue)",
-      iconColor: "#007aff",
-      label: "Мой магазин",
-      desc: "Управление товарами",
-      path: "/my-store",
-    },
+    ...(accountStore.role === "seller"
+      ? [
+          {
+            icon: <FiShoppingBag size={20} />,
+            iconBg: "var(--tint-blue)",
+            iconColor: "#007aff",
+            label: "Мой магазин",
+            desc: "Управление товарами",
+            path: "/my-store" as string,
+          },
+        ]
+      : []),
     {
       icon: <FiHeart size={20} />,
       iconBg: "var(--tint-red)",
@@ -109,14 +112,14 @@ function ProfilePage() {
       iconBg: "var(--tint-green)",
       iconColor: "#34c759",
       label: "Способы оплаты",
-      desc: "Telegram Stars",
+      desc: "Карты, Stars",
     },
     {
-      icon: <FiStar size={20} />,
+      icon: <FiCreditCard size={20} />,
       iconBg: "var(--tint-orange)",
       iconColor: "#f5a623",
-      label: "Stars / Баланс",
-      desc: `${accountStore.stars.toLocaleString("ru-RU")} Telegram Stars`,
+      label: "Баланс",
+      desc: `${accountStore.balance.toLocaleString("ru-RU")} ₽`,
     },
     {
       icon: <FiGift size={20} />,
@@ -165,7 +168,10 @@ function ProfilePage() {
 
         <div className={styles.sectionHead}>
           <h2 className={styles.sectionTitle}>Мои заказы</h2>
-          <button className={styles.seeAll} onClick={() => {}}>
+          <button
+            className={styles.seeAll}
+            onClick={() => navigate("/orders")}
+          >
             Все <FiChevronRight size={16} />
           </button>
         </div>
@@ -176,7 +182,7 @@ function ProfilePage() {
               key={t.label}
               className={styles.orderTile}
               whileTap={{ scale: 0.94 }}
-              onClick={() => {}}
+              onClick={() => navigate(`/orders?tab=${t.tab}`)}
             >
               <span
                 className={styles.orderIcon}

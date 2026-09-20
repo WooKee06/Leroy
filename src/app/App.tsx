@@ -12,7 +12,9 @@ import StoresPage from '@pages/stores/StoresPage';
 import FavoritesPage from '@pages/favorites/FavoritesPage';
 import MyStorePage from '@pages/myStore/MyStorePage';
 import StoreEditPage from '@pages/storeEdit/StoreEditPage';
-import { DiscoverPlaceholder } from '@pages/placeholders';
+import OrdersPage from '@pages/orders/OrdersPage';
+import OrderDetailPage from '@pages/orders/OrderDetailPage';
+import DiscoverPage from '@pages/discover/DiscoverPage';
 
 export default function App() {
   return (
@@ -25,10 +27,12 @@ export default function App() {
           <Route path="/product/:id" element={<ProductPage />} />
           <Route path="/store/:id" element={<StorePage />} />
           <Route path="/cart" element={<CartPage />} />
-          <Route path="/discover" element={<DiscoverPlaceholder />} />
+          <Route path="/discover" element={<DiscoverPage />} />
           <Route path="/favorites" element={<FavoritesPage />} />
           <Route path="/my-store" element={<MyStorePage />} />
           <Route path="/my-store/edit" element={<StoreEditPage />} />
+          <Route path="/orders" element={<OrdersPage />} />
+          <Route path="/orders/:id" element={<OrderDetailPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/role" element={<RolePage />} />

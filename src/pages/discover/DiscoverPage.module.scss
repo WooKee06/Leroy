@@ -1,0 +1,30 @@
+@use "../../app/styles/variables" as *;
+
+.page {
+  padding-bottom: 96px;
+}
+
+.banners {
+  margin: 8px 0 $space-xl;
+}
+
+.gridSection {
+  margin-top: $space-xl;
+}
+
+.sectionTitle {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+  margin-bottom: $space-lg;
+}
+
+.storesBlock {
+  margin-top: $space-xl;
+}
+
+.empty {
+  color: $text-secondary;
+  text-align: center;
+  padding: 40px 0;
+}
