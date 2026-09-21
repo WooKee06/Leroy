@@ -193,14 +193,14 @@
     gap: 2px;
     padding: 4px;
     background: $bg-surface-secondary;
-    border-radius: $radius-pill;
+    border-radius: 25px;
   }
 
   &-item-stepper-btn {
-    width: 30px;
-    height: 30px;
+    width: 50px;
+    height: 40px;
     min-height: 30px;
-    border-radius: 50%;
+    border-radius: 21px;
     background: $bg-surface;
     box-shadow: $shadow-card;
     color: $text-primary;

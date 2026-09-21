@@ -24,16 +24,16 @@
 }
 
 .balanceIcon {
-  width: 44px;
-  height: 44px;
+  width: 55px;
+  height: 60px;
   flex-shrink: 0;
   border-radius: 15px;
-  background: linear-gradient(135deg, #5b8def 0%, #7c4dff 100%);
-  color: #ffffff;
+  background: linear-gradient(135deg, #ffffff 0%, #ffffff 100%);
+  color: #000000;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(91, 141, 239, 0.35);
+  box-shadow: 0 4px 12px rgb(255 255 255 / 35%);
 }
 
 .balanceIconChar {

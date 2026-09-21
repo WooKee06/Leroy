@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
-import { FiHome, FiSearch, FiShoppingCart, FiUser } from "react-icons/fi";
+import { FiHome, FiSearch, FiUser } from "react-icons/fi";
 import { observer } from "mobx-react-lite";
 import { cartStore } from "@shared/stores/cartStore";
 import styles from "./BottomNav.module.scss";
@@ -33,12 +33,6 @@ const items: NavItem[] = [
     icon: () => <AiTwotoneShop strokeWidth={1} />,
   },
   {
-    key: "cart",
-    path: "/cart",
-    label: "Корзина",
-    icon: () => <FiShoppingCart strokeWidth={1} />,
-  },
-  {
     key: "profile",
     path: "/profile",
     label: "Профиль",
@@ -60,9 +54,9 @@ function BottomNav() {
   return (
     <motion.nav
       className={styles.bottomNav}
-      initial={{ filter: "blur(5px)", opacity: 0 }}
-      animate={{ filter: "blur(0px)", opacity: 1 }}
-      transition={{ type: "spring", stiffness: 300, damping: 30, delay: 0.1 }}
+      initial={{ filter: "blur(10px)", opacity: 0, y: 20, scale: 0.96 }}
+      animate={{ filter: "blur(0px)", opacity: 1, y: 0, scale: 1 }}
+      transition={{ type: "spring", stiffness: 230, damping: 28, delay: 0.12 }}
     >
       {items.map((item) => {
         const active = getActive(item.path);
@@ -88,7 +82,10 @@ function BottomNav() {
               <motion.span
                 layoutId="bottomNavActivePill"
                 className={styles.bottomNavPill}
-                transition={{ type: "spring", stiffness: 400, damping: 32 }}
+                transition={{ type: "spring", stiffness: 280, damping: 28, mass: 0.9 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
               />
             )}
 

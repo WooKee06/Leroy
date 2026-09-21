@@ -1,5 +1,5 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { observer } from "mobx-react-lite";
 import {
   FiArrowLeft,
@@ -25,7 +25,12 @@ function BottomActionBar() {
   const shape = resolveShape(location.pathname);
 
   const show = shape.left !== "" || shape.right !== "";
-  if (!show) return null;
+
+  const slotAnim = {
+    initial: { opacity: 0, y: 8, scale: 0.92, filter: "blur(6px)" },
+    animate: { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" },
+    exit: { opacity: 0, y: -6, scale: 0.92, filter: "blur(6px)" },
+  } as const;
 
   const renderLeft = () => {
     if (shape.left === "qty") {
@@ -106,24 +111,57 @@ function BottomActionBar() {
   };
 
   return (
-    <motion.div
-      className={styles.bar}
-      initial={{ filter: "blur(5px)", opacity: 0 }}
-      animate={{ filter: "blur(0px)", opacity: 1 }}
-      transition={{ duration: 0.28, ease: "easeOut" }}
-    >
-      <div className={styles.left}>{renderLeft()}</div>
+    <AnimatePresence>
+      {show && (
+        <motion.div
+          className={styles.bar}
+          initial={{ filter: "blur(10px)", opacity: 0, y: 22, scale: 0.96 }}
+          animate={{ filter: "blur(0px)", opacity: 1, y: 0, scale: 1 }}
+          exit={{ filter: "blur(10px)", opacity: 0, y: 22, scale: 0.96 }}
+          transition={{ type: "spring", stiffness: 260, damping: 30, delay: 0.1 }}
+        >
+          <div className={styles.left}>
+            <AnimatePresence mode="popLayout" initial={false}>
+              <motion.div
+                key={shape.left || "empty"}
+                variants={slotAnim}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+                className={styles.slot}
+              >
+                {renderLeft()}
+              </motion.div>
+            </AnimatePresence>
+          </div>
 
-      <div className={styles.center}>
-        {shape.left === "qty" && (
-          <span className={styles.totalLabel}>
-            {productBarStore.totalLabel} ₽
-          </span>
-        )}
-      </div>
+          <div className={styles.center}>
+            {shape.left === "qty" && (
+              <span className={styles.totalLabel}>
+                {productBarStore.totalLabel} ₽
+              </span>
+            )}
+          </div>
 
-      <div className={styles.right}>{renderRight()}</div>
-    </motion.div>
+          <div className={styles.right}>
+            <AnimatePresence mode="popLayout" initial={false}>
+              <motion.div
+                key={shape.right || "empty"}
+                variants={slotAnim}
+                initial="initial"
+                animate="animate"
+                exit="exit"
+                transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+                className={styles.slot}
+              >
+                {renderRight()}
+              </motion.div>
+            </AnimatePresence>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
 

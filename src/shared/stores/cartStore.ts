@@ -16,6 +16,7 @@ class CartStore {
   items: CartItem[] = [];
   loading = false;
   loaded = false;
+  private syncTimer: ReturnType<typeof setTimeout> | undefined;
 
   constructor() {
     makeAutoObservable(this);
@@ -23,6 +24,34 @@ class CartStore {
 
   private get shopId(): string | null {
     return getAuthToken();
+  }
+
+  private scheduleRefresh() {
+    if (this.syncTimer) clearTimeout(this.syncTimer);
+    this.syncTimer = setTimeout(() => {
+      this.syncTimer = undefined;
+      void this.refresh();
+    }, 800);
+  }
+
+  private upsertLocal(
+    product: Product,
+    size: string | undefined,
+    color: string | undefined,
+    quantity: number,
+  ) {
+    const existing = this.findItem(product.id, size, color);
+    if (existing) {
+      existing.quantity += quantity;
+    } else {
+      this.items.unshift({
+        cartItemId: `local-${product.id}-${size ?? ""}-${color ?? ""}`,
+        product,
+        quantity,
+        selectedSize: size,
+        selectedColor: color,
+      });
+    }
   }
 
   async load(force = false) {
@@ -50,18 +79,17 @@ class CartStore {
   }
 
   async addItem(product: Product, size?: string, color?: string, quantity = 1) {
+    this.upsertLocal(product, size, color, quantity);
     if (!this.shopId) return;
-    try {
-      await leroyApi.addToCart({
+    void leroyApi
+      .addToCart({
         productId: product.id,
         quantity,
         selectedSize: size,
         selectedColor: color,
-      });
-      await this.refresh();
-    } catch {
-      // ignore
-    }
+      })
+      .catch(() => {});
+    this.scheduleRefresh();
   }
 
   async updateQuantity(productId: string, quantity: number, size?: string, color?: string) {
@@ -71,36 +99,26 @@ class CartStore {
       await this.removeItem(productId, size, color);
       return;
     }
+    item.quantity = quantity;
     if (!this.shopId) return;
-    try {
-      await leroyApi.updateCartItem(item.cartItemId, quantity);
-      await this.refresh();
-    } catch {
-      // ignore
-    }
+    void leroyApi.updateCartItem(item.cartItemId, quantity).catch(() => {});
+    this.scheduleRefresh();
   }
 
   async removeItem(productId: string, size?: string, color?: string) {
     const item = this.findItem(productId, size, color);
     if (!item) return;
+    this.items = this.items.filter((i) => i !== item);
     if (!this.shopId) return;
-    try {
-      await leroyApi.removeCartItem(item.cartItemId);
-      await this.refresh();
-    } catch {
-      // ignore
-    }
+    void leroyApi.removeCartItem(item.cartItemId).catch(() => {});
+    this.scheduleRefresh();
   }
 
   async clear() {
-    if (!this.shopId) return;
-    try {
-      await leroyApi.clearCart();
-    } catch {
-      // ignore
-    }
     this.items = [];
     this.loaded = false;
+    if (!this.shopId) return;
+    void leroyApi.clearCart().catch(() => {});
   }
 
   private findItem(productId: string, size?: string, color?: string): CartItem | undefined {
