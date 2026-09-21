@@ -1,7 +1,14 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { FiImage, FiX } from "react-icons/fi";
+import { FiCamera, FiImage, FiPlus, FiX } from "react-icons/fi";
 import { observer } from "mobx-react-lite";
-import { useEffect, useId, useMemo, useState, type ChangeEvent } from "react";
+import {
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type ChangeEvent,
+} from "react";
 import { catalogStore } from "@shared/stores/catalogStore";
 import { leroyApi } from "@shared/api/leroyApi";
 import { fileUrlFromApi } from "@shared/api/client";
@@ -72,6 +79,17 @@ export const StoreCreateSheet = observer(function StoreCreateSheet({
   const [coverFile, setCoverFile] = useState<File | undefined>(undefined);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
+  const avatarInputRef = useRef<HTMLInputElement>(null);
+
+  const coverPreview = useMemo(
+    () => (coverFile ? URL.createObjectURL(coverFile) : undefined),
+    [coverFile],
+  );
+  const avatarPreview = useMemo(
+    () => (logoFile ? URL.createObjectURL(logoFile) : undefined),
+    [logoFile],
+  );
 
   useEffect(() => {
     if (open) {
@@ -82,6 +100,18 @@ export const StoreCreateSheet = observer(function StoreCreateSheet({
       setError(null);
     }
   }, [open]);
+
+  const pickCover = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) setCoverFile(file);
+    e.target.value = "";
+  };
+
+  const pickAvatar = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) setLogoFile(file);
+    e.target.value = "";
+  };
 
   const submit = async () => {
     const sellerName = name.trim();
@@ -142,7 +172,53 @@ export const StoreCreateSheet = observer(function StoreCreateSheet({
             </button>
 
             <h2 className={styles.sheetTitle}>Создать магазин</h2>
-            <p className={styles.sheetSubtitle}>Заполните информацию о вашем магазине</p>
+            <p className={styles.sheetSubtitle}>
+              Как будет выглядеть ваша страница
+            </p>
+
+            <div className={styles.storeSkeleton}>
+              <button
+                type="button"
+                className={styles.coverArea}
+                onClick={() => coverInputRef.current?.click()}
+              >
+                {coverPreview && (
+                  <img className={styles.coverPreview} src={coverPreview} alt="" />
+                )}
+                <span className={styles.coverHint}>
+                  <FiCamera size={16} />
+                  {coverPreview ? "Заменить шапку" : "Добавить шапку"}
+                </span>
+                <input
+                  ref={coverInputRef}
+                  type="file"
+                  accept="image/*"
+                  className={styles.hiddenFile}
+                  onChange={pickCover}
+                />
+              </button>
+
+              <button
+                type="button"
+                className={styles.avatarArea}
+                onClick={() => avatarInputRef.current?.click()}
+              >
+                {avatarPreview ? (
+                  <img className={styles.avatarPreview} src={avatarPreview} alt="" />
+                ) : (
+                  <span className={styles.avatarPlaceholder}>
+                    <FiPlus size={26} />
+                  </span>
+                )}
+                <input
+                  ref={avatarInputRef}
+                  type="file"
+                  accept="image/*"
+                  className={styles.hiddenFile}
+                  onChange={pickAvatar}
+                />
+              </button>
+            </div>
 
             <label className={styles.field}>
               <span className={styles.fieldLabel}>Название</span>
@@ -164,9 +240,6 @@ export const StoreCreateSheet = observer(function StoreCreateSheet({
                 rows={3}
               />
             </label>
-
-            <ImageField label="Аватарка" value={logoFile} onChange={setLogoFile} />
-            <ImageField label="Шапка" value={coverFile} onChange={setCoverFile} />
 
             {error && <p className={styles.error}>{error}</p>}
 
