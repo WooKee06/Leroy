@@ -26,16 +26,24 @@ export function getAuthToken(): string | null {
   return localStorage.getItem(TOKEN_KEY);
 }
 
+export function fileUrlFromApi(pathOrUrl: string): string {
+  if (/^https?:\/\//i.test(pathOrUrl)) return pathOrUrl;
+  const origin = API_BASE.replace(/\/api\/?$/, "");
+  return pathOrUrl.startsWith("/")
+    ? `${origin}${pathOrUrl}`
+    : `${origin}/${pathOrUrl}`;
+}
+
 interface RequestOptions {
   method: "GET" | "POST" | "PATCH" | "DELETE";
-  body?: string;
+  body?: string | FormData;
 }
 
 async function request<T>(path: string, options: RequestOptions): Promise<T> {
   const headers: Record<string, string> = {
     Accept: "application/json",
   };
-  if (options.body) {
+  if (typeof options.body === "string") {
     headers["Content-Type"] = "application/json";
   }
   const token = getAuthToken();
@@ -102,6 +110,9 @@ export const http = {
       method: "POST",
       body: body === undefined ? undefined : JSON.stringify(body),
     });
+  },
+  postForm<T>(path: string, form: FormData): Promise<T> {
+    return request<T>(path, { method: "POST", body: form });
   },
   patch<T>(path: string, body?: unknown): Promise<T> {
     return request<T>(path, {

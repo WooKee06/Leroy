@@ -1,15 +1,64 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { FiX } from "react-icons/fi";
+import { FiImage, FiX } from "react-icons/fi";
 import { observer } from "mobx-react-lite";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useMemo, useState, type ChangeEvent } from "react";
 import { catalogStore } from "@shared/stores/catalogStore";
 import { leroyApi } from "@shared/api/leroyApi";
+import { fileUrlFromApi } from "@shared/api/client";
 import styles from "./CreateSheets.module.scss";
 
 interface SheetProps {
   open: boolean;
   onClose: () => void;
   onDone: () => void;
+}
+
+function ImageField({
+  label,
+  value,
+  onChange,
+}: {
+  label: string;
+  value?: File;
+  onChange: (file?: File) => void;
+}) {
+  const inputId = useId();
+  const preview = useMemo(
+    () => (value ? URL.createObjectURL(value) : undefined),
+    [value],
+  );
+
+  const onPick = (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    onChange(file ?? undefined);
+    e.target.value = "";
+  };
+
+  return (
+    <label className={styles.field} htmlFor={inputId}>
+      <span className={styles.fieldLabel}>{label}</span>
+      <input
+        id={inputId}
+        type="file"
+        accept="image/*"
+        className={styles.hiddenFile}
+        onChange={onPick}
+      />
+      <span className={styles.dropZone}>
+        {preview ? (
+          <img className={styles.preview} src={preview} alt="" />
+        ) : (
+          <span className={styles.dropPlaceholder}>
+            <FiImage size={20} />
+            Выбрать файл
+          </span>
+        )}
+        {value && value.name && (
+          <span className={styles.dropName}>{value.name}</span>
+        )}
+      </span>
+    </label>
+  );
 }
 
 export const StoreCreateSheet = observer(function StoreCreateSheet({
@@ -19,8 +68,8 @@ export const StoreCreateSheet = observer(function StoreCreateSheet({
 }: SheetProps) {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
-  const [logoUrl, setLogoUrl] = useState("");
-  const [coverUrl, setCoverUrl] = useState("");
+  const [logoFile, setLogoFile] = useState<File | undefined>(undefined);
+  const [coverFile, setCoverFile] = useState<File | undefined>(undefined);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,8 +77,8 @@ export const StoreCreateSheet = observer(function StoreCreateSheet({
     if (open) {
       setName("");
       setDescription("");
-      setLogoUrl("");
-      setCoverUrl("");
+      setLogoFile(undefined);
+      setCoverFile(undefined);
       setError(null);
     }
   }, [open]);
@@ -43,11 +92,19 @@ export const StoreCreateSheet = observer(function StoreCreateSheet({
     setSaving(true);
     setError(null);
     try {
+      const [logoUrl, coverUrl] = await Promise.all([
+        logoFile
+          ? leroyApi.upload(logoFile).then((r) => fileUrlFromApi(r.url))
+          : Promise.resolve(undefined),
+        coverFile
+          ? leroyApi.upload(coverFile).then((r) => fileUrlFromApi(r.url))
+          : Promise.resolve(undefined),
+      ]);
       await leroyApi.createStore({
         name: sellerName,
         description: description.trim() || undefined,
-        logoUrl: logoUrl.trim() || undefined,
-        coverUrl: coverUrl.trim() || undefined,
+        logoUrl,
+        coverUrl,
       });
       onDone();
     } catch {
@@ -108,25 +165,8 @@ export const StoreCreateSheet = observer(function StoreCreateSheet({
               />
             </label>
 
-            <label className={styles.field}>
-              <span className={styles.fieldLabel}>Обложка (URL)</span>
-              <input
-                className={styles.input}
-                value={coverUrl}
-                onChange={(e) => setCoverUrl(e.target.value)}
-                placeholder="https://…"
-              />
-            </label>
-
-            <label className={styles.field}>
-              <span className={styles.fieldLabel}>Логотип (URL)</span>
-              <input
-                className={styles.input}
-                value={logoUrl}
-                onChange={(e) => setLogoUrl(e.target.value)}
-                placeholder="https://…"
-              />
-            </label>
+            <ImageField label="Аватарка" value={logoFile} onChange={setLogoFile} />
+            <ImageField label="Шапка" value={coverFile} onChange={setCoverFile} />
 
             {error && <p className={styles.error}>{error}</p>}
 
@@ -153,7 +193,7 @@ export const ProductFormSheet = observer(function ProductFormSheet({
   const [price, setPrice] = useState("");
   const [categoryId, setCategoryId] = useState<string>("");
   const [description, setDescription] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
+  const [imageFile, setImageFile] = useState<File | undefined>(undefined);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -165,7 +205,7 @@ export const ProductFormSheet = observer(function ProductFormSheet({
       setPrice("");
       setCategoryId("");
       setDescription("");
-      setImageUrl("");
+      setImageFile(undefined);
       setError(null);
     }
   }, [open]);
@@ -187,12 +227,15 @@ export const ProductFormSheet = observer(function ProductFormSheet({
     setSaving(true);
     setError(null);
     try {
+      const image = imageFile
+        ? await leroyApi.upload(imageFile).then((r) => fileUrlFromApi(r.url))
+        : undefined;
       await leroyApi.createProduct({
         name: name.trim(),
         price: parsedPrice,
         categoryId,
         description: description.trim() || undefined,
-        images: imageUrl.trim() ? [imageUrl.trim()] : undefined,
+        images: image ? [image] : undefined,
       });
       onDone();
     } catch {
@@ -281,15 +324,7 @@ export const ProductFormSheet = observer(function ProductFormSheet({
               />
             </label>
 
-            <label className={styles.field}>
-              <span className={styles.fieldLabel}>Фото (URL)</span>
-              <input
-                className={styles.input}
-                value={imageUrl}
-                onChange={(e) => setImageUrl(e.target.value)}
-                placeholder="https://…"
-              />
-            </label>
+            <ImageField label="Фото товара" value={imageFile} onChange={setImageFile} />
 
             {error && <p className={styles.error}>{error}</p>}
 

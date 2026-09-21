@@ -88,6 +88,24 @@ export const leroyApi = {
     return http.post<StoreDto>('/stores', dto);
   },
 
+  upload(
+    file: File,
+  ): Promise<{
+    url: string;
+    originalName: string;
+    size: number;
+    mimetype: string;
+  }> {
+    const form = new FormData();
+    form.append('file', file);
+    return http.postForm<{
+      url: string;
+      originalName: string;
+      size: number;
+      mimetype: string;
+    }>('/upload', form);
+  },
+
   createProduct(dto: {
     name: string;
     price: number;
