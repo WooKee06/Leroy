@@ -1,0 +1,22 @@
+@use "../../app/styles/variables" as *;
+
+.widgetContainer {
+  min-height: 56px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: $font-family;
+}
+
+.widgetError {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-sm;
+  padding: $space-md $space-lg;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  background: var(--bg-surface-secondary);
+  color: $text-secondary;
+  font-size: 13px;
+  text-align: left;
+}

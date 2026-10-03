@@ -26,8 +26,14 @@ export interface ProductFilters {
 }
 
 export const leroyApi = {
-  authTelegram(initData: string): Promise<{ token: string; user: UserDto }> {
-    return http.post<{ token: string; user: UserDto }>('/auth/telegram', { initData });
+  authTelegram(
+    initData: string,
+    mode?: 'login' | 'register',
+  ): Promise<{ token: string; user: UserDto; isNew?: boolean }> {
+    return http.post<{ token: string; user: UserDto; isNew?: boolean }>(
+      '/auth/telegram',
+      { initData, mode },
+    );
   },
 
   me(): Promise<UserDto> {

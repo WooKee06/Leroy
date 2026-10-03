@@ -1,0 +1,157 @@
+@use "../../app/styles/variables" as *;
+
+.gate {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: $space-3xl;
+  background: var(--bg-primary);
+}
+
+.gateInner {
+  width: 100%;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: $space-lg;
+}
+
+.logo {
+  width: 72px;
+  height: 72px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, #ffffff 0%, #f2f3f7 100%);
+  color: #000000;
+  font-size: 34px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 24px rgb(255 255 255 / 18%);
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  margin: 0;
+  color: var(--text-primary);
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 15px;
+  color: $text-secondary;
+}
+
+.segment {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: $radius-pill;
+  background: var(--bg-surface-secondary);
+}
+
+.segmentItem,
+.segmentActive {
+  flex: 1;
+  border: none;
+  padding: 10px $space-xl;
+  border-radius: $radius-pill;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: $font-family;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.segmentItem {
+  background: transparent;
+  color: $text-secondary;
+}
+
+.segmentActive {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  box-shadow: $shadow-card;
+}
+
+.widgetBlock {
+  margin-top: $space-lg;
+  min-height: 64px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space-md;
+  width: 100%;
+}
+
+.loadingRow {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-sm;
+  font-size: 13px;
+  color: $text-secondary;
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--bg-surface-secondary);
+  border-top-color: var(--text-primary);
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.error {
+  margin: 0;
+  font-size: 13px;
+  color: $color-error;
+}
+
+.tgButton {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-sm;
+  padding: $space-md $space-lg;
+  border: 1px solid $color-border;
+  border-radius: $radius-md;
+  background: var(--bg-surface-secondary);
+  color: $text-secondary;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.tgButton:hover {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+}
+
+.switchLink {
+  border: none;
+  background: transparent;
+  color: $text-secondary;
+  font-size: 13px;
+  text-decoration: underline;
+  cursor: pointer;
+  font-family: $font-family;
+}
+
+.hint {
+  margin: $space-lg 0 0;
+  font-size: 12px;
+  color: $text-tertiary;
+}

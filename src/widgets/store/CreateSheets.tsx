@@ -1,9 +1,10 @@
 import { AnimatePresence, motion } from "framer-motion";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Pagination } from "swiper/modules";
 import { FiCamera, FiImage, FiPlus, FiX } from "react-icons/fi";
 import { observer } from "mobx-react-lite";
 import {
   useEffect,
-  useId,
   useMemo,
   useRef,
   useState,
@@ -13,6 +14,8 @@ import { catalogStore } from "@shared/stores/catalogStore";
 import { leroyApi } from "@shared/api/leroyApi";
 import { fileUrlFromApi } from "@shared/api/client";
 import styles from "./CreateSheets.module.scss";
+import "swiper/css";
+import "swiper/css/pagination";
 
 interface SheetProps {
   open: boolean;
@@ -20,51 +23,96 @@ interface SheetProps {
   onDone: () => void;
 }
 
-function ImageField({
-  label,
-  value,
+function GalleryField({
+  files,
   onChange,
 }: {
-  label: string;
-  value?: File;
-  onChange: (file?: File) => void;
+  files: File[];
+  onChange: (files: File[]) => void;
 }) {
-  const inputId = useId();
-  const preview = useMemo(
-    () => (value ? URL.createObjectURL(value) : undefined),
-    [value],
+  const inputRef = useRef<HTMLInputElement>(null);
+  const previews = useMemo(
+    () => files.map((f) => URL.createObjectURL(f)),
+    [files],
   );
 
-  const onPick = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    onChange(file ?? undefined);
+  const addFiles = (e: ChangeEvent<HTMLInputElement>) => {
+    const picked = Array.from(e.target.files ?? []);
+    if (picked.length) onChange([...files, ...picked]);
     e.target.value = "";
   };
 
+  const removeFile = (i: number) =>
+    onChange(files.filter((_, idx) => idx !== i));
+
   return (
-    <label className={styles.field} htmlFor={inputId}>
-      <span className={styles.fieldLabel}>{label}</span>
+    <div className={styles.galleryWrap}>
+      <span className={styles.fieldLabel}>Фотографии</span>
+
+      {files.length === 0 ? (
+        <button
+          type="button"
+          className={styles.galleryEmpty}
+          onClick={() => inputRef.current?.click()}
+        >
+          <FiImage size={22} />
+          <span>Добавить фото</span>
+        </button>
+      ) : (
+        <>
+          <div className={styles.galleryPreview}>
+            <Swiper
+              modules={[Pagination]}
+              pagination={{ clickable: true }}
+              grabCursor
+              className={styles.gallerySwiper}
+            >
+              {previews.map((src, i) => (
+                <SwiperSlide key={`${i}-${src}`}>
+                  <img src={src} className={styles.galleryImage} alt="" />
+                </SwiperSlide>
+              ))}
+            </Swiper>
+            <span className={styles.galleryCount}>
+              {files.length} {files.length === 1 ? "фото" : "фото"}
+            </span>
+          </div>
+
+          <div className={styles.galleryThumbs}>
+            {files.map((file, i) => (
+              <div key={`${i}-${file.name}`} className={styles.thumb}>
+                <img src={previews[i]} className={styles.thumbImage} alt="" />
+                <button
+                  type="button"
+                  className={styles.thumbRemove}
+                  onClick={() => removeFile(i)}
+                  aria-label="Удалить фото"
+                >
+                  <FiX size={12} />
+                </button>
+              </div>
+            ))}
+            <button
+              type="button"
+              className={styles.thumbAdd}
+              onClick={() => inputRef.current?.click()}
+              aria-label="Добавить фото"
+            >
+              <FiPlus size={18} />
+            </button>
+          </div>
+        </>
+      )}
+
       <input
-        id={inputId}
+        ref={inputRef}
         type="file"
         accept="image/*"
+        multiple
         className={styles.hiddenFile}
-        onChange={onPick}
+        onChange={addFiles}
       />
-      <span className={styles.dropZone}>
-        {preview ? (
-          <img className={styles.preview} src={preview} alt="" />
-        ) : (
-          <span className={styles.dropPlaceholder}>
-            <FiImage size={20} />
-            Выбрать файл
-          </span>
-        )}
-        {value && value.name && (
-          <span className={styles.dropName}>{value.name}</span>
-        )}
-      </span>
-    </label>
+    </div>
   );
 }
 
@@ -266,7 +314,7 @@ export const ProductFormSheet = observer(function ProductFormSheet({
   const [price, setPrice] = useState("");
   const [categoryId, setCategoryId] = useState<string>("");
   const [description, setDescription] = useState("");
-  const [imageFile, setImageFile] = useState<File | undefined>(undefined);
+  const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -278,8 +326,9 @@ export const ProductFormSheet = observer(function ProductFormSheet({
       setPrice("");
       setCategoryId("");
       setDescription("");
-      setImageFile(undefined);
+      setImageFiles([]);
       setError(null);
+      void catalogStore.load();
     }
   }, [open]);
 
@@ -300,15 +349,17 @@ export const ProductFormSheet = observer(function ProductFormSheet({
     setSaving(true);
     setError(null);
     try {
-      const image = imageFile
-        ? await leroyApi.upload(imageFile).then((r) => fileUrlFromApi(r.url))
-        : undefined;
+      const imageUrls = await Promise.all(
+        imageFiles.map((f) =>
+          leroyApi.upload(f).then((r) => fileUrlFromApi(r.url)),
+        ),
+      );
       await leroyApi.createProduct({
         name: name.trim(),
         price: parsedPrice,
         categoryId,
         description: description.trim() || undefined,
-        images: image ? [image] : undefined,
+        images: imageUrls.length ? imageUrls : undefined,
       });
       onDone();
     } catch {
@@ -397,7 +448,7 @@ export const ProductFormSheet = observer(function ProductFormSheet({
               />
             </label>
 
-            <ImageField label="Фото товара" value={imageFile} onChange={setImageFile} />
+            <GalleryField files={imageFiles} onChange={setImageFiles} />
 
             {error && <p className={styles.error}>{error}</p>}
 

@@ -15,10 +15,12 @@ import StoreEditPage from '@pages/storeEdit/StoreEditPage';
 import OrdersPage from '@pages/orders/OrdersPage';
 import OrderDetailPage from '@pages/orders/OrderDetailPage';
 import DiscoverPage from '@pages/discover/DiscoverPage';
+import LoginGate from '@widgets/auth/LoginGate';
 
 export default function App() {
   return (
     <BrowserRouter>
+      <LoginGate />
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<HomePage />} />

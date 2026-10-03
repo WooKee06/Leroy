@@ -1,7 +1,10 @@
 import { makeAutoObservable } from 'mobx';
 import {
+  buildTelegramLoginInitData,
   getTgUser,
+  isOnWeb,
   readyTelegramWebApp,
+  type TelegramLoginUser,
 } from '@shared/lib/telegram';
 import { leroyApi } from '@shared/api/leroyApi';
 import { getAuthToken, setAuthToken } from '@shared/api/client';
@@ -17,15 +20,6 @@ const DEFAULT_AVATAR =
         font-weight="700" fill="#FFFFFF" text-anchor="middle">L</text>
     </svg>`
   );
-
-const DEV_BUYER_INIT_DATA = `user=${encodeURIComponent(
-  JSON.stringify({
-    id: 300000001,
-    first_name: 'Иван',
-    last_name: 'Кузнецов',
-    username: 'ivan_k',
-  }),
-)}`;
 
 interface Profile {
   firstName: string;
@@ -44,6 +38,7 @@ class AccountStore {
   userId: string | undefined;
   isAuthenticated = false;
   initialized = false;
+  authLoading = false;
   stars = 1920;
   balance = 0;
 
@@ -61,7 +56,8 @@ class AccountStore {
   }
 
   private async loadUser() {
-    const initData = window.Telegram?.WebApp?.initData ?? '';
+    const webApp = window.Telegram?.WebApp;
+    const initData = webApp?.initData ?? '';
 
     const savedToken = getAuthToken();
     if (savedToken) {
@@ -76,12 +72,8 @@ class AccountStore {
     }
 
     try {
-      if (initData) {
+      if (initData && !isOnWeb()) {
         await this.loginWithInitData(initData);
-        return;
-      }
-      if (import.meta.env.DEV) {
-        await this.loginWithInitData(DEV_BUYER_INIT_DATA);
         return;
       }
     } catch (error) {
@@ -91,11 +83,32 @@ class AccountStore {
     this.applyFromTelegram(getTgUser());
   }
 
-  private async loginWithInitData(initData: string) {
-    const { token, user } = await leroyApi.authTelegram(initData);
+  private async loginWithInitData(
+    initData: string,
+    mode?: 'login' | 'register',
+  ) {
+    const { token, user } = await leroyApi.authTelegram(initData, mode);
     setAuthToken(token);
     this.applyProfile(user);
     this.isAuthenticated = true;
+  }
+
+  async loginWithTelegramWidget(user: TelegramLoginUser) {
+    this.authLoading = true;
+    try {
+      await this.loginWithInitData(buildTelegramLoginInitData(user), 'login');
+    } finally {
+      this.authLoading = false;
+    }
+  }
+
+  async registerWithTelegramWidget(user: TelegramLoginUser) {
+    this.authLoading = true;
+    try {
+      await this.loginWithInitData(buildTelegramLoginInitData(user), 'register');
+    } finally {
+      this.authLoading = false;
+    }
   }
 
   private applyProfile(profile: Profile) {
