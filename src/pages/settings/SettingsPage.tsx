@@ -14,6 +14,7 @@ import {
 import { accountStore } from "@shared/stores/accountStore";
 import { themeStore } from "@shared/stores/themeStore";
 import PageContainer from "@shared/ui/PageContainer";
+import TonWalletCard from "@widgets/ton/TonWalletCard";
 import styles from "./SettingsPage.module.scss";
 
 interface RowProps {
@@ -103,10 +104,15 @@ function SettingsPage() {
         </div>
 
         <div className={styles.section}>
+          <div className={styles.sectionTitle}>Криптовалюта</div>
+          <TonWalletCard />
+        </div>
+
+        <div className={styles.section}>
           <div className={styles.sectionTitle}>Общие</div>
           <div className={styles.card}>
             <Row icon={<FiMapPin size={20} />} label="Адреса доставки" desc="2 адреса" />
-            <Row icon={<FiCreditCard size={20} />} label="Способы оплаты" desc="Telegram Stars" />
+            <Row icon={<FiCreditCard size={20} />} label="Способы оплаты" desc="Telegram Stars, TON" />
             <Row icon={<FiGlobe size={20} />} label="Язык" desc="Русский" />
             <Row icon={<FiHeadphones size={20} />} label="Поддержка" desc="Онлайн-чат" />
           </div>

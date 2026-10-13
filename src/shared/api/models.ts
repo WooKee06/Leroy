@@ -354,3 +354,87 @@ function formatDate(value?: string): string {
   if (Number.isNaN(date.getTime())) return '';
   return new Intl.DateTimeFormat('ru-RU', { day: 'numeric', month: 'long' }).format(date);
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TON / Telegram Wallet (Gram Wallet via TON Connect)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface TonJettonBalance {
+  address: string;
+  symbol: string;
+  name: string;
+  decimals: number;
+  balanceRaw: string;
+  balance: string;
+}
+
+export interface TonBalanceView {
+  addressRaw: string;
+  addressFriendly: string;
+  balance: string;
+  balanceNano: string;
+  jettons: TonJettonBalance[];
+  lastUpdated: string;
+}
+
+export interface TonProofDomain {
+  lengthBytes: number;
+  value: string;
+}
+
+export interface TonProof {
+  timestamp: number;
+  domain: TonProofDomain;
+  signature: string;
+  payload: string;
+  state_init?: string;
+}
+
+export interface TonWalletBound {
+  id: string;
+  userId: string;
+  addressRaw: string;
+  addressFriendly: string;
+  publicKeyHex: string;
+  network: string;
+  isVerified: boolean;
+}
+
+export type PaymentStatus =
+  | 'pending'
+  | 'processing'
+  | 'completed'
+  | 'failed'
+  | 'cancelled'
+  | 'expired';
+
+export interface PaymentView {
+  id: string;
+  orderId: string;
+  provider: 'mock' | 'ton' | 'stars';
+  amount: number;
+  currency: string;
+  status: PaymentStatus;
+  memo?: string;
+  toAddress?: string;
+  fromAddress?: string;
+  txHash?: string;
+  tonAmountNano?: string;
+  rateRubPerTon?: string;
+  network?: string;
+  expiresAt?: string;
+}
+
+export interface TonPaymentQuote {
+  totalRub: number;
+  rateRubPerTon: number;
+  tonAmountNano: string;
+  toAddress: string;
+  memo: string;
+  expiresAt: string;
+}
+
+export interface TonPaymentInitResult {
+  payment: PaymentView;
+  quote: TonPaymentQuote;
+}

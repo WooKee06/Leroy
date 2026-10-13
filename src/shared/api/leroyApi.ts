@@ -5,10 +5,15 @@ import type {
   FavoriteDto,
   Order as OrderView,
   Paginated,
+  PaymentView,
   ProductDto,
   ReviewDto,
   SearchResultDto,
   StoreDto,
+  TonBalanceView,
+  TonPaymentInitResult,
+  TonProof,
+  TonWalletBound,
   UserDto,
 } from './models';
 import { mapOrder, mapSeller, type RawOrder } from './models';
@@ -184,6 +189,42 @@ export const leroyApi = {
       orderId: order.id,
       provider,
     });
+  },
+
+  // ── TON / Telegram Wallet ──────────────────────────────────────────────
+
+  tonNonce(): Promise<{ payload: string }> {
+    return http.post<{ payload: string }>('/auth/ton/nonce');
+  },
+
+  tonVerify(body: {
+    address: string;
+    publicKey: string;
+    proof: TonProof;
+  }): Promise<{ verified: boolean; wallet: TonWalletBound }> {
+    return http.post<{ verified: boolean; wallet: TonWalletBound }>(
+      '/auth/ton/verify',
+      body,
+    );
+  },
+
+  tonBalance(refresh = false): Promise<TonBalanceView> {
+    return http.get<TonBalanceView>(
+      '/ton/wallet/balance',
+      refresh ? { refresh: '1' } : undefined,
+    );
+  },
+
+  tonPaymentInit(orderId: string): Promise<TonPaymentInitResult> {
+    return http.post<TonPaymentInitResult>('/payments/ton/init', { orderId });
+  },
+
+  paymentStatus(id: string): Promise<PaymentView> {
+    return http.get<PaymentView>(`/payments/${id}/status`);
+  },
+
+  paymentCancel(id: string): Promise<PaymentView> {
+    return http.post<PaymentView>(`/payments/${id}/cancel`);
   },
 
   createReview(dto: { productId: string; rating: number; text?: string }): Promise<ReviewDto> {

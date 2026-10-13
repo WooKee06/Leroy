@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@iconify/react": "^6.0.2",
+    "@ton/core": "^0.63.1",
+    "@tonconnect/ui-react": "^5.0.1",
     "framer-motion": "^13.2.0",
     "mobx": "^7.0.3",
     "mobx-react-lite": "^5.0.3",
