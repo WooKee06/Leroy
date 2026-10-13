@@ -1,3 +1,5 @@
+// Must be first: polyfills the Node `Buffer` global required by @ton/core.
+import './shared/lib/polyfills';
 import { createRoot } from 'react-dom/client';
 import App from './app/App';
 import { accountStore } from '@shared/stores/accountStore';
