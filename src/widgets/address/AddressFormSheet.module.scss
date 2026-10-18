@@ -1,0 +1,193 @@
+@use "../../app/styles/variables" as *;
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(2px);
+}
+
+.sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 101;
+  background: var(--bg-surface);
+  border-radius: 24px 24px 0 0;
+  padding: 12px 20px calc(24px + env(safe-area-inset-bottom));
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.18);
+}
+
+.handle {
+  width: 40px;
+  height: 4px;
+  border-radius: 4px;
+  background: var(--bg-surface-secondary);
+  margin: 0 auto 12px;
+}
+
+.close {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: var(--bg-surface-secondary);
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 8px 0 16px;
+  color: $text-primary;
+}
+
+.field {
+  display: block;
+  margin-bottom: 14px;
+}
+
+.fieldLabel {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: $text-secondary;
+  margin-bottom: 8px;
+}
+
+.req {
+  color: $color-error;
+  margin-left: 3px;
+}
+
+.input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  color: var(--text-primary);
+  border-radius: 14px;
+  font-size: 15px;
+  font-family: $font-family;
+  background: var(--bg-surface-secondary);
+  outline: none;
+}
+
+.input:focus {
+  border-color: var(--text-primary);
+  background: var(--bg-surface);
+}
+
+.inputError {
+  border-color: $color-error;
+}
+
+.row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.row3 {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 10px;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip,
+.chipActive {
+  border: 1px solid var(--color-border);
+  background: var(--bg-surface);
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-family: $font-family;
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+
+.chipActive {
+  background: var(--inverted);
+  border-color: var(--inverted);
+  color: var(--inverted-fg);
+}
+
+.defaultToggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 0;
+  border: none;
+  background: transparent;
+  color: $text-primary;
+  font-size: 14.5px;
+  font-family: $font-family;
+  text-align: left;
+  cursor: pointer;
+}
+
+.checkbox {
+  width: 22px;
+  height: 22px;
+  flex-shrink: 0;
+  border-radius: 7px;
+  border: 1.5px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.checkboxOn {
+  background: var(--inverted);
+  border-color: var(--inverted);
+}
+
+.checkmark {
+  color: var(--inverted-fg);
+  font-size: 14px;
+  line-height: 1;
+}
+
+.error {
+  color: $color-error;
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0 0 12px;
+}
+
+.submitBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: var(--inverted);
+  color: var(--inverted-fg);
+  border: none;
+  border-radius: 16px;
+  padding: 16px;
+  font-size: 16px;
+  font-weight: 600;
+  font-family: $font-family;
+  cursor: pointer;
+  margin-top: 6px;
+}

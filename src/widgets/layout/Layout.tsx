@@ -10,11 +10,14 @@ import styles from './Layout.module.scss';
 
 export default function Layout() {
   const location = useLocation();
-  const hideBottomNav =
-    location.pathname.startsWith('/product/') || location.pathname.startsWith('/cart');
+  // Нижняя навигация — только на корневых вкладках. На странице товара и в
+  // корзине своя нижняя панель (BottomActionBar), а на остальных — нет.
+  const showBottomNav = ["/", "/search", "/stores", "/profile"].includes(
+    location.pathname,
+  );
 
   return (
-    <div className={styles.layout}>
+    <div className={`${styles.layout} ${showBottomNav ? "" : styles.layoutNoNav}`}>
       <PersistentHeader />
       <AnimatePresence mode="wait">
         <motion.main
@@ -28,7 +31,7 @@ export default function Layout() {
           <Outlet />
         </motion.main>
       </AnimatePresence>
-      {!hideBottomNav && <BottomNav />}
+      {showBottomNav && <BottomNav />}
       <BottomActionBar />
       <ProductQuickView />
       <CheckoutSheet />

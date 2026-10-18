@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { observer } from "mobx-react-lite";
 import {
@@ -12,6 +13,7 @@ import {
   FiUser,
 } from "react-icons/fi";
 import { accountStore } from "@shared/stores/accountStore";
+import { addressStore } from "@shared/stores/addressStore";
 import { themeStore } from "@shared/stores/themeStore";
 import PageContainer from "@shared/ui/PageContainer";
 import TonWalletCard from "@widgets/ton/TonWalletCard";
@@ -38,9 +40,23 @@ function Row({ icon, label, desc, onClick, trailing }: RowProps) {
   );
 }
 
+function addressesLabel(count: number): string {
+  if (count === 0) return "нет адресов";
+  const mod10 = count % 10;
+  const mod100 = count % 100;
+  let word = "адресов";
+  if (mod10 === 1 && mod100 !== 11) word = "адрес";
+  else if (mod10 >= 2 && mod10 <= 4 && (mod100 < 12 || mod100 > 14)) word = "адреса";
+  return `${count} ${word}`;
+}
+
 function SettingsPage() {
   const navigate = useNavigate();
   const { isDark } = themeStore;
+
+  useEffect(() => {
+    addressStore.load();
+  }, []);
 
   const logout = () => {
     accountStore.logout();
@@ -111,7 +127,12 @@ function SettingsPage() {
         <div className={styles.section}>
           <div className={styles.sectionTitle}>Общие</div>
           <div className={styles.card}>
-            <Row icon={<FiMapPin size={20} />} label="Адреса доставки" desc="2 адреса" />
+            <Row
+              icon={<FiMapPin size={20} />}
+              label="Адреса доставки"
+              desc={addressesLabel(addressStore.count)}
+              onClick={() => navigate("/addresses")}
+            />
             <Row icon={<FiCreditCard size={20} />} label="Способы оплаты" desc="Telegram Stars, TON" />
             <Row icon={<FiGlobe size={20} />} label="Язык" desc="Русский" />
             <Row icon={<FiHeadphones size={20} />} label="Поддержка" desc="Онлайн-чат" />

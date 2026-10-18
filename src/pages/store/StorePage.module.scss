@@ -2,7 +2,7 @@
 
 .page {
   min-height: 100dvh;
-  padding-bottom: calc(#{$nav-height} + #{$nav-bottom} * 2 + 16px);
+  padding-bottom: var(--bottom-nav-space);
 }
 
 .cover {

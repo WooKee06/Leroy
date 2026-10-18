@@ -1,9 +1,10 @@
 @use '../../app/styles/variables' as *;
 
 .pageHeader {
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   padding: $space-lg 0;
 }
 
@@ -24,16 +25,17 @@
 }
 
 .pageHeaderTitle {
-  position: absolute;
-  left: 50%;
-  top: $space-lg;
-  transform: translateX(-50%);
   font-size: 17px;
   font-weight: 600;
   color: $text-primary;
+  text-align: center;
 }
 
 .pageHeaderRight {
+  position: absolute;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
   display: flex;
   align-items: center;
   gap: $space-sm;

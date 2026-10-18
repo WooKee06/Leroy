@@ -81,6 +81,11 @@
   }
 }
 
+/* Отступ под нижнюю навигацию. Layout обнуляет его на страницах без неё. */
+:root {
+  --bottom-nav-space: calc(#{$nav-height} + #{$nav-bottom} * 2 + 16px);
+}
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -149,7 +154,7 @@ ul, ol {
 }
 
 .page-wrapper {
-  padding-bottom: calc(#{$nav-height} + #{$nav-bottom} * 2 + 16px);
+  padding-bottom: var(--bottom-nav-space);
   min-height: 100dvh;
 }
 

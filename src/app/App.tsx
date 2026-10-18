@@ -9,6 +9,7 @@ import StorePage from '@pages/store/StorePage';
 import CartPage from '@pages/cart/CartPage';
 import ProfilePage from '@pages/profile/ProfilePage';
 import SettingsPage from '@pages/settings/SettingsPage';
+import AddressesPage from '@pages/addresses/AddressesPage';
 import RolePage from '@pages/role/RolePage';
 import StoresPage from '@pages/stores/StoresPage';
 import FavoritesPage from '@pages/favorites/FavoritesPage';
@@ -45,6 +46,7 @@ export default function App() {
             <Route path="/orders/:id" element={<OrderDetailPage />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/settings" element={<SettingsPage />} />
+            <Route path="/addresses" element={<AddressesPage />} />
             <Route path="/role" element={<RolePage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>

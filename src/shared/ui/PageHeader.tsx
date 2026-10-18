@@ -1,32 +1,23 @@
-import { useNavigate } from 'react-router-dom';
-import { FiArrowLeft, FiShare } from 'react-icons/fi';
-import styles from './PageHeader.module.scss';
+import { FiShare } from "react-icons/fi";
+import styles from "./PageHeader.module.scss";
 
 interface Props {
   title?: string;
-  onBack?: () => void;
   trailing?: React.ReactNode;
   showShare?: boolean;
   onShare?: () => void;
 }
 
-export default function PageHeader({ title, onBack, trailing, showShare, onShare }: Props) {
-  const navigate = useNavigate();
-
-  const handleBack = () => {
-    if (onBack) {
-      onBack();
-    } else {
-      navigate(-1);
-    }
-  };
-
+/**
+ * Заголовок страницы.
+ *
+ * Кнопка «назад» здесь намеренно отсутствует: навигация назад всегда
+ * доступна в PersistentHeader (общая фиксированная шапка), поэтому
+ * дублировать её в контенте не нужно.
+ */
+export default function PageHeader({ title, trailing, showShare, onShare }: Props) {
   return (
     <header className={styles.pageHeader}>
-      <button className={styles.pageHeaderIconBtn} onClick={handleBack} aria-label="Назад">
-        <FiArrowLeft size={24} />
-      </button>
-
       {title && <h1 className={styles.pageHeaderTitle}>{title}</h1>}
 
       <div className={styles.pageHeaderRight}>

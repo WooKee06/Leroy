@@ -1,0 +1,314 @@
+@use "../../app/styles/variables" as *;
+
+.page {
+  min-height: 100dvh;
+  padding-bottom: var(--bottom-nav-space);
+}
+
+.subtitle {
+  font-size: 14px;
+  line-height: 1.5;
+  color: $text-secondary;
+  margin: 12px 0 0;
+  padding: 0 $space-sm;
+}
+
+.section {
+  margin-top: $space-2xl;
+}
+
+.sectionTitle {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  text-transform: uppercase;
+  color: $text-tertiary;
+  padding: 0 $space-sm;
+  margin-bottom: $space-sm;
+}
+
+/* ---------- Delivery options ---------- */
+
+.options {
+  background: $bg-surface;
+  border: 1px solid $color-border;
+  border-radius: $radius-xl;
+  box-shadow: $shadow-soft;
+  overflow: hidden;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: $space-md;
+  padding: 14px $space-lg;
+  border-bottom: 1px solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.optionIcon {
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--tint-gray);
+  color: $text-secondary;
+}
+
+.optionMain {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.optionTitle {
+  font-size: 15px;
+  font-weight: 500;
+  color: $text-primary;
+}
+
+.optionDesc {
+  font-size: 12px;
+  color: $text-secondary;
+}
+
+.optionMeta {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+}
+
+.optionPrice {
+  font-size: 13px;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.optionEta {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11.5px;
+  color: $text-tertiary;
+}
+
+/* ---------- Addresses ---------- */
+
+.addresses {
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+}
+
+.addressCard {
+  background: $bg-surface;
+  border: 1px solid $color-border;
+  border-radius: $radius-xl;
+  box-shadow: $shadow-soft;
+  padding: $space-lg;
+}
+
+.addressHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-sm;
+  margin-bottom: 10px;
+}
+
+.addressLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: $text-secondary;
+  background: var(--tint-gray);
+  border-radius: $radius-pill;
+  padding: 5px 12px;
+}
+
+.defaultBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: $color-success;
+  background: var(--tint-green);
+  border-radius: $radius-pill;
+  padding: 5px 12px;
+}
+
+.addressBody {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.recipient {
+  font-size: 15px;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.phone {
+  font-weight: 400;
+  color: $text-secondary;
+}
+
+.addressLine {
+  font-size: 14px;
+  color: $text-primary;
+  line-height: 1.4;
+}
+
+.addressExtra {
+  font-size: 12.5px;
+  color: $text-tertiary;
+  line-height: 1.4;
+}
+
+.addressActions {
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid $color-divider;
+}
+
+.action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  border: none;
+  background: transparent;
+  color: $text-secondary;
+  font-size: 13.5px;
+  font-weight: 600;
+  font-family: $font-family;
+  cursor: pointer;
+  padding: 0;
+}
+
+.actionIcon {
+  width: 38px;
+  height: 38px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  border: none;
+  background: var(--bg-surface-secondary);
+  color: $text-secondary;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.actionIcon:active {
+  transform: scale(0.96);
+}
+
+.danger {
+  color: $color-error;
+}
+
+.confirmRow {
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid $color-divider;
+}
+
+.confirmText {
+  flex: 1;
+  font-size: 13.5px;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.confirmDelete,
+.confirmCancel {
+  border: none;
+  border-radius: 12px;
+  padding: 9px 16px;
+  font-size: 13.5px;
+  font-weight: 600;
+  font-family: $font-family;
+  cursor: pointer;
+}
+
+.confirmDelete {
+  background: $color-error;
+  color: #fff;
+}
+
+.confirmCancel {
+  background: var(--bg-surface-secondary);
+  color: $text-secondary;
+}
+
+/* ---------- Empty state ---------- */
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 40px 20px;
+  background: $bg-surface;
+  border: 1px dashed $color-border;
+  border-radius: $radius-xl;
+  color: $text-tertiary;
+}
+
+.emptyTitle {
+  margin: 6px 0 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.emptyText {
+  margin: 0;
+  font-size: 13px;
+  color: $text-secondary;
+}
+
+/* ---------- Add button ---------- */
+
+.addBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: $space-md;
+  background: var(--inverted);
+  color: var(--inverted-fg);
+  border: none;
+  border-radius: $radius-md;
+  padding: 16px;
+  font-size: 15px;
+  font-weight: 600;
+  font-family: $font-family;
+  cursor: pointer;
+}
+
+.addBtn:active {
+  transform: scale(0.99);
+}

@@ -65,10 +65,34 @@ function ProfilePage() {
       ["delivered", "completed"].includes(o.status),
     ).length;
     return [
-      { icon: <FiPackage size={20} />, label: "Заказы", value: orders.length, tint: "#111111", tab: "all" },
-      { icon: <FiClock size={20} />, label: "Ожидают", value: awaiting, tint: "#f5a623", tab: "awaiting" },
-      { icon: <FiTruck size={20} />, label: "В пути", value: shipping, tint: "#007aff", tab: "shipping" },
-      { icon: <FiCheck size={20} />, label: "Получены", value: received, tint: "#34c759", tab: "received" },
+      {
+        icon: <FiPackage size={20} />,
+        label: "Заказы",
+        value: orders.length,
+        tint: "#111111",
+        tab: "all",
+      },
+      {
+        icon: <FiClock size={20} />,
+        label: "Ожидают",
+        value: awaiting,
+        tint: "#f5a623",
+        tab: "awaiting",
+      },
+      {
+        icon: <FiTruck size={20} />,
+        label: "В пути",
+        value: shipping,
+        tint: "#007aff",
+        tab: "shipping",
+      },
+      {
+        icon: <FiCheck size={20} />,
+        label: "Получены",
+        value: received,
+        tint: "#34c759",
+        tab: "received",
+      },
     ];
   }, [orders]);
 
@@ -106,6 +130,7 @@ function ProfilePage() {
       iconColor: "#007aff",
       label: "Адреса доставки",
       desc: "2 адреса",
+      path: "/addresses",
     },
     {
       icon: <FiCreditCard size={20} />,
@@ -168,10 +193,7 @@ function ProfilePage() {
 
         <div className={styles.sectionHead}>
           <h2 className={styles.sectionTitle}>Мои заказы</h2>
-          <button
-            className={styles.seeAll}
-            onClick={() => navigate("/orders")}
-          >
+          <button className={styles.seeAll} onClick={() => navigate("/orders")}>
             Все <FiChevronRight size={16} />
           </button>
         </div>
@@ -184,10 +206,7 @@ function ProfilePage() {
               whileTap={{ scale: 0.94 }}
               onClick={() => navigate(`/orders?tab=${t.tab}`)}
             >
-              <span
-                className={styles.orderIcon}
-                style={{ background: t.tint }}
-              >
+              <span className={styles.orderIcon} style={{ background: t.tint }}>
                 {t.icon}
               </span>
               <span className={styles.orderValue}>{t.value}</span>

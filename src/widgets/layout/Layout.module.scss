@@ -2,6 +2,10 @@
   min-height: 100dvh;
 }
 
+.layoutNoNav {
+  --bottom-nav-space: 0px;
+}
+
 .layoutMain {
   min-height: 100dvh;
   padding-top: calc(64px + env(safe-area-inset-top, 0px));
