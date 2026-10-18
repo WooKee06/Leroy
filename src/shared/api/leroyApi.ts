@@ -45,6 +45,21 @@ export const leroyApi = {
     return http.get<UserDto>('/auth/me');
   },
 
+  /**
+   * Local development login (backend requires ALLOW_DEV_AUTH=true).
+   */
+  devAuth(body: {
+    role?: 'buyer' | 'seller' | 'admin';
+    telegramId?: number;
+    firstName?: string;
+    username?: string;
+  }): Promise<{ token: string; user: UserDto; isNew?: boolean }> {
+    return http.post<{ token: string; user: UserDto; isNew?: boolean }>(
+      '/auth/dev',
+      body,
+    );
+  },
+
   updateRole(role: 'buyer' | 'seller' | 'admin'): Promise<{ token: string; user: UserDto }> {
     return http.patch<{ token: string; user: UserDto }>('/auth/role', { role });
   },

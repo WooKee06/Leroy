@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { observer } from "mobx-react-lite";
 import { FiExternalLink } from "react-icons/fi";
-import { accountStore } from "@shared/stores/accountStore";
+import { accountStore, type UserRole } from "@shared/stores/accountStore";
 import { isOnWeb } from "@shared/lib/telegram";
 import type { TelegramLoginUser } from "@shared/lib/telegram";
 import { ApiError } from "@shared/api/client";
@@ -16,6 +16,20 @@ const TG_BOT_USERNAME = import.meta.env
 const TG_REGISTER_URL = TG_BOT_USERNAME
   ? `https://t.me/${TG_BOT_USERNAME}?startapp=register`
   : undefined;
+
+/** Dev login is exposed only when VITE_DEV_AUTH=true (see .env.development). */
+const DEV_AUTH = import.meta.env.VITE_DEV_AUTH === "true";
+
+const DEV_ACCOUNTS: {
+  role: UserRole;
+  label: string;
+  telegramId: number;
+  firstName: string;
+}[] = [
+  { role: "buyer", label: "Покупатель", telegramId: 900000001, firstName: "Dev Покупатель" },
+  { role: "seller", label: "Продавец", telegramId: 900000002, firstName: "Dev Продавец" },
+  { role: "admin", label: "Админ", telegramId: 900000003, firstName: "Dev Админ" },
+];
 
 function LoginGate() {
   const [mode, setMode] = useState<AuthMode>("login");
@@ -56,6 +70,22 @@ function LoginGate() {
   const switchMode = (next: AuthMode) => {
     setMode(next);
     setError(null);
+  };
+
+  const handleDevLogin = async (account: (typeof DEV_ACCOUNTS)[number]) => {
+    setError(null);
+    try {
+      await accountStore.devLogin({
+        role: account.role,
+        telegramId: account.telegramId,
+        firstName: account.firstName,
+      });
+      navigate("/", { replace: true });
+    } catch {
+      setError(
+        "Dev-вход не сработал. Локальный бэкенд запущен? ALLOW_DEV_AUTH=true?",
+      );
+    }
   };
 
   return (
@@ -131,6 +161,28 @@ function LoginGate() {
           >
             Уже есть аккаунт? Войти
           </button>
+        )}
+
+        {DEV_AUTH && (
+          <div className={styles.devPanel}>
+            <span className={styles.devBadge}>DEV</span>
+            <div className={styles.devButtons}>
+              {DEV_ACCOUNTS.map((account) => (
+                <button
+                  key={account.role}
+                  className={styles.devButton}
+                  onClick={() => handleDevLogin(account)}
+                  type="button"
+                  disabled={accountStore.authLoading}
+                >
+                  {account.label}
+                </button>
+              ))}
+            </div>
+            <p className={styles.devHint}>
+              Вход без Telegram для локальной разработки
+            </p>
+          </div>
         )}
 
         <p className={styles.hint}>

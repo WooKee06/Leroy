@@ -102,6 +102,26 @@ class AccountStore {
     }
   }
 
+  /**
+   * Local-only login for development. Backend must run with ALLOW_DEV_AUTH=true.
+   * Creates/updates a test user with the given role and authenticates it.
+   */
+  async devLogin(options: {
+    role: UserRole;
+    telegramId?: number;
+    firstName?: string;
+  }) {
+    this.authLoading = true;
+    try {
+      const { token, user } = await leroyApi.devAuth(options);
+      setAuthToken(token);
+      this.applyProfile(user);
+      this.isAuthenticated = true;
+    } finally {
+      this.authLoading = false;
+    }
+  }
+
   async registerWithTelegramWidget(user: TelegramLoginUser) {
     this.authLoading = true;
     try {
