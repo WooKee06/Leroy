@@ -1,22 +1,16 @@
-import { makeAutoObservable } from 'mobx';
-
-/**
- * Delivery addresses — UI-only (mock) for now.
- *
- * This store holds the address book and the list of available delivery options
- * entirely on the client, persisted to localStorage so testing survives reloads.
- * When the backend gets an addresses API, this store becomes a thin client for
- * `/api/addresses` and the local persistence goes away.
- */
+import { makeAutoObservable } from "mobx";
+import { leroyApi } from "@shared/api/leroyApi";
+import type { AddressDto } from "@shared/api/models";
+import { formatAddress } from "@shared/lib/address";
 
 export type DeliveryKind =
-  | 'pickup_point'
-  | 'postamat'
-  | 'courier'
-  | 'post'
-  | 'store_pickup';
+  | "pickup_point"
+  | "postamat"
+  | "courier"
+  | "post"
+  | "store_pickup";
 
-export type CarrierId = 'sdek' | '5post' | 'post_ru' | 'seller';
+export type CarrierId = "sdek" | "5post" | "post_ru" | "seller";
 
 export interface DeliveryOption {
   id: string;
@@ -30,7 +24,7 @@ export interface DeliveryOption {
   eta: string;
 }
 
-export type AddressLabel = 'home' | 'work' | 'other';
+export type AddressLabel = "home" | "work" | "other";
 
 export interface DeliveryAddress {
   id: string;
@@ -51,126 +45,97 @@ export interface DeliveryAddress {
 }
 
 export const LABEL_TEXT: Record<AddressLabel, string> = {
-  home: 'Дом',
-  work: 'Работа',
-  other: 'Другое',
+  home: "Дом",
+  work: "Работа",
+  other: "Другое",
 };
 
 export const DELIVERY_OPTIONS: DeliveryOption[] = [
   {
-    id: 'sdek-pvz',
-    carrier: 'sdek',
-    carrierName: 'СДЭК',
-    kind: 'pickup_point',
-    title: 'СДЭК — пункт выдачи',
-    desc: 'Получение в ближайшем ПВЗ',
+    id: "sdek-pvz",
+    carrier: "sdek",
+    carrierName: "СДЭК",
+    kind: "pickup_point",
+    title: "СДЭК — пункт выдачи",
+    desc: "Получение в ближайшем ПВЗ",
     price: null,
-    eta: '2–5 дней',
+    eta: "2–5 дней",
   },
   {
-    id: 'sdek-postamat',
-    carrier: 'sdek',
-    carrierName: 'СДЭК',
-    kind: 'postamat',
-    title: 'СДЭК — постамат',
-    desc: 'Круглосуточная выдача из постамата',
+    id: "sdek-postamat",
+    carrier: "sdek",
+    carrierName: "СДЭК",
+    kind: "postamat",
+    title: "СДЭК — постамат",
+    desc: "Круглосуточная выдача из постамата",
     price: null,
-    eta: '2–5 дней',
+    eta: "2–5 дней",
   },
   {
-    id: 'sdek-courier',
-    carrier: 'sdek',
-    carrierName: 'СДЭК',
-    kind: 'courier',
-    title: 'СДЭК — курьер до двери',
-    desc: 'Доставка прямо по адресу',
+    id: "sdek-courier",
+    carrier: "sdek",
+    carrierName: "СДЭК",
+    kind: "courier",
+    title: "СДЭК — курьер до двери",
+    desc: "Доставка прямо по адресу",
     price: null,
-    eta: '2–5 дней',
+    eta: "2–5 дней",
   },
   {
-    id: '5post-postamat',
-    carrier: '5post',
-    carrierName: '5Post',
-    kind: 'postamat',
-    title: 'Постамат 5Post',
-    desc: 'Выдача в постаматах у «Пятёрочки»',
+    id: "5post-postamat",
+    carrier: "5post",
+    carrierName: "5Post",
+    kind: "postamat",
+    title: "Постамат 5Post",
+    desc: "Выдача в постаматах у «Пятёрочки»",
     price: null,
-    eta: '2–6 дней',
+    eta: "2–6 дней",
   },
   {
-    id: 'post-ru',
-    carrier: 'post_ru',
-    carrierName: 'Почта России',
-    kind: 'post',
-    title: 'Почта России',
-    desc: 'В отделение или до двери',
+    id: "post-ru",
+    carrier: "post_ru",
+    carrierName: "Почта России",
+    kind: "post",
+    title: "Почта России",
+    desc: "В отделение или до двери",
     price: null,
-    eta: '4–10 дней',
+    eta: "4–10 дней",
   },
   {
-    id: 'seller-pickup',
-    carrier: 'seller',
-    carrierName: 'Магазин',
-    kind: 'store_pickup',
-    title: 'Самовывоз из магазина',
-    desc: 'Забрать в точке продавца',
+    id: "seller-pickup",
+    carrier: "seller",
+    carrierName: "Магазин",
+    kind: "store_pickup",
+    title: "Самовывоз из магазина",
+    desc: "Забрать в точке продавца",
     price: 0,
-    eta: 'в день готовности',
+    eta: "в день готовности",
   },
   {
-    id: 'seller-courier',
-    carrier: 'seller',
-    carrierName: 'Продавец',
-    kind: 'courier',
-    title: 'Курьер продавца',
-    desc: 'Экспресс-доставка по городу',
+    id: "seller-courier",
+    carrier: "seller",
+    carrierName: "Продавец",
+    kind: "courier",
+    title: "Курьер продавца",
+    desc: "Экспресс-доставка по городу",
     price: null,
-    eta: 'в день заказа',
+    eta: "в день заказа",
   },
 ];
 
-const STORAGE_KEY = 'leroy_addresses_v1';
-
-const SEED_ADDRESSES: DeliveryAddress[] = [
-  {
-    id: 'seed-home',
-    label: 'home',
-    recipientName: 'Алексей Петров',
-    phone: '+7 999 123-45-67',
-    city: 'Москва',
-    street: 'ул. Ленина',
-    house: '10',
-    apartment: '42',
-    entrance: '2',
-    floor: '5',
-    intercom: '42К',
-    postalCode: '101000',
-    comment: 'Позвонить за 30 минут',
-    isDefault: true,
-  },
-  {
-    id: 'seed-work',
-    label: 'work',
-    recipientName: 'Алексей Петров',
-    phone: '+7 999 123-45-67',
-    city: 'Москва',
-    street: 'Пресненская наб.',
-    house: '12',
-    apartment: '301',
-    postalCode: '123112',
-    isDefault: false,
-  },
-];
-
-function makeId(): string {
-  return `addr-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-}
+/** Что присылает форма (без id — его выдаёт сервер). */
+export type AddressInput = Omit<DeliveryAddress, "id" | "isDefault"> & {
+  isDefault?: boolean;
+};
 
 class AddressStore {
   addresses: DeliveryAddress[] = [];
   loaded = false;
+  loading = false;
+  saving = false;
+  error = "";
 
-  /** id адреса, выбранного по умолчанию (или идёт редактирование). */
+  /** id адреса, который редактируется (null — создание нового). */
   editingId: string | null = null;
 
   /** Управление bottom-sheet с формой. */
@@ -180,30 +145,19 @@ class AddressStore {
     makeAutoObservable(this, {}, { autoBind: true });
   }
 
-  load(): void {
-    if (this.loaded) return;
-    this.loaded = true;
+  async load(force = false): Promise<void> {
+    if (this.loaded && !force) return;
+    this.loading = true;
+    this.error = "";
     try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw) as DeliveryAddress[];
-        if (Array.isArray(parsed)) {
-          this.addresses = parsed;
-          return;
-        }
-      }
-    } catch {
-      // ignore corrupted storage and fall back to seed
-    }
-    this.addresses = SEED_ADDRESSES.map((a) => ({ ...a }));
-    this.persist();
-  }
-
-  private persist(): void {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(this.addresses));
-    } catch {
-      // storage unavailable — keep in memory only
+      const res = await leroyApi.addresses();
+      this.addresses = res.map((a: AddressDto) => ({ ...a }));
+      this.loaded = true;
+    } catch (e) {
+      this.error =
+        e instanceof Error ? e.message : "Не удалось загрузить адреса";
+    } finally {
+      this.loading = false;
     }
   }
 
@@ -215,6 +169,11 @@ class AddressStore {
     return this.addresses.find((a) => a.isDefault) ?? this.addresses[0];
   }
 
+  /** Основной адрес одной строкой — для чекаута. */
+  get defaultAddressText(): string {
+    return formatAddress(this.defaultAddress);
+  }
+
   get editing(): DeliveryAddress | undefined {
     return this.addresses.find((a) => a.id === this.editingId);
   }
@@ -222,6 +181,7 @@ class AddressStore {
   openForm(id: string | null = null): void {
     this.editingId = id;
     this.formOpen = true;
+    this.error = "";
   }
 
   closeForm(): void {
@@ -229,50 +189,65 @@ class AddressStore {
     this.editingId = null;
   }
 
-  save(input: Omit<DeliveryAddress, 'id' | 'isDefault'> & { isDefault?: boolean }): void {
-    const makeDefault = Boolean(input.isDefault);
-    if (this.editingId) {
-      const existing = this.addresses.find((a) => a.id === this.editingId);
-      if (existing) {
-        Object.assign(existing, input);
+  /** Создание или обновление адреса на сервере. Возвращает успех. */
+  async save(input: AddressInput): Promise<boolean> {
+    if (this.saving) return false;
+    this.saving = true;
+    this.error = "";
+    try {
+      let targetId: string;
+      if (this.editingId) {
+        const updated = await leroyApi.updateAddress(this.editingId, input);
+        targetId = updated.id;
+      } else {
+        const created = await leroyApi.createAddress(input);
+        targetId = created.id;
       }
-    } else {
-      this.addresses.push({
-        ...input,
-        id: makeId(),
-        isDefault: false,
-      });
+
+      // 2. «сделать основным» — отдельным вызовом, уже по серверному id
+      if (input.isDefault === true) {
+        await leroyApi.setDefaultAddress(targetId);
+      }
+
+      // 3. перечитать список с сервера — источник правды
+      await this.load(true);
+      this.closeForm();
+      return true;
+    } catch (e) {
+      this.error =
+        e instanceof Error ? e.message : "Не удалось сохранить адрес";
+      return false;
+    } finally {
+      this.saving = false;
     }
-
-    const target =
-      this.addresses.find((a) => a.id === this.editingId) ??
-      this.addresses[this.addresses.length - 1];
-
-    if (makeDefault && target) {
-      this.setDefault(target.id);
-    } else if (!this.addresses.some((a) => a.isDefault) && target) {
-      target.isDefault = true;
-    }
-
-    this.persist();
-    this.closeForm();
   }
 
-  remove(id: string): void {
-    const wasDefault = this.addresses.find((a) => a.id === id)?.isDefault;
-    this.addresses = this.addresses.filter((a) => a.id !== id);
-    if (wasDefault && this.addresses.length > 0) {
-      this.addresses[0].isDefault = true;
+  async remove(id: string): Promise<void> {
+    this.error = "";
+    try {
+      await leroyApi.deleteAddress(id);
+      if (this.editingId === id) this.closeForm();
+      await this.load(true);
+    } catch (e) {
+      this.error = e instanceof Error ? e.message : "Не удалось удалить адрес";
     }
-    if (this.editingId === id) this.closeForm();
-    this.persist();
   }
 
-  setDefault(id: string): void {
-    for (const a of this.addresses) {
+  /** Оптимистично переключаем «основной», при ошибке откатываем. */
+  async setDefault(id: string): Promise<void> {
+    const snapshot = this.addresses.map((a) => a.isDefault);
+    this.addresses.forEach((a) => {
       a.isDefault = a.id === id;
+    });
+    try {
+      await leroyApi.setDefaultAddress(id);
+    } catch (e) {
+      this.addresses.forEach((a, i) => {
+        a.isDefault = snapshot[i];
+      });
+      this.error =
+        e instanceof Error ? e.message : "Не удалось сделать адрес основным";
     }
-    this.persist();
   }
 }
 

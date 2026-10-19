@@ -127,10 +127,10 @@ function AddressFormSheet() {
   };
   const hasErrors = Object.values(invalid).some(Boolean);
 
-  const submit = () => {
+  const submit = async () => {
     setTouched(true);
-    if (hasErrors) return;
-    addressStore.save({
+    if (hasErrors || addressStore.saving) return;
+    await addressStore.save({
       label: form.label,
       recipientName: form.recipientName.trim(),
       phone: form.phone.trim(),
@@ -312,8 +312,20 @@ function AddressFormSheet() {
               </p>
             )}
 
-            <button className={styles.submitBtn} onClick={submit}>
-              {editingId ? 'Сохранить' : 'Добавить адрес'}
+            {addressStore.error && (
+              <p className={styles.error}>{addressStore.error}</p>
+            )}
+
+            <button
+              className={styles.submitBtn}
+              onClick={submit}
+              disabled={addressStore.saving}
+            >
+              {addressStore.saving
+                ? 'Сохранение…'
+                : editingId
+                  ? 'Сохранить'
+                  : 'Добавить адрес'}
             </button>
           </motion.div>
         </>

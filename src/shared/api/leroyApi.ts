@@ -1,7 +1,9 @@
-import { http } from './client';
+import { http } from "./client";
 import type {
+  AddressDto,
   CartDto,
   CategoryDto,
+  CreateAddressInput,
   FavoriteDto,
   Order as OrderView,
   Paginated,
@@ -15,8 +17,8 @@ import type {
   TonProof,
   TonWalletBound,
   UserDto,
-} from './models';
-import { mapOrder, mapSeller, type RawOrder } from './models';
+} from "./models";
+import { mapOrder, mapSeller, type RawOrder } from "./models";
 
 export interface ProductFilters {
   search?: string;
@@ -25,7 +27,7 @@ export interface ProductFilters {
   minPrice?: number;
   maxPrice?: number;
   minRating?: number;
-  sort?: 'popular' | 'new' | 'priceAsc' | 'priceDesc';
+  sort?: "popular" | "new" | "priceAsc" | "priceDesc";
   page?: number;
   limit?: number;
 }
@@ -33,39 +35,64 @@ export interface ProductFilters {
 export const leroyApi = {
   authTelegram(
     initData: string,
-    mode?: 'login' | 'register',
+    mode?: "login" | "register",
   ): Promise<{ token: string; user: UserDto; isNew?: boolean }> {
     return http.post<{ token: string; user: UserDto; isNew?: boolean }>(
-      '/auth/telegram',
+      "/auth/telegram",
       { initData, mode },
     );
   },
 
   me(): Promise<UserDto> {
-    return http.get<UserDto>('/auth/me');
+    return http.get<UserDto>("/auth/me");
   },
 
   /**
    * Local development login (backend requires ALLOW_DEV_AUTH=true).
    */
   devAuth(body: {
-    role?: 'buyer' | 'seller' | 'admin';
+    role?: "buyer" | "seller" | "admin";
     telegramId?: number;
     firstName?: string;
     username?: string;
   }): Promise<{ token: string; user: UserDto; isNew?: boolean }> {
     return http.post<{ token: string; user: UserDto; isNew?: boolean }>(
-      '/auth/dev',
+      "/auth/dev",
       body,
     );
   },
 
-  updateRole(role: 'buyer' | 'seller' | 'admin'): Promise<{ token: string; user: UserDto }> {
-    return http.patch<{ token: string; user: UserDto }>('/auth/role', { role });
+  updateRole(
+    role: "buyer" | "seller" | "admin",
+  ): Promise<{ token: string; user: UserDto }> {
+    return http.patch<{ token: string; user: UserDto }>("/auth/role", { role });
   },
 
   products(filters: ProductFilters = {}): Promise<Paginated<ProductDto>> {
-    return http.get<Paginated<ProductDto>>('/products', filters);
+    return http.get<Paginated<ProductDto>>("/products", filters);
+  },
+
+  addresses(): Promise<AddressDto[]> {
+    return http.get<AddressDto[]>("/addresses");
+  },
+
+  createAddress(dto: CreateAddressInput): Promise<AddressDto> {
+    return http.post<AddressDto>("/addresses", dto);
+  },
+
+  updateAddress(
+    id: string,
+    dto: Partial<CreateAddressInput>,
+  ): Promise<AddressDto> {
+    return http.patch<AddressDto>(`/addresses/${id}`, dto);
+  },
+
+  deleteAddress(id: string): Promise<void> {
+    return http.delete<void>(`/addresses/${id}`);
+  },
+
+  setDefaultAddress(id: string): Promise<AddressDto> {
+    return http.post<AddressDto>(`/addresses/${id}/default`);
   },
 
   product(id: string): Promise<ProductDto> {
@@ -73,11 +100,11 @@ export const leroyApi = {
   },
 
   categories(): Promise<CategoryDto[]> {
-    return http.get<CategoryDto[]>('/categories');
+    return http.get<CategoryDto[]>("/categories");
   },
 
   stores(limit = 20): Promise<Paginated<StoreDto>> {
-    return http.get<Paginated<StoreDto>>('/stores', { limit });
+    return http.get<Paginated<StoreDto>>("/stores", { limit });
   },
 
   store(id: string): Promise<StoreDto> {
@@ -89,18 +116,32 @@ export const leroyApi = {
     return mapSeller(store);
   },
 
-  storeProducts(id: string, page = 1, limit = 20): Promise<Paginated<ProductDto>> {
-    return http.get<Paginated<ProductDto>>(`/stores/${id}/products`, { page, limit });
+  storeProducts(
+    id: string,
+    page = 1,
+    limit = 20,
+  ): Promise<Paginated<ProductDto>> {
+    return http.get<Paginated<ProductDto>>(`/stores/${id}/products`, {
+      page,
+      limit,
+    });
   },
 
   async myStore(userId?: string): Promise<StoreDto | null> {
     const res = await this.stores(100);
-    return userId ? res.items.find((s) => s.ownerId === userId) ?? null : null;
+    return userId
+      ? (res.items.find((s) => s.ownerId === userId) ?? null)
+      : null;
   },
 
   updateStore(
     id: string,
-    dto: { name?: string; description?: string; logoUrl?: string; coverUrl?: string },
+    dto: {
+      name?: string;
+      description?: string;
+      logoUrl?: string;
+      coverUrl?: string;
+    },
   ): Promise<StoreDto> {
     return http.patch<StoreDto>(`/stores/${id}`, dto);
   },
@@ -111,25 +152,23 @@ export const leroyApi = {
     logoUrl?: string;
     coverUrl?: string;
   }): Promise<StoreDto> {
-    return http.post<StoreDto>('/stores', dto);
+    return http.post<StoreDto>("/stores", dto);
   },
 
-  upload(
-    file: File,
-  ): Promise<{
+  upload(file: File): Promise<{
     url: string;
     originalName: string;
     size: number;
     mimetype: string;
   }> {
     const form = new FormData();
-    form.append('file', file);
+    form.append("file", file);
     return http.postForm<{
       url: string;
       originalName: string;
       size: number;
       mimetype: string;
-    }>('/upload', form);
+    }>("/upload", form);
   },
 
   createProduct(dto: {
@@ -139,19 +178,26 @@ export const leroyApi = {
     categoryId?: string;
     images?: string[];
   }): Promise<ProductDto> {
-    return http.post<ProductDto>('/products', dto);
+    return http.post<ProductDto>("/products", dto);
   },
 
   search(query: string, page = 1, limit = 20): Promise<SearchResultDto> {
-    return http.get<SearchResultDto>('/search', { q: query, page, limit });
+    return http.get<SearchResultDto>("/search", { q: query, page, limit });
   },
 
-  reviews(productId: string, page = 1, limit = 20): Promise<Paginated<ReviewDto>> {
-    return http.get<Paginated<ReviewDto>>(`/products/${productId}/reviews`, { page, limit });
+  reviews(
+    productId: string,
+    page = 1,
+    limit = 20,
+  ): Promise<Paginated<ReviewDto>> {
+    return http.get<Paginated<ReviewDto>>(`/products/${productId}/reviews`, {
+      page,
+      limit,
+    });
   },
 
   cart(): Promise<CartDto[]> {
-    return http.get<CartDto[]>('/cart');
+    return http.get<CartDto[]>("/cart");
   },
 
   addToCart(dto: {
@@ -160,7 +206,7 @@ export const leroyApi = {
     selectedSize?: string;
     selectedColor?: string;
   }): Promise<CartDto> {
-    return http.post<CartDto>('/cart/items', dto);
+    return http.post<CartDto>("/cart/items", dto);
   },
 
   updateCartItem(id: string, quantity: number): Promise<CartDto | null> {
@@ -172,15 +218,20 @@ export const leroyApi = {
   },
 
   clearCart(): Promise<void> {
-    return http.delete<void>('/cart');
+    return http.delete<void>("/cart");
   },
 
   favorites(): Promise<Paginated<FavoriteDto>> {
-    return http.get<Paginated<FavoriteDto>>('/favorites', { type: 'products', limit: 100 });
+    return http.get<Paginated<FavoriteDto>>("/favorites", {
+      type: "products",
+      limit: 100,
+    });
   },
 
   toggleFavorite(productId: string): Promise<{ isFavorite: boolean }> {
-    return http.post<{ isFavorite: boolean }>('/favorites/toggle', { productId });
+    return http.post<{ isFavorite: boolean }>("/favorites/toggle", {
+      productId,
+    });
   },
 
   createOrder(dto: {
@@ -188,19 +239,20 @@ export const leroyApi = {
     deliveryMethod: string;
     paymentMethod?: string;
   }): Promise<OrderView> {
-    return http
-      .post<RawOrder>('/orders', dto)
-      .then((order) => mapOrder(order));
+    return http.post<RawOrder>("/orders", dto).then((order) => mapOrder(order));
   },
 
   myOrders(): Promise<OrderView[]> {
     return http
-      .get<RawOrder[]>('/orders')
+      .get<RawOrder[]>("/orders")
       .then((orders) => orders.map((order) => mapOrder(order)));
   },
 
-  pay(order: OrderView, provider = 'mock'): Promise<{ id: string; status: string }> {
-    return http.post<{ id: string; status: string }>('/payments', {
+  pay(
+    order: OrderView,
+    provider = "mock",
+  ): Promise<{ id: string; status: string }> {
+    return http.post<{ id: string; status: string }>("/payments", {
       orderId: order.id,
       provider,
     });
@@ -209,7 +261,7 @@ export const leroyApi = {
   // ── TON / Telegram Wallet ──────────────────────────────────────────────
 
   tonNonce(): Promise<{ payload: string }> {
-    return http.post<{ payload: string }>('/auth/ton/nonce');
+    return http.post<{ payload: string }>("/auth/ton/nonce");
   },
 
   tonVerify(body: {
@@ -218,20 +270,20 @@ export const leroyApi = {
     proof: TonProof;
   }): Promise<{ verified: boolean; wallet: TonWalletBound }> {
     return http.post<{ verified: boolean; wallet: TonWalletBound }>(
-      '/auth/ton/verify',
+      "/auth/ton/verify",
       body,
     );
   },
 
   tonBalance(refresh = false): Promise<TonBalanceView> {
     return http.get<TonBalanceView>(
-      '/ton/wallet/balance',
-      refresh ? { refresh: '1' } : undefined,
+      "/ton/wallet/balance",
+      refresh ? { refresh: "1" } : undefined,
     );
   },
 
   tonPaymentInit(orderId: string): Promise<TonPaymentInitResult> {
-    return http.post<TonPaymentInitResult>('/payments/ton/init', { orderId });
+    return http.post<TonPaymentInitResult>("/payments/ton/init", { orderId });
   },
 
   paymentStatus(id: string): Promise<PaymentView> {
@@ -242,7 +294,11 @@ export const leroyApi = {
     return http.post<PaymentView>(`/payments/${id}/cancel`);
   },
 
-  createReview(dto: { productId: string; rating: number; text?: string }): Promise<ReviewDto> {
-    return http.post<ReviewDto>('/reviews', dto);
+  createReview(dto: {
+    productId: string;
+    rating: number;
+    text?: string;
+  }): Promise<ReviewDto> {
+    return http.post<ReviewDto>("/reviews", dto);
   },
 };

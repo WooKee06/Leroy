@@ -17,11 +17,11 @@ import {
 } from 'react-icons/fi';
 import PageContainer from '@shared/ui/PageContainer';
 import PageHeader from '@shared/ui/PageHeader';
+import { formatAddress } from '@shared/lib/address';
 import {
   addressStore,
   DELIVERY_OPTIONS,
   LABEL_TEXT,
-  type DeliveryAddress,
   type DeliveryKind,
 } from '@shared/stores/addressStore';
 import AddressFormSheet from '@widgets/address/AddressFormSheet';
@@ -40,13 +40,6 @@ const LABEL_ICON: Record<string, React.ReactNode> = {
   work: <FiBriefcase size={13} />,
   other: <FiTag size={13} />,
 };
-
-function formatAddress(a: DeliveryAddress): string {
-  const parts = [`${a.city}, ${a.street} ${a.house}`];
-  if (a.apartment) parts.push(`кв./офис ${a.apartment}`);
-  if (a.postalCode) parts.push(a.postalCode);
-  return parts.join(', ');
-}
 
 function AddressesPage() {
   const [pendingDelete, setPendingDelete] = useState<string | null>(null);
@@ -98,7 +91,18 @@ function AddressesPage() {
         <div className={styles.section}>
           <div className={styles.sectionTitle}>Мои адреса</div>
 
-          {addressStore.count === 0 ? (
+          {addressStore.loading && addressStore.count === 0 ? (
+            <div className={styles.empty}>
+              <FiMapPin size={26} />
+              <p className={styles.emptyText}>Загрузка…</p>
+            </div>
+          ) : addressStore.error && addressStore.count === 0 ? (
+            <div className={styles.empty}>
+              <FiMapPin size={26} />
+              <p className={styles.emptyTitle}>Не удалось загрузить адреса</p>
+              <p className={styles.emptyText}>{addressStore.error}</p>
+            </div>
+          ) : addressStore.count === 0 ? (
             <div className={styles.empty}>
               <FiMapPin size={26} />
               <p className={styles.emptyTitle}>Пока нет адресов</p>
