@@ -10,7 +10,7 @@
   height: 300px;
   border-radius: 0;
   overflow: hidden;
-  margin-top: calc(-64px - env(safe-area-inset-top, 0px));
+  margin-top: calc(-64px - var(--safe-top));
 
   &::after {
     content: "";

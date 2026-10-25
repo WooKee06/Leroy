@@ -1,0 +1,20 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.map {
+  width: 100%;
+  min-height: 600px;
+}
+
+.selected {
+  padding: 14px;
+  border: 1px solid #e5e5e5;
+  border-radius: 12px;
+
+  p {
+    margin: 6px 0;
+  }
+}

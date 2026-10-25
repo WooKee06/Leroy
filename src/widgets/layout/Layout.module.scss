@@ -8,5 +8,5 @@
 
 .layoutMain {
   min-height: 100dvh;
-  padding-top: calc(64px + env(safe-area-inset-top, 0px));
+  padding-top: calc(64px + var(--safe-top));
 }

@@ -7,7 +7,7 @@
   justify-content: center;
   height: 56px;
   margin-top: $space-sm;
-  padding-top: env(safe-area-inset-top);
+  padding-top: var(--safe-top);
 }
 
 .backBtn {
@@ -462,7 +462,7 @@
   z-index: 95;
   background: var(--bg-surface);
   border-radius: 24px 24px 0 0;
-  padding: 12px 20px calc(24px + env(safe-area-inset-bottom));
+  padding: 12px 20px calc(24px + var(--safe-bottom));
   max-height: 88vh;
   overflow-y: auto;
   box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.18);

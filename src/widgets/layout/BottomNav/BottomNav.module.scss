@@ -2,7 +2,7 @@
 
 .bottomNav {
   position: fixed;
-  bottom: $nav-bottom;
+  bottom: calc(#{$nav-bottom} + var(--safe-bottom));
   left: 0;
   right: 0;
   margin: 0 auto;

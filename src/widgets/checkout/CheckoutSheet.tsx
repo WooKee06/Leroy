@@ -1,23 +1,25 @@
-import { AnimatePresence, motion } from 'framer-motion';
-import { observer } from 'mobx-react-lite';
-import { useNavigate } from 'react-router-dom';
-import { useTonConnectUI } from '@tonconnect/ui-react';
-import { beginCell } from '@ton/core';
-import { FiArrowRight, FiCheck, FiX, FiMapPin, FiCopy } from 'react-icons/fi';
-import { checkoutStore } from '@shared/stores/checkoutStore';
-import { cartStore } from '@shared/stores/cartStore';
-import { tonWalletStore } from '@shared/stores/tonWalletStore';
-import { nanoToTon, shortenAddress, copyText } from '@shared/lib/ton';
-import styles from './CheckoutSheet.module.scss';
+import { AnimatePresence, motion } from "framer-motion";
+import { observer } from "mobx-react-lite";
+import { useNavigate } from "react-router-dom";
+import { useTonConnectUI } from "@tonconnect/ui-react";
+import { beginCell } from "@ton/core";
+import { FiArrowRight, FiCheck, FiX, FiMapPin, FiCopy } from "react-icons/fi";
+import { checkoutStore } from "@shared/stores/checkoutStore";
+import { cartStore } from "@shared/stores/cartStore";
+import { tonWalletStore } from "@shared/stores/tonWalletStore";
+import { nanoToTon, shortenAddress, copyText } from "@shared/lib/ton";
+import styles from "./CheckoutSheet.module.scss";
+import { useCallback, useState } from "react";
+import { CdekPickup } from "../CdekPickup/CdekPickup";
 
-const DELIVERY_METHODS = ['СДЭК', 'Почта России', 'Курьер', 'Самовывоз'];
+const DELIVERY_METHODS = ["СДЭК", "Почта России", "Курьер", "Самовывоз"];
 
 function formatExpiry(iso: string): string {
   const date = new Date(iso);
-  if (Number.isNaN(date.getTime())) return '';
-  return new Intl.DateTimeFormat('ru-RU', {
-    hour: '2-digit',
-    minute: '2-digit',
+  if (Number.isNaN(date.getTime())) return "";
+  return new Intl.DateTimeFormat("ru-RU", {
+    hour: "2-digit",
+    minute: "2-digit",
   }).format(date);
 }
 
@@ -25,12 +27,21 @@ function CheckoutSheet() {
   const navigate = useNavigate();
   const [tonConnectUI] = useTonConnectUI();
   const session = checkoutStore.tonSession;
+  const [pickup, setPickup] = useState<{
+    code?: string;
+    address?: string;
+    name?: string;
+  } | null>(null);
+
+  const handleSelect = useCallback((point: typeof pickup) => {
+    setPickup(point);
+  }, []);
 
   const close = () => checkoutStore.close();
 
   const goToShop = () => {
     close();
-    navigate('/');
+    navigate("/");
   };
 
   const copyTonAddress = async () => {
@@ -42,16 +53,14 @@ function CheckoutSheet() {
   const confirmTonPayment = async () => {
     if (!session) return;
     checkoutStore.tonConfirming = true;
-    checkoutStore.error = '';
+    checkoutStore.error = "";
     try {
       const { quote } = session;
-      // The wallet attaches this comment to the transfer; the server verifies
-      // the on-chain transfer by this exact memo.
       const body = beginCell()
         .storeUint(0, 32)
         .storeStringTail(quote.memo)
         .endCell();
-      const payload = body.toBoc().toString('base64');
+      const payload = body.toBoc().toString("base64");
 
       await tonConnectUI.sendTransaction({
         validUntil: Math.floor(Date.now() / 1000) + 600,
@@ -68,12 +77,13 @@ function CheckoutSheet() {
       void checkoutStore.waitForTonResult();
     } catch (e) {
       checkoutStore.tonConfirming = false;
-      const msg = e instanceof Error ? e.message : 'Операция отменена';
+      const msg = e instanceof Error ? e.message : "Операция отменена";
       const lower = msg.toLowerCase();
       if (/reject|cancel|closed|denied|user/i.test(lower)) {
         await checkoutStore.cancelTonPayment();
       } else if (/not connected|connect/i.test(lower)) {
-        checkoutStore.error = 'Сначала подключите кошелёк в разделе «Настройки»';
+        checkoutStore.error =
+          "Сначала подключите кошелёк в разделе «Настройки»";
       } else {
         checkoutStore.error = msg;
       }
@@ -98,27 +108,31 @@ function CheckoutSheet() {
           />
           <motion.div
             className={styles.sheet}
-            initial={{ y: '100%' }}
+            initial={{ y: "100%" }}
             animate={{ y: 0 }}
-            exit={{ y: '100%' }}
-            transition={{ type: 'spring', stiffness: 320, damping: 34 }}
+            exit={{ y: "100%" }}
+            transition={{ type: "spring", stiffness: 320, damping: 34 }}
             role="dialog"
             aria-modal="true"
           >
             <div className={styles.handle} />
-            <button className={styles.close} onClick={close} aria-label="Закрыть">
+            <button
+              className={styles.close}
+              onClick={close}
+              aria-label="Закрыть"
+            >
               <FiX size={18} />
             </button>
 
-            {checkoutStore.step === 'success' && checkoutStore.order ? (
+            {checkoutStore.step === "success" && checkoutStore.order ? (
               <div className={styles.success}>
                 <div className={styles.successIcon}>
                   <FiCheck size={26} />
                 </div>
                 <h2 className={styles.title}>Заказ оплачен</h2>
                 <p className={styles.successText}>
-                  Заказ №{checkoutStore.order.orderNumber} на сумму{' '}
-                  {checkoutStore.order.total.toLocaleString('ru-RU')} ₽ успешно
+                  Заказ №{checkoutStore.order.orderNumber} на сумму{" "}
+                  {checkoutStore.order.total.toLocaleString("ru-RU")} ₽ успешно
                   оплачен. Продавцы уже обрабатывают его.
                 </p>
                 <button className={styles.submitBtn} onClick={goToShop}>
@@ -126,7 +140,7 @@ function CheckoutSheet() {
                   <FiArrowRight size={16} />
                 </button>
               </div>
-            ) : checkoutStore.step === 'processing' ? (
+            ) : checkoutStore.step === "processing" ? (
               <div className={styles.processing}>
                 <div className={styles.spinner} />
                 <h2 className={styles.title}>Оформляем заказ</h2>
@@ -134,7 +148,7 @@ function CheckoutSheet() {
                   Создаём заказ и готовим платёж… это займёт пару секунд
                 </p>
               </div>
-            ) : checkoutStore.step === 'ton-confirm' && session ? (
+            ) : checkoutStore.step === "ton-confirm" && session ? (
               <div className={styles.confirm}>
                 <h2 className={styles.title}>Оплата в TON</h2>
                 <p className={styles.confirmText}>
@@ -147,10 +161,12 @@ function CheckoutSheet() {
                   <span className={styles.payValue}>
                     {Number(
                       nanoToTon(session.quote.tonAmountNano),
-                    ).toLocaleString('ru-RU', { maximumFractionDigits: 9 })}{' '}
+                    ).toLocaleString("ru-RU", {
+                      maximumFractionDigits: 9,
+                    })}{" "}
                     TON
                     <span className={styles.paySub}>
-                      ≈ {session.quote.totalRub.toLocaleString('ru-RU')} ₽
+                      ≈ {session.quote.totalRub.toLocaleString("ru-RU")} ₽
                     </span>
                   </span>
                 </div>
@@ -200,8 +216,8 @@ function CheckoutSheet() {
                   disabled={checkoutStore.tonConfirming}
                 >
                   {checkoutStore.tonConfirming
-                    ? 'Открываем кошелёк…'
-                    : 'Подтвердить в кошельке'}
+                    ? "Открываем кошелёк…"
+                    : "Подтвердить в кошельке"}
                   <FiArrowRight size={16} />
                 </button>
                 <button
@@ -212,13 +228,13 @@ function CheckoutSheet() {
                   Отменить оплату
                 </button>
               </div>
-            ) : checkoutStore.step === 'ton-waiting' && session ? (
+            ) : checkoutStore.step === "ton-waiting" && session ? (
               <div className={styles.processing}>
                 <div className={styles.spinner} />
                 <h2 className={styles.title}>Ждём подтверждение</h2>
                 <p className={styles.processingText}>
-                  Ожидаем, пока перевод появится в блокчейне. Обычно это занимает
-                  несколько секунд.
+                  Ожидаем, пока перевод появится в блокчейне. Обычно это
+                  занимает несколько секунд.
                 </p>
                 {checkoutStore.error && (
                   <p className={styles.error}>{checkoutStore.error}</p>
@@ -239,6 +255,7 @@ function CheckoutSheet() {
 
                 <label className={styles.field}>
                   <span className={styles.fieldLabel}>Адрес доставки</span>
+                  <CdekPickup onSelect={handleSelect} />
                   <div className={styles.inputWrap}>
                     <FiMapPin size={16} className={styles.inputIcon} />
                     <input
@@ -277,9 +294,9 @@ function CheckoutSheet() {
                   <span className={styles.fieldLabel}>Оплата</span>
                   <div className={styles.chips}>
                     {[
-                      { id: 'mock', label: 'Мок-оплата' },
-                      { id: 'stars', label: 'Telegram Stars' },
-                      { id: 'ton', label: 'TON (Telegram Wallet)' },
+                      { id: "mock", label: "Мок-оплата" },
+                      { id: "stars", label: "Telegram Stars" },
+                      { id: "ton", label: "TON (Telegram Wallet)" },
                     ].map((p) => (
                       <button
                         key={p.id}
@@ -296,7 +313,7 @@ function CheckoutSheet() {
                       </button>
                     ))}
                   </div>
-                  {checkoutStore.paymentMethod === 'ton' &&
+                  {checkoutStore.paymentMethod === "ton" &&
                     !tonWalletStore.isConnected && (
                       <p className={styles.payWarn}>
                         Сначала подключите кошелёк: Настройки → Криптовалюта
@@ -307,21 +324,21 @@ function CheckoutSheet() {
                 <div className={styles.summary}>
                   <div className={styles.summaryRow}>
                     <span>Товары</span>
-                    <span>{cartStore.subtotal.toLocaleString('ru-RU')} ₽</span>
+                    <span>{cartStore.subtotal.toLocaleString("ru-RU")} ₽</span>
                   </div>
                   <div className={styles.summaryRow}>
                     <span>Доставка</span>
                     <span>
                       {cartStore.delivery === 0
-                        ? 'Бесплатно'
-                        : `${cartStore.delivery.toLocaleString('ru-RU')} ₽`}
+                        ? "Бесплатно"
+                        : `${cartStore.delivery.toLocaleString("ru-RU")} ₽`}
                     </span>
                   </div>
                   <div
                     className={`${styles.summaryRow} ${styles.summaryTotal}`}
                   >
                     <span>Итого</span>
-                    <span>{cartStore.total.toLocaleString('ru-RU')} ₽</span>
+                    <span>{cartStore.total.toLocaleString("ru-RU")} ₽</span>
                   </div>
                 </div>
 
