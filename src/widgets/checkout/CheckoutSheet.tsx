@@ -12,7 +12,36 @@ import styles from "./CheckoutSheet.module.scss";
 import { useCallback, useState } from "react";
 import { CdekPickup } from "../CdekPickup/CdekPickup";
 
-const DELIVERY_METHODS = ["СДЭК", "Почта России", "Курьер", "Самовывоз"];
+const DELIVERY_METHODS = [
+  {
+    id: 1,
+    title: "СДЭК",
+    description: "Доставка курьером или в пункт выдачи",
+    price: 300,
+    disabled: true,
+  },
+  {
+    id: 2,
+    title: "Почта России",
+    description: "Доставка в почтовое отделение",
+    price: 200,
+    disabled: false,
+  },
+  {
+    id: 3,
+    title: "Курьер",
+    description: "Доставка курьером до двери",
+    price: 400,
+    disabled: false,
+  },
+  {
+    id: 4,
+    title: "Самовывоз",
+    description: "Забрать заказ самостоятельно",
+    price: 0,
+    disabled: false,
+  },
+];
 
 function formatExpiry(iso: string): string {
   const date = new Date(iso);
@@ -273,19 +302,27 @@ function CheckoutSheet() {
                   <span className={styles.fieldLabel}>Способ доставки</span>
                   <div className={styles.chips}>
                     {DELIVERY_METHODS.map((method) => (
-                      <button
-                        key={method}
-                        className={
-                          checkoutStore.deliveryMethod === method
-                            ? styles.chipActive
-                            : styles.chip
-                        }
-                        onClick={() => {
-                          checkoutStore.deliveryMethod = method;
-                        }}
-                      >
-                        {method}
-                      </button>
+                      <div key={method.id} className={styles.chipWrap}>
+                        {!method.disabled && (
+                          <span className={styles.soon}>скоро</span>
+                        )}
+                        <button
+                          disabled={method.title === "СДЭК" && !pickup}
+                          className={
+                            checkoutStore.deliveryMethod === method.title &&
+                            method.disabled
+                              ? styles.chipActive
+                              : styles.chip
+                          }
+                          onClick={() => {
+                            method.disabled
+                              ? (checkoutStore.deliveryMethod = method.title)
+                              : null;
+                          }}
+                        >
+                          {method.title}
+                        </button>
+                      </div>
                     ))}
                   </div>
                 </label>
@@ -294,23 +331,32 @@ function CheckoutSheet() {
                   <span className={styles.fieldLabel}>Оплата</span>
                   <div className={styles.chips}>
                     {[
-                      { id: "mock", label: "Мок-оплата" },
-                      { id: "stars", label: "Telegram Stars" },
-                      { id: "ton", label: "TON (Telegram Wallet)" },
+                      { id: "mock", label: "Мок-оплата", disabled: true },
+                      { id: "stars", label: "Telegram Stars", disabled: false },
+                      {
+                        id: "ton",
+                        label: "TON (Telegram Wallet)",
+                        disabled: true,
+                      },
                     ].map((p) => (
-                      <button
-                        key={p.id}
-                        className={
-                          checkoutStore.paymentMethod === p.id
-                            ? styles.chipActive
-                            : styles.chip
-                        }
-                        onClick={() => {
-                          checkoutStore.paymentMethod = p.id;
-                        }}
-                      >
-                        {p.label}
-                      </button>
+                      <div key={p.id} className={styles.chipWrap}>
+                        {!p.disabled && (
+                          <span className={styles.soon}>скоро</span>
+                        )}
+                        <button
+                          disabled={!p.disabled}
+                          className={
+                            checkoutStore.paymentMethod === p.id && p.disabled
+                              ? styles.chipActive
+                              : styles.chip
+                          }
+                          onClick={() => {
+                            p.disabled && (checkoutStore.paymentMethod = p.id);
+                          }}
+                        >
+                          {p.label}
+                        </button>
+                      </div>
                     ))}
                   </div>
                   {checkoutStore.paymentMethod === "ton" &&

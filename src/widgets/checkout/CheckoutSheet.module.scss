@@ -20,6 +20,25 @@
   box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.18);
 }
 
+.chipWrap {
+  position: relative;
+}
+
+.soon {
+  position: absolute;
+  top: -12px;
+  right: -12px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--bg-surface-secondary);
+  border-radius: 9px;
+  padding: 2px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .handle {
   width: 40px;
   height: 4px;
@@ -65,6 +84,7 @@
 
 .inputWrap {
   position: relative;
+  margin-top: 10px;
 }
 
 .inputIcon {
