@@ -22,6 +22,8 @@
   --inverted: #f2f3f7;
   --inverted-fg: #0c0d12;
   --inset-highlight: rgba(255, 255, 255, 0.06);
+  --skeleton-base: #20222b;
+  --skeleton-highlight: rgba(255, 255, 255, 0.06);
   --bg-glow:
     radial-gradient(55% 38% at 12% -4%, rgba(60, 90, 160, 0.22), transparent 62%),
     radial-gradient(46% 34% at 88% 4%, rgba(90, 70, 150, 0.18), transparent 60%),
@@ -48,6 +50,8 @@
   --inverted: #1a1a1a;
   --inverted-fg: #ffffff;
   --inset-highlight: rgba(255, 255, 255, 0.8);
+  --skeleton-base: #ececf0;
+  --skeleton-highlight: rgba(255, 255, 255, 0.75);
   --bg-glow:
     radial-gradient(55% 38% at 12% -4%, rgba(186, 211, 255, 0.18), transparent 62%),
     radial-gradient(46% 34% at 88% 4%, rgba(226, 218, 255, 0.16), transparent 60%),
@@ -74,6 +78,8 @@
     --tint-gray: rgba(142, 142, 147, 0.14);
     --inverted: #1a1a1a;
     --inverted-fg: #ffffff;
+    --skeleton-base: #ececf0;
+    --skeleton-highlight: rgba(255, 255, 255, 0.75);
     --bg-glow:
       radial-gradient(55% 38% at 12% -4%, rgba(186, 211, 255, 0.18), transparent 62%),
       radial-gradient(46% 34% at 88% 4%, rgba(226, 218, 255, 0.16), transparent 60%),

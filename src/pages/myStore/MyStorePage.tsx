@@ -6,6 +6,7 @@ import { mapProduct, mapSeller } from "@shared/api/models";
 import { leroyApi } from "@shared/api/leroyApi";
 import { accountStore } from "@shared/stores/accountStore";
 import PageContainer from "@shared/ui/PageContainer";
+import { StorePageSkeleton } from "@shared/ui/Skeletons";
 import ProductCard from "@widgets/product/ProductCard";
 import {
   ProductFormSheet,
@@ -67,12 +68,8 @@ export default function MyStorePage() {
 
   if (loading) {
     return (
-      <div className={`page-wrapper ${styles.page}`}>
-        <PageContainer>
-          <p style={{ color: "var(--text-secondary)", textAlign: "center", paddingTop: 24 }}>
-            Загрузка…
-          </p>
-        </PageContainer>
+      <div className={storeStyles.page}>
+        <StorePageSkeleton />
       </div>
     );
   }

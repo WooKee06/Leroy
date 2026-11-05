@@ -21,6 +21,8 @@ import { accountStore } from "@shared/stores/accountStore";
 import { favoritesStore } from "@shared/stores/favoritesStore";
 import { catalogStore } from "@shared/stores/catalogStore";
 import PageContainer from "@shared/ui/PageContainer";
+import Skeleton from "@shared/ui/Skeleton";
+import { ProductRowSkeleton } from "@shared/ui/Skeletons";
 import BalanceCard from "@widgets/home/BalanceCard/BalanceCard";
 import ProductCard from "@widgets/product/ProductCard";
 import styles from "./ProfilePage.module.scss";
@@ -28,17 +30,33 @@ import styles from "./ProfilePage.module.scss";
 function ProfilePage() {
   const navigate = useNavigate();
   const [orders, setOrders] = useState<Order[]>([]);
+  const [ordersLoading, setOrdersLoading] = useState(true);
 
   useEffect(() => {
+    let alive = true;
     void favoritesStore.ensureLoaded();
     void catalogStore.load();
-    void leroyApi
+    leroyApi
       .myOrders()
-      .then(setOrders)
-      .catch(() => setOrders([]));
+      .then((items) => {
+        if (alive) setOrders(items);
+      })
+      .catch(() => {
+        if (alive) setOrders([]);
+      })
+      .finally(() => {
+        if (alive) setOrdersLoading(false);
+      });
+    return () => {
+      alive = false;
+    };
   }, []);
 
   const favoriteItems = favoritesStore.products;
+  const dataLoading =
+    ordersLoading ||
+    (favoritesStore.loading && !favoritesStore.loaded) ||
+    (catalogStore.loading && !catalogStore.loaded);
 
   const recommended = catalogStore.products.slice(0, 5);
 
@@ -101,7 +119,7 @@ function ProfilePage() {
     iconBg: string;
     iconColor: string;
     label: string;
-    desc?: string;
+    desc?: React.ReactNode;
     path?: string;
   }[] = [
     ...(accountStore.role === "seller"
@@ -121,7 +139,11 @@ function ProfilePage() {
       iconBg: "var(--tint-red)",
       iconColor: "#ff3b30",
       label: "Избранное",
-      desc: `${favoriteItems.length} товара`,
+      desc: dataLoading ? (
+        <Skeleton width={54} height={12} radius={4} />
+      ) : (
+        `${favoriteItems.length} товара`
+      ),
       path: "/favorites",
     },
     {
@@ -185,7 +207,16 @@ function ProfilePage() {
         <div className={styles.stats}>
           {orderStats.map((s) => (
             <div className={styles.stat} key={s.label}>
-              <div className={styles.statValue}>{s.value}</div>
+              {dataLoading ? (
+                <Skeleton
+                  width={32}
+                  height={20}
+                  radius={5}
+                  className={styles.statSkeleton}
+                />
+              ) : (
+                <div className={styles.statValue}>{s.value}</div>
+              )}
               <div className={styles.statLabel}>{s.label}</div>
             </div>
           ))}
@@ -209,7 +240,11 @@ function ProfilePage() {
               <span className={styles.orderIcon} style={{ background: t.tint }}>
                 {t.icon}
               </span>
-              <span className={styles.orderValue}>{t.value}</span>
+              {dataLoading ? (
+                <Skeleton width={26} height={16} radius={4} />
+              ) : (
+                <span className={styles.orderValue}>{t.value}</span>
+              )}
               <span className={styles.orderLabel}>{t.label}</span>
             </motion.button>
           ))}
@@ -246,7 +281,7 @@ function ProfilePage() {
           ))}
         </div>
 
-        {recommended.length > 0 && (
+        {recommended.length > 0 ? (
           <div className={styles.recs}>
             <h2 className={styles.sectionTitle}>Вам может понравиться</h2>
             <div className={styles.recsRow}>
@@ -257,7 +292,12 @@ function ProfilePage() {
               ))}
             </div>
           </div>
-        )}
+        ) : dataLoading ? (
+          <div className={styles.recs}>
+            <h2 className={styles.sectionTitle}>Вам может понравиться</h2>
+            <ProductRowSkeleton count={4} />
+          </div>
+        ) : null}
       </PageContainer>
     </div>
   );

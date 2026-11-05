@@ -5,6 +5,7 @@ import type { Order } from "@shared/api/models";
 import { leroyApi } from "@shared/api/leroyApi";
 import PageContainer from "@shared/ui/PageContainer";
 import PageHeader from "@shared/ui/PageHeader";
+import { OrderListSkeleton } from "@shared/ui/Skeletons";
 import { statusInfo } from "@shared/lib/orders";
 import styles from "./OrdersPage.module.scss";
 
@@ -86,9 +87,7 @@ export default function OrdersPage() {
           </div>
         )}
 
-        {loading && (
-          <p className={styles.loading}>Загрузка…</p>
-        )}
+        {loading && <OrderListSkeleton count={3} />}
 
         {filtered.length > 0 && (
           <div className={styles.summary}>

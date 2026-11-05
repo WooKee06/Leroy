@@ -11,6 +11,7 @@ import {
 } from "react-icons/fi";
 import { cartStore } from "@shared/stores/cartStore";
 import PageContainer from "@shared/ui/PageContainer";
+import { CartSkeleton } from "@shared/ui/Skeletons";
 import styles from "./CartPage.module.scss";
 
 function CartPage() {
@@ -29,9 +30,7 @@ function CartPage() {
       <div className={`page-wrapper ${styles.cartPage}`}>
         <PageContainer>
           <h1 className={styles["cartPage-heading"]}>Корзина</h1>
-          <p style={{ color: "var(--text-secondary)", textAlign: "center", paddingTop: 24 }}>
-            Загрузка…
-          </p>
+          <CartSkeleton />
         </PageContainer>
       </div>
     );

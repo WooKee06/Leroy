@@ -7,6 +7,7 @@ import { mapProduct, mapSeller } from "@shared/api/models";
 import { leroyApi } from "@shared/api/leroyApi";
 import { favoritesStore } from "@shared/stores/favoritesStore";
 import PageContainer from "@shared/ui/PageContainer";
+import { StorePageSkeleton } from "@shared/ui/Skeletons";
 import ProductCard from "@widgets/product/ProductCard";
 import styles from "./StorePage.module.scss";
 
@@ -68,8 +69,8 @@ export default function StorePage() {
 
   if (!seller) {
     return (
-      <div className="page-wrapper" style={{ padding: 40, textAlign: "center", color: "var(--text-secondary)" }}>
-        Загрузка…
+      <div className={styles.page}>
+        <StorePageSkeleton />
       </div>
     );
   }

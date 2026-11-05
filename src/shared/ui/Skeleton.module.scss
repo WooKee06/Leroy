@@ -1,0 +1,42 @@
+@use "../../app/styles/variables" as *;
+
+.skeleton {
+  display: block;
+  position: relative;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--skeleton-base);
+  border-radius: $radius-md;
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    transform: translateX(-100%);
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      var(--skeleton-highlight) 50%,
+      transparent 100%
+    );
+    animation: shimmer 1.5s ease-in-out infinite;
+  }
+}
+
+.circle {
+  border-radius: 50%;
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton::after {
+    animation: none;
+    transform: none;
+    opacity: 0.4;
+  }
+}

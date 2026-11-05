@@ -4,8 +4,16 @@
   padding-bottom: 96px;
 }
 
+.categoriesSkeleton {
+  padding: $space-2xl 0 $space-lg;
+}
+
 .banners {
   margin: 8px 0 $space-xl;
+}
+
+.sectionTitleSkeleton {
+  margin-bottom: $space-lg;
 }
 
 .gridSection {

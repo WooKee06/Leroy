@@ -5,6 +5,8 @@ import { observer } from "mobx-react-lite";
 import { FiHeart } from "react-icons/fi";
 import { favoritesStore } from "@shared/stores/favoritesStore";
 import PageContainer from "@shared/ui/PageContainer";
+import Skeleton from "@shared/ui/Skeleton";
+import { ChipRowSkeleton, ProductGridSkeleton } from "@shared/ui/Skeletons";
 import ProductCard from "@widgets/product/ProductCard";
 import styles from "./FavoritesPage.module.scss";
 
@@ -36,18 +38,28 @@ function FavoritesPage() {
   }, [all, filter]);
 
   const isEmpty = all.length === 0;
+  const loading = favoritesStore.loading && !favoritesStore.loaded;
 
   return (
     <div className={`page-wrapper ${styles.page}`}>
       <PageContainer>
         <div className={styles.head}>
           <h1 className={styles.title}>Избранное</h1>
-          <span className={styles.subtitle}>
-            {items.length} {items.length === 1 ? "товар" : "товаров"}
-          </span>
+          {loading ? (
+            <Skeleton width={64} height={13} radius={4} />
+          ) : (
+            <span className={styles.subtitle}>
+              {items.length} {items.length === 1 ? "товар" : "товаров"}
+            </span>
+          )}
         </div>
 
-        {isEmpty ? (
+        {loading ? (
+          <>
+            <ChipRowSkeleton count={3} className={styles.filtersSkeleton} />
+            <ProductGridSkeleton count={4} />
+          </>
+        ) : isEmpty ? (
           <div className={styles.empty}>
             <div className={styles.emptyIcon}>
               <FiHeart size={30} />

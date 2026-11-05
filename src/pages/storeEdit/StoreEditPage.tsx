@@ -8,6 +8,7 @@ import {
   DEFAULT_STORE_COVER,
 } from "@shared/lib/placeholders";
 import PageContainer from "@shared/ui/PageContainer";
+import { StoreEditSkeleton } from "@shared/ui/Skeletons";
 import styles from "./StoreEditPage.module.scss";
 
 export default function StoreEditPage() {
@@ -18,18 +19,25 @@ export default function StoreEditPage() {
   const [logoUrl, setLogoUrl] = useState("");
   const [coverUrl, setCoverUrl] = useState("");
   const [saving, setSaving] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     let alive = true;
-    void leroyApi.myStore(accountStore.userId).then((store) => {
-      if (!alive || !store) return;
-      setStoreId(store.id);
-      setName(store.name ?? "");
-      setDescription(store.description ?? "");
-      setLogoUrl(store.logoUrl ?? "");
-      setCoverUrl(store.coverUrl ?? "");
-    });
+    leroyApi
+      .myStore(accountStore.userId)
+      .then((store) => {
+        if (!alive || !store) return;
+        setStoreId(store.id);
+        setName(store.name ?? "");
+        setDescription(store.description ?? "");
+        setLogoUrl(store.logoUrl ?? "");
+        setCoverUrl(store.coverUrl ?? "");
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (alive) setLoading(false);
+      });
     return () => {
       alive = false;
     };
@@ -57,6 +65,16 @@ export default function StoreEditPage() {
       setSaving(false);
     }
   };
+
+  if (loading) {
+    return (
+      <div className={`page-wrapper ${styles.page}`}>
+        <PageContainer>
+          <StoreEditSkeleton />
+        </PageContainer>
+      </div>
+    );
+  }
 
   return (
     <div className={`page-wrapper ${styles.page}`}>

@@ -7,6 +7,7 @@ import type { Product } from "@shared/api/models";
 import { catalogStore } from "@shared/stores/catalogStore";
 import SearchBar from "@shared/ui/SearchBar";
 import PageContainer from "@shared/ui/PageContainer";
+import { ProductGridSkeleton } from "@shared/ui/Skeletons";
 import HeroSection from "@widgets/home/HeroSection/HeroSection";
 import QuickActions from "@widgets/home/QuickActions/QuickActions";
 import BalanceCard from "@widgets/home/BalanceCard/BalanceCard";
@@ -118,16 +119,14 @@ function HomePage() {
           ))}
         </div>
 
-        {!catalogStore.loaded && catalogStore.loading && (
-          <p style={{ color: "var(--text-secondary)", padding: 24, textAlign: "center" }}>
-            Загрузка…
-          </p>
+        {!catalogStore.loaded && catalogStore.loading ? (
+          <ProductGridSkeleton count={6} />
+        ) : (
+          <FeaturedProducts
+            products={filteredProducts.filter((p) => p.id !== featured?.id)}
+            variant="grid"
+          />
         )}
-
-        <FeaturedProducts
-          products={filteredProducts.filter((p) => p.id !== featured?.id)}
-          variant="grid"
-        />
       </PageContainer>
     </div>
   );

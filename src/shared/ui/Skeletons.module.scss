@@ -1,0 +1,534 @@
+@use "../../app/styles/variables" as *;
+
+/* ---------- Products ---------- */
+
+.productCard {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.productImage {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: $radius-md;
+}
+
+.productInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px 2px 0;
+}
+
+.productName {
+  width: 82%;
+  height: 14px;
+  border-radius: 5px;
+}
+
+.productPrice {
+  width: 45%;
+  height: 16px;
+  border-radius: 5px;
+  margin-top: 2px;
+}
+
+.productSeller {
+  width: 36%;
+  height: 11px;
+  border-radius: 4px;
+}
+
+.productButton {
+  width: 100%;
+  height: 38px;
+  border-radius: $radius-pill;
+  margin-top: 4px;
+}
+
+.productCardSmall {
+  .productInfo {
+    padding-top: 8px;
+    gap: 5px;
+  }
+
+  .productName {
+    width: 86%;
+    height: 12px;
+  }
+
+  .productPrice {
+    height: 13px;
+  }
+
+  .productButton {
+    height: 34px;
+    margin-top: 6px;
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px;
+  row-gap: 15px;
+  padding-top: $space-lg;
+}
+
+.productRow {
+  display: flex;
+  gap: $space-md;
+  overflow: hidden;
+  padding-bottom: $space-sm;
+}
+
+.productRowItem {
+  flex-shrink: 0;
+  width: 168px;
+  min-width: 0;
+}
+
+/* ---------- Filters / chips ---------- */
+
+.chipRow {
+  display: flex;
+  gap: $space-sm;
+  overflow: hidden;
+  padding: $space-sm 0;
+}
+
+.chip {
+  height: 36px;
+  border-radius: $radius-pill;
+}
+
+/* ---------- Stores ---------- */
+
+.storeCardsRow {
+  display: flex;
+  gap: 14px;
+  overflow: hidden;
+  padding: $space-sm 0;
+}
+
+.storeCard {
+  flex-shrink: 0;
+  width: 172px;
+  height: 220px;
+  border-radius: 26px;
+}
+
+.storeList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: $space-sm 0;
+}
+
+.storeRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 18px;
+  background: $bg-surface;
+  box-shadow: $shadow-soft;
+}
+
+.storeRowInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.storePage {
+  min-height: 100dvh;
+  padding-bottom: var(--bottom-nav-space);
+}
+
+.storeCover {
+  width: 100%;
+  height: 300px;
+  margin-top: calc(-64px - var(--safe-top));
+}
+
+.storeHeader {
+  display: flex;
+  align-items: flex-end;
+  gap: $space-lg;
+}
+
+.storeAvatar {
+  width: 96px;
+  height: 96px;
+  margin-top: -48px;
+}
+
+.storeIdentity {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 6px;
+}
+
+.storeStats {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-sm;
+  margin: $space-2xl 0 0;
+}
+
+.storeStat {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 7px;
+}
+
+.storeTabs {
+  display: flex;
+  gap: $space-sm;
+  padding: $space-2xl 0 $space-lg;
+}
+
+.storeTab {
+  flex: 1;
+  height: 44px;
+  border-radius: $radius-pill;
+}
+
+/* ---------- Promo ---------- */
+
+.promoWrap {
+  width: 100%;
+  padding: 10px 10px 0;
+}
+
+.promoCard {
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+  padding: $space-sm;
+  border-radius: $radius-2xl;
+  background: linear-gradient(
+    135deg,
+    var(--bg-surface) 0%,
+    var(--bg-surface-secondary) 100%
+  );
+}
+
+.promoImage {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+}
+
+.promoInfo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-md;
+  padding: 0 $space-sm;
+}
+
+.promoButtons {
+  display: flex;
+  gap: $space-sm;
+}
+
+.promoButton {
+  flex: 1;
+  height: 44px;
+  border-radius: $radius-pill;
+}
+
+/* ---------- Orders ---------- */
+
+.orderList {
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+}
+
+.orderCard {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: $radius-lg;
+  background: var(--bg-surface);
+}
+
+.orderHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-md;
+}
+
+.orderFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+}
+
+.orderDetail {
+  display: flex;
+  flex-direction: column;
+}
+
+.orderDetailHero {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 4px 0 $space-lg;
+}
+
+.orderDetailBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: $space-lg;
+  padding-bottom: $space-lg;
+  border-bottom: 1px solid $color-divider;
+}
+
+.orderDetailItem {
+  display: flex;
+  align-items: center;
+  gap: $space-md;
+  padding: $space-md 0;
+}
+
+.orderDetailItemInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.orderDetailRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 5px 0;
+}
+
+/* ---------- Cart ---------- */
+
+.cart {
+  display: flex;
+  flex-direction: column;
+  gap: $space-2xl;
+}
+
+.cartSeller {
+  display: flex;
+  align-items: center;
+  gap: $space-md;
+}
+
+.cartItem {
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  border-radius: 15px;
+  background: $bg-surface;
+  box-shadow: $shadow-soft;
+}
+
+.cartItemTop {
+  display: flex;
+  align-items: stretch;
+  gap: 16px;
+}
+
+.cartItemInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+}
+
+.cartDivider {
+  width: 100%;
+  background: $color-divider;
+  margin: 15px 0;
+}
+
+.cartItemBottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 6px;
+}
+
+.cartItemTotal {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.cartSummary {
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+  padding: $space-3xl 0;
+}
+
+.cartSummaryRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* ---------- Product page ---------- */
+
+.productPage {
+  display: flex;
+  flex-direction: column;
+}
+
+.productGallery {
+  width: 100%;
+  aspect-ratio: 4 / 4.4;
+  margin-top: $space-md;
+}
+
+.productContent {
+  display: flex;
+  flex-direction: column;
+  gap: $space-xl;
+  padding-top: $space-2xl;
+}
+
+.productTitleLines {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.productSeller {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border-radius: $radius-md;
+  background: $bg-surface;
+  box-shadow: $shadow-card;
+}
+
+.productSellerInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.productSwatches {
+  display: flex;
+  gap: 10px;
+}
+
+.productSizes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $space-sm;
+}
+
+.productTabs {
+  display: flex;
+  gap: $space-sm;
+  overflow: hidden;
+}
+
+.productText {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ---------- Addresses ---------- */
+
+.addressList {
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+}
+
+.addressCard {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: $space-lg;
+  border: 1px solid $color-border;
+  border-radius: $radius-xl;
+  background: $bg-surface;
+  box-shadow: $shadow-soft;
+}
+
+.addressHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-sm;
+}
+
+.addressActions {
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+  margin-top: 4px;
+  padding-top: 14px;
+  border-top: 1px solid $color-divider;
+}
+
+/* ---------- Forms ---------- */
+
+.storeEdit {
+  display: flex;
+  flex-direction: column;
+  gap: $space-xl;
+}
+
+.storeEditPreview {
+  position: relative;
+}
+
+.storeEditCover {
+  width: 100%;
+  height: 180px;
+}
+
+.storeEditAvatar {
+  position: absolute;
+  left: $space-xl;
+  bottom: -36px;
+  width: 84px;
+  height: 84px;
+}
+
+.storeEditForm {
+  display: flex;
+  flex-direction: column;
+  gap: $space-lg;
+  margin-top: $space-2xl;
+}
+
+.storeEditField {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}

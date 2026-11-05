@@ -17,6 +17,11 @@ import {
 import { RiSearch2Line } from "react-icons/ri";
 import { catalogStore } from "@shared/stores/catalogStore";
 import PageContainer from "@shared/ui/PageContainer";
+import {
+  ChipRowSkeleton,
+  StoreCardsSkeleton,
+  StoreListSkeleton,
+} from "@shared/ui/Skeletons";
 import styles from "./StoresPage.module.scss";
 
 const catIcons: Record<string, ReactNode> = {
@@ -81,6 +86,7 @@ function StoresPage() {
     });
   }, [query, activeCat, sellers]);
 
+  const loading = catalogStore.loading && !catalogStore.loaded;
   const noResults = filtered.length === 0;
   const cardsRef = useRef<HTMLDivElement>(null);
 
@@ -108,33 +114,37 @@ function StoresPage() {
             <FiTrendingUp size={18} />
             <span>Самые популярные</span>
           </h2>
-          <div className={styles.popularRow} ref={cardsRef}>
-            {popular.map((s, i) => (
-              <motion.button
-                key={s.id}
-                className={styles.popularCard}
-                style={{ backgroundImage: `url(${s.avatar})` }}
-                onClick={() => navigate(`/store/${s.id}`)}
-                whileTap={{ scale: 0.96 }}
-              >
-                <span className={styles.popularScrim} aria-hidden />
-                <span className={styles.popularRank}>
-                  #{String(i + 1).padStart(2, "0")}
-                </span>
+          {loading ? (
+            <StoreCardsSkeleton count={3} />
+          ) : (
+            <div className={styles.popularRow} ref={cardsRef}>
+              {popular.map((s, i) => (
+                <motion.button
+                  key={s.id}
+                  className={styles.popularCard}
+                  style={{ backgroundImage: `url(${s.avatar})` }}
+                  onClick={() => navigate(`/store/${s.id}`)}
+                  whileTap={{ scale: 0.96 }}
+                >
+                  <span className={styles.popularScrim} aria-hidden />
+                  <span className={styles.popularRank}>
+                    #{String(i + 1).padStart(2, "0")}
+                  </span>
 
-                <span className={styles.popularName}>
-                  {s.name}
-                  {s.verified && (
-                    <FiCheck className={styles.popularVerified} size={11} />
-                  )}
-                </span>
-                <span className={styles.popularMeta}>
-                  <FiStar size={12} fill="currentColor" /> {s.rating} ·{" "}
-                  {formatOrders(s.orderCount)} продаж
-                </span>
-              </motion.button>
-            ))}
-          </div>
+                  <span className={styles.popularName}>
+                    {s.name}
+                    {s.verified && (
+                      <FiCheck className={styles.popularVerified} size={11} />
+                    )}
+                  </span>
+                  <span className={styles.popularMeta}>
+                    <FiStar size={12} fill="currentColor" /> {s.rating} ·{" "}
+                    {formatOrders(s.orderCount)} продаж
+                  </span>
+                </motion.button>
+              ))}
+            </div>
+          )}
         </section>
       </PageContainer>
 
@@ -146,88 +156,98 @@ function StoresPage() {
             <FiLayers size={18} />
             <span>Категории</span>
           </h2>
-          <div className={styles.chipsRow}>
-            <motion.button
-              className={activeCat === "all" ? styles.chipActive : styles.chip}
-              onClick={() => setActiveCat("all")}
-              whileTap={{ scale: 0.92 }}
-            >
-              Все
-            </motion.button>
-            {storeCats.map((id) => {
-              const meta = catMeta.get(id);
-              return (
-                <motion.button
-                  key={id}
-                  className={activeCat === id ? styles.chipActive : styles.chip}
-                  onClick={() => setActiveCat(id)}
-                  whileTap={{ scale: 0.92 }}
-                >
-                  {meta?.icon}
-                  {meta?.label ?? id}
-                </motion.button>
-              );
-            })}
-          </div>
+          {loading ? (
+            <ChipRowSkeleton count={4} />
+          ) : (
+            <div className={styles.chipsRow}>
+              <motion.button
+                className={activeCat === "all" ? styles.chipActive : styles.chip}
+                onClick={() => setActiveCat("all")}
+                whileTap={{ scale: 0.92 }}
+              >
+                Все
+              </motion.button>
+              {storeCats.map((id) => {
+                const meta = catMeta.get(id);
+                return (
+                  <motion.button
+                    key={id}
+                    className={activeCat === id ? styles.chipActive : styles.chip}
+                    onClick={() => setActiveCat(id)}
+                    whileTap={{ scale: 0.92 }}
+                  >
+                    {meta?.icon}
+                    {meta?.label ?? id}
+                  </motion.button>
+                );
+              })}
+            </div>
+          )}
         </section>
 
         <section className={styles.storesSection}>
           <h2 className={styles.storesSectionTitle}>
             <FiShoppingBag size={18} />
             <span>Все магазины</span>
-            <span className={styles.storesCount}>{filtered.length}</span>
-          </h2>
-          <div className={styles.storesList}>
-            {filtered.map((s) => {
-              const cat = catalogStore.storeCategory(s.id);
-              const catLabel = cat
-                ? (catMeta.get(cat)?.label ?? cat)
-                : "Магазин";
-              return (
-                <motion.button
-                  key={s.id}
-                  className={styles.storeRow}
-                  onClick={() => navigate(`/store/${s.id}`)}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  {s.avatar && (
-                    <img
-                      className={styles.storeRowBg}
-                      src={s.avatar}
-                      alt=""
-                      aria-hidden
-                    />
-                  )}
-                  <span className={styles.storeRowInfo}>
-                    <span className={styles.storeRowName}>
-                      {s.name}
-                      {s.verified && (
-                        <FiCheck
-                          className={styles.storeRowVerified}
-                          size={11}
-                        />
-                      )}
-                    </span>
-                    <span className={styles.storeRowMeta}>
-                      {catLabel} · {s.productCount} товаров
-                    </span>
-                  </span>
-                  <span className={styles.storeRowStats}>
-                    <span className={styles.storeRowRating}>
-                      <FiStar size={12} fill="currentColor" /> {s.rating}
-                    </span>
-                    <span className={styles.storeRowOrders}>
-                      {formatOrders(s.orderCount)} продаж
-                    </span>
-                  </span>
-                  <FiChevronRight size={18} className={styles.storeRowArrow} />
-                </motion.button>
-              );
-            })}
-            {noResults && (
-              <p className={styles.storesEmpty}>Ничего не найдено</p>
+            {!loading && (
+              <span className={styles.storesCount}>{filtered.length}</span>
             )}
-          </div>
+          </h2>
+          {loading ? (
+            <StoreListSkeleton count={3} />
+          ) : (
+            <div className={styles.storesList}>
+              {filtered.map((s) => {
+                const cat = catalogStore.storeCategory(s.id);
+                const catLabel = cat
+                  ? (catMeta.get(cat)?.label ?? cat)
+                  : "Магазин";
+                return (
+                  <motion.button
+                    key={s.id}
+                    className={styles.storeRow}
+                    onClick={() => navigate(`/store/${s.id}`)}
+                    whileTap={{ scale: 0.98 }}
+                  >
+                    {s.avatar && (
+                      <img
+                        className={styles.storeRowBg}
+                        src={s.avatar}
+                        alt=""
+                        aria-hidden
+                      />
+                    )}
+                    <span className={styles.storeRowInfo}>
+                      <span className={styles.storeRowName}>
+                        {s.name}
+                        {s.verified && (
+                          <FiCheck
+                            className={styles.storeRowVerified}
+                            size={11}
+                          />
+                        )}
+                      </span>
+                      <span className={styles.storeRowMeta}>
+                        {catLabel} · {s.productCount} товаров
+                      </span>
+                    </span>
+                    <span className={styles.storeRowStats}>
+                      <span className={styles.storeRowRating}>
+                        <FiStar size={12} fill="currentColor" /> {s.rating}
+                      </span>
+                      <span className={styles.storeRowOrders}>
+                        {formatOrders(s.orderCount)} продаж
+                      </span>
+                    </span>
+                    <FiChevronRight size={18} className={styles.storeRowArrow} />
+                  </motion.button>
+                );
+              })}
+              {noResults && (
+                <p className={styles.storesEmpty}>Ничего не найдено</p>
+              )}
+            </div>
+          )}
         </section>
       </PageContainer>
     </div>

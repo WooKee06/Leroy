@@ -16,13 +16,14 @@ import { accountStore } from "@shared/stores/accountStore";
 import { addressStore } from "@shared/stores/addressStore";
 import { themeStore } from "@shared/stores/themeStore";
 import PageContainer from "@shared/ui/PageContainer";
+import Skeleton from "@shared/ui/Skeleton";
 import TonWalletCard from "@widgets/ton/TonWalletCard";
 import styles from "./SettingsPage.module.scss";
 
 interface RowProps {
   icon: React.ReactNode;
   label: string;
-  desc?: string;
+  desc?: React.ReactNode;
   onClick?: () => void;
   trailing?: React.ReactNode;
 }
@@ -57,6 +58,8 @@ function SettingsPage() {
   useEffect(() => {
     addressStore.load();
   }, []);
+
+  const addressesLoading = addressStore.loading && !addressStore.loaded;
 
   const logout = () => {
     accountStore.logout();
@@ -130,7 +133,13 @@ function SettingsPage() {
             <Row
               icon={<FiMapPin size={20} />}
               label="Адреса доставки"
-              desc={addressesLabel(addressStore.count)}
+              desc={
+                addressesLoading ? (
+                  <Skeleton width={56} height={12} radius={4} />
+                ) : (
+                  addressesLabel(addressStore.count)
+                )
+              }
               onClick={() => navigate("/addresses")}
             />
             <Row icon={<FiCreditCard size={20} />} label="Способы оплаты" desc="Telegram Stars, TON" />

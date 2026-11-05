@@ -37,6 +37,10 @@
   }
 }
 
+.filtersSkeleton {
+  padding: $space-sm 0 $space-lg;
+}
+
 .filter {
   flex-shrink: 0;
   height: 36px;

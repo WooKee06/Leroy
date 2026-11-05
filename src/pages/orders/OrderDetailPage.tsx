@@ -5,6 +5,7 @@ import type { Order } from "@shared/api/models";
 import { leroyApi } from "@shared/api/leroyApi";
 import PageContainer from "@shared/ui/PageContainer";
 import PageHeader from "@shared/ui/PageHeader";
+import { OrderDetailSkeleton } from "@shared/ui/Skeletons";
 import { statusInfo } from "@shared/lib/orders";
 import styles from "./OrdersPage.module.scss";
 
@@ -39,7 +40,7 @@ export default function OrderDetailPage() {
       <div className="page-wrapper">
         <PageContainer>
           <PageHeader title="Заказ" />
-          <p className={styles.loading}>Загрузка…</p>
+          <OrderDetailSkeleton />
         </PageContainer>
       </div>
     );

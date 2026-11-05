@@ -1,7 +1,9 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { FiSliders } from 'react-icons/fi';
 import PageContainer from '@shared/ui/PageContainer';
 import SearchBar from '@shared/ui/SearchBar';
+import Skeleton from '@shared/ui/Skeleton';
+import { ProductGridSkeleton } from '@shared/ui/Skeletons';
 import ProductCard from '@widgets/product/ProductCard';
 import type { Product } from '@shared/api/models';
 import { mapProduct } from '@shared/api/models';
@@ -15,6 +17,7 @@ export default function SearchPage() {
   const [query, setQuery] = useState('');
   const [showFilters, setShowFilters] = useState(false);
   const [results, setResults] = useState<Product[]>([]);
+  const [searching, setSearching] = useState(false);
   const [sortBy, setSortBy] = useState<'popular' | 'priceAsc' | 'priceDesc'>('popular');
 
   useEffect(() => {
@@ -26,21 +29,36 @@ export default function SearchPage() {
     return () => pageActionsStore.clear('filters');
   }, []);
 
-  useEffect(() => {
-    const q = query.trim();
-    if (!q) {
+  const handleQueryChange = useCallback((value: string) => {
+    setQuery(value);
+    if (!value.trim()) {
       setResults([]);
+      setSearching(false);
       return;
     }
+    setSearching(true);
+  }, []);
+
+  useEffect(() => {
+    const q = query.trim();
+    if (!q) return;
+
+    let alive = true;
     const handle = setTimeout(async () => {
       try {
         const res = await leroyApi.search(q);
-        setResults(res.products.map((p) => mapProduct(p)));
+        if (alive) setResults(res.products.map((p) => mapProduct(p)));
       } catch {
-        setResults([]);
+        if (alive) setResults([]);
+      } finally {
+        if (alive) setSearching(false);
       }
     }, 300);
-    return () => clearTimeout(handle);
+
+    return () => {
+      alive = false;
+      clearTimeout(handle);
+    };
   }, [query]);
 
   const allProducts = query.trim() === '' ? catalogStore.products : results;
@@ -53,6 +71,9 @@ export default function SearchPage() {
   }, [allProducts, sortBy]);
 
   const isSearching = query.trim() !== '';
+  const loading = isSearching
+    ? searching
+    : catalogStore.loading && !catalogStore.loaded;
 
   return (
     <div className="page-wrapper">
@@ -60,16 +81,20 @@ export default function SearchPage() {
         <div className={styles.searchPageSearch} onClick={(e) => e.stopPropagation()}>
           <SearchBar
             value={query}
-            onChange={setQuery}
+            onChange={handleQueryChange}
             placeholder="Что вы ищете?"
             autoFocus
           />
         </div>
 
         <div className={styles.searchPageResultsHeader}>
-          <span className={styles.searchPageCount}>
-            {isSearching ? `${sorted.length} результата` : 'Все товары'}
-          </span>
+          {loading ? (
+            <Skeleton width={92} height={18} radius={5} />
+          ) : (
+            <span className={styles.searchPageCount}>
+              {isSearching ? `${sorted.length} результата` : 'Все товары'}
+            </span>
+          )}
           <button
             className={styles.searchPageFilterBtn}
             onClick={() => setShowFilters(true)}
@@ -85,11 +110,15 @@ export default function SearchPage() {
           </button>
         </div>
 
-        <div className={styles.searchPageGrid}>
-          {sorted.map((product) => (
-            <ProductCard key={product.id} product={product} variant="small" showSeller />
-          ))}
-        </div>
+        {loading ? (
+          <ProductGridSkeleton count={6} variant="small" />
+        ) : (
+          <div className={styles.searchPageGrid}>
+            {sorted.map((product) => (
+              <ProductCard key={product.id} product={product} variant="small" showSeller />
+            ))}
+          </div>
+        )}
       </PageContainer>
 
       <AnimatePresence>

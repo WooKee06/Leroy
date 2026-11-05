@@ -18,6 +18,7 @@ import { mapProduct, mapReview } from "@shared/api/models";
 import { leroyApi } from "@shared/api/leroyApi";
 import { productBarStore } from "@shared/stores/productBarStore";
 import PageContainer from "@shared/ui/PageContainer";
+import { ProductPageSkeleton } from "@shared/ui/Skeletons";
 import styles from "./ProductPage.module.scss";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -93,11 +94,10 @@ function ProductPage() {
 
   if (!product) {
     return (
-      <div
-        className="page-wrapper"
-        style={{ padding: 40, textAlign: "center", color: "var(--text-secondary)" }}
-      >
-        Загрузка…
+      <div className="page-wrapper">
+        <PageContainer>
+          <ProductPageSkeleton />
+        </PageContainer>
       </div>
     );
   }

@@ -1,5 +1,8 @@
+/// <reference types="vitest" />
 import react from '@vitejs/plugin-react'
-import { defineConfig, type Plugin, type Connect } from 'vite'
+import { defineConfig } from 'vitest/config';
+import type { Plugin } from 'vite';
+import type { Connect } from 'vite';
 import type { ServerResponse } from 'node:http'
 import path from 'path'
 
@@ -51,6 +54,18 @@ function tonConnectManifest(): Plugin {
 }
 
 export default defineConfig({
+  test: {
+    globals: true,
+    environment: 'jsdom',
+    setupFiles: ['./src/test/setup.ts'],
+    include: ['src/**/*.{test,spec}.{ts,tsx}'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'html'],
+      include: ['src/**/*.{ts,tsx}'],
+      exclude: ['src/test/**', '**/*.d.ts', 'src/main.tsx'],
+    },
+  },
   plugins: [react(), tonConnectManifest()],
   resolve: {
     alias: {

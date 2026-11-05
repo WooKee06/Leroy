@@ -17,6 +17,7 @@ import {
 } from 'react-icons/fi';
 import PageContainer from '@shared/ui/PageContainer';
 import PageHeader from '@shared/ui/PageHeader';
+import { AddressListSkeleton } from '@shared/ui/Skeletons';
 import { formatAddress } from '@shared/lib/address';
 import {
   addressStore,
@@ -92,10 +93,7 @@ function AddressesPage() {
           <div className={styles.sectionTitle}>Мои адреса</div>
 
           {addressStore.loading && addressStore.count === 0 ? (
-            <div className={styles.empty}>
-              <FiMapPin size={26} />
-              <p className={styles.emptyText}>Загрузка…</p>
-            </div>
+            <AddressListSkeleton count={2} />
           ) : addressStore.error && addressStore.count === 0 ? (
             <div className={styles.empty}>
               <FiMapPin size={26} />
