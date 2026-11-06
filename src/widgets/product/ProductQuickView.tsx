@@ -31,8 +31,6 @@ function ProductQuickView() {
 
   const close = () => quickViewStore.close();
 
-  if (!product) return null;
-
   return (
     <AnimatePresence>
       {product && (

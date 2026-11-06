@@ -44,16 +44,72 @@ export interface CdekOffice {
   location?: [number, number];
 }
 
-async function cdekRequest(path: string): Promise<unknown> {
-  const res = await fetch(`${SERVICE_PATH}${path}`);
-  const text = await res.text();
-  if (!res.ok) {
-    throw new Error(`Ошибка СДЭК: ${res.status} ${text.slice(0, 200)}`);
+export class CdekApiError extends Error {
+  readonly status: number;
+
+  constructor(status: number, message: string) {
+    super(message);
+    this.name = "CdekApiError";
+    this.status = status;
   }
+}
+
+/** Понятные пользователю сообщения вместо сырого ответа прокси. */
+const FRIENDLY_ERROR: Record<number, string> = {
+  400: "СДЭК не принял запрос. Измените запрос и попробуйте ещё раз.",
+  401: "Сервис СДЭК не авторизован. Попробуйте позже.",
+  403: "Доступ к сервису СДЭК ограничен.",
+  404: "Сервис выбора пунктов СДЭК пока недоступен. Попробуйте позже.",
+  429: "Слишком много запросов к СДЭК. Подождите немного.",
+  500: "СДЭК временно недоступен. Попробуйте ещё раз.",
+  502: "СДЭК временно недоступен. Попробуйте ещё раз.",
+  503: "Сервис выбора пунктов ещё настраивается. Попробуйте позже.",
+};
+
+function parseServerMessage(text: string): string {
+  try {
+    const data = JSON.parse(text) as { message?: string | string[] };
+    return Array.isArray(data.message)
+      ? data.message.join(", ")
+      : (data.message ?? "");
+  } catch {
+    return text.slice(0, 300);
+  }
+}
+
+async function cdekRequest(path: string): Promise<unknown> {
+  let res: Response;
+  try {
+    res = await fetch(`${SERVICE_PATH}${path}`, {
+      signal: AbortSignal.timeout(15_000),
+    });
+  } catch {
+    throw new CdekApiError(
+      0,
+      "Не удалось связаться с сервисом СДЭК. Проверьте интернет и попробуйте ещё раз.",
+    );
+  }
+
+  const text = await res.text();
+
+  if (!res.ok) {
+    // Технические детали оставляем в консоли, пользователю показываем текст.
+    console.error(`CDEK ${res.status}: ${parseServerMessage(text)}`);
+    throw new CdekApiError(
+      res.status,
+      FRIENDLY_ERROR[res.status] ??
+        "Не удалось получить данные СДЭК. Попробуйте ещё раз.",
+    );
+  }
+
   try {
     return JSON.parse(text);
   } catch {
-    throw new Error("СДЭК вернул невалидный JSON");
+    console.error("CDEK returned invalid JSON:", text.slice(0, 300));
+    throw new CdekApiError(
+      0,
+      "СДЭК вернул некорректный ответ. Попробуйте ещё раз.",
+    );
   }
 }
 

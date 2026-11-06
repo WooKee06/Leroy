@@ -93,6 +93,7 @@ function CdekPicker({ onClose, onSelect }: PickerProps) {
   const [type, setType] = useState<"ALL" | "PVZ" | "POSTAMAT">("ALL");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [reloadKey, setReloadKey] = useState(0);
 
   const debouncedQuery = useDebounce(query, 350);
 
@@ -103,19 +104,37 @@ function CdekPicker({ onClose, onSelect }: PickerProps) {
     }
   }, []);
 
+  const retry = useCallback(() => {
+    setError("");
+    setReloadKey((key) => key + 1);
+  }, []);
+
   useEffect(() => {
     const trimmed = debouncedQuery.trim();
     if (trimmed.length < 2) return;
 
+    let alive = true;
     setLoading(true);
     setError("");
     searchCities(trimmed)
-      .then(setCities)
-      .catch((e) =>
-        setError(e instanceof Error ? e.message : "Не удалось найти город"),
-      )
-      .finally(() => setLoading(false));
-  }, [debouncedQuery]);
+      .then((result) => {
+        if (alive) setCities(result);
+      })
+      .catch((e) => {
+        if (alive) {
+          setError(
+            e instanceof Error ? e.message : "Не удалось найти город",
+          );
+        }
+      })
+      .finally(() => {
+        if (alive) setLoading(false);
+      });
+
+    return () => {
+      alive = false;
+    };
+  }, [debouncedQuery, reloadKey]);
 
   useEffect(() => {
     if (!selectedCity) {
@@ -123,17 +142,30 @@ function CdekPicker({ onClose, onSelect }: PickerProps) {
       return;
     }
 
+    let alive = true;
     setLoading(true);
     setError("");
     getOffices(selectedCity.code, type)
-      .then(setOffices)
-      .catch((e) =>
-        setError(
-          e instanceof Error ? e.message : "Не удалось загрузить пункты выдачи",
-        ),
-      )
-      .finally(() => setLoading(false));
-  }, [selectedCity, type]);
+      .then((result) => {
+        if (alive) setOffices(result);
+      })
+      .catch((e) => {
+        if (alive) {
+          setError(
+            e instanceof Error
+              ? e.message
+              : "Не удалось загрузить пункты выдачи",
+          );
+        }
+      })
+      .finally(() => {
+        if (alive) setLoading(false);
+      });
+
+    return () => {
+      alive = false;
+    };
+  }, [selectedCity, type, reloadKey]);
 
   const title = useMemo(
     () => (selectedCity ? selectedCity.city : "Выбор города"),
@@ -187,6 +219,7 @@ function CdekPicker({ onClose, onSelect }: PickerProps) {
             cities={cities}
             loading={loading}
             error={error}
+            onRetry={retry}
             onSelectCity={setSelectedCity}
           />
         ) : (
@@ -196,6 +229,7 @@ function CdekPicker({ onClose, onSelect }: PickerProps) {
             onChangeType={setType}
             loading={loading}
             error={error}
+            onRetry={retry}
             onSelect={onSelect}
           />
         )}
@@ -210,6 +244,7 @@ interface CitySearchProps {
   cities: CdekCity[];
   loading: boolean;
   error: string;
+  onRetry: () => void;
   onSelectCity: (city: CdekCity) => void;
 }
 
@@ -219,6 +254,7 @@ function CitySearch({
   cities,
   loading,
   error,
+  onRetry,
   onSelectCity,
 }: CitySearchProps) {
   const showEmpty = !loading && query.trim().length >= 2 && cities.length === 0;
@@ -238,8 +274,15 @@ function CitySearch({
       </div>
 
       {loading && <div className={styles.spinner} />}
-      {error && <p className={styles.error}>{error}</p>}
-      {showEmpty && <p className={styles.empty}>Город не найден</p>}
+      {error && (
+        <div className={styles.errorBox}>
+          <p className={styles.error}>{error}</p>
+          <button type="button" className={styles.retry} onClick={onRetry}>
+            Повторить
+          </button>
+        </div>
+      )}
+      {showEmpty && !error && <p className={styles.empty}>Город не найден</p>}
 
       <ul className={styles.list}>
         {cities.map((city) => (
@@ -270,6 +313,7 @@ interface OfficeListProps {
   onChangeType: (type: "ALL" | "PVZ" | "POSTAMAT") => void;
   loading: boolean;
   error: string;
+  onRetry: () => void;
   onSelect: (point: PickupPoint) => void;
 }
 
@@ -279,6 +323,7 @@ function OfficeList({
   onChangeType,
   loading,
   error,
+  onRetry,
   onSelect,
 }: OfficeListProps) {
   const showEmpty = !loading && offices.length === 0;
@@ -299,8 +344,15 @@ function OfficeList({
       </div>
 
       {loading && <div className={styles.spinner} />}
-      {error && <p className={styles.error}>{error}</p>}
-      {showEmpty && (
+      {error && (
+        <div className={styles.errorBox}>
+          <p className={styles.error}>{error}</p>
+          <button type="button" className={styles.retry} onClick={onRetry}>
+            Повторить
+          </button>
+        </div>
+      )}
+      {showEmpty && !error && (
         <p className={styles.empty}>В этом городе нет пунктов выдачи</p>
       )}
 

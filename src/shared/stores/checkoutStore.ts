@@ -35,13 +35,20 @@ class CheckoutStore {
   }
 
   show() {
+    this.reset();
     this.open = true;
     this.step = "form";
     this.error = "";
   }
 
   close() {
+    // Не сбрасываем шаг и заказ сразу: иначе во время анимации закрытия
+    // шторка успевает перерисоваться в пустую форму. Сброс — в show().
     this.open = false;
+    this.error = "";
+  }
+
+  private reset() {
     this.step = "closed";
     this.order = null;
     this.error = "";

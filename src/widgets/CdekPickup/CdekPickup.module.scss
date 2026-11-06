@@ -311,6 +311,43 @@
   color: #ff453a;
 }
 
+.errorBox {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 16px;
+  margin: 12px 0;
+  border: 1px solid rgba(255, 69, 58, 0.35);
+  border-radius: 16px;
+  background: rgba(255, 69, 58, 0.08);
+}
+
+.errorBox .error {
+  margin: 0;
+  line-height: 1.4;
+}
+
+.retry {
+  padding: 9px 18px;
+  border: 1px solid var(--color-border);
+  border-radius: 100px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.retry:hover {
+  border-color: var(--text-tertiary);
+}
+
+.retry:active {
+  background: var(--bg-surface-secondary);
+}
+
 .empty {
   color: var(--text-secondary);
 }
