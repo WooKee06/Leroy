@@ -11,7 +11,7 @@ import {
 } from "@shared/api/cdekApi";
 import styles from "./CdekPickup.module.scss";
 
-interface PickupPoint {
+export interface PickupPoint {
   code: string;
   name: string;
   address?: string;
@@ -21,6 +21,8 @@ interface PickupPoint {
 
 interface Props {
   onSelect: (point: PickupPoint) => void;
+  /** Показывать карточку выбранного пункта под кнопкой. */
+  showSelected?: boolean;
 }
 
 const DELIVERY_TYPES = [
@@ -29,7 +31,7 @@ const DELIVERY_TYPES = [
   { id: "POSTAMAT" as const, label: "Постаматы" },
 ];
 
-export function CdekPickup({ onSelect }: Props) {
+export function CdekPickup({ onSelect, showSelected = true }: Props) {
   const [open, setOpen] = useState(false);
   const [selectedPoint, setSelectedPoint] = useState<PickupPoint | null>(null);
 
@@ -52,7 +54,7 @@ export function CdekPickup({ onSelect }: Props) {
         {selectedPoint ? "Изменить пункт выдачи" : "Выбрать пункт СДЭК"}
       </button>
 
-      {selectedPoint && (
+      {showSelected && selectedPoint && (
         <div className={styles.selected}>
           <strong>{selectedPoint.name}</strong>
           <p>

@@ -8,9 +8,22 @@ import {
   type AddressLabel,
   type DeliveryAddress,
 } from '@shared/stores/addressStore';
+import { CdekPickup, type PickupPoint } from '@widgets/CdekPickup/CdekPickup';
 import styles from './AddressFormSheet.module.scss';
 
 const LABELS: AddressLabel[] = ['home', 'work', 'other'];
+
+/** Убирает название города из начала адреса ПВЗ, чтобы не дублировать его. */
+function shortAddress(address: string, city?: string): string {
+  if (!city) return address;
+  const index = address.toLowerCase().indexOf(city.toLowerCase());
+  if (index < 0 || index > 12) return address;
+  const rest = address
+    .slice(index + city.length)
+    .replace(/^[\s,]+/, '')
+    .trim();
+  return rest || address;
+}
 
 interface FormState {
   label: AddressLabel;
@@ -102,9 +115,23 @@ function Field({
   );
 }
 
+const PICKUP_COMMENT = /^СДЭК,\s*(.*)\s*\(код\s*([^)]+)\)$/;
+
+function pickupFromAddress(a?: DeliveryAddress): PickupPoint | null {
+  const match = a?.comment?.match(PICKUP_COMMENT);
+  if (!match) return null;
+  return {
+    name: match[1],
+    code: match[2],
+    city: a?.city,
+    address: a?.street,
+  };
+}
+
 function AddressFormSheet() {
   const [form, setForm] = useState<FormState>(EMPTY);
   const [touched, setTouched] = useState(false);
+  const [pickupPoint, setPickupPoint] = useState<PickupPoint | null>(null);
 
   const editingId = addressStore.editingId;
 
@@ -112,18 +139,29 @@ function AddressFormSheet() {
     if (!addressStore.formOpen) return;
     const editing = addressStore.editing;
     setForm(editing ? fromAddress(editing) : EMPTY);
+    setPickupPoint(pickupFromAddress(editing));
     setTouched(false);
   }, [addressStore.formOpen, editingId]);
 
   const set = <K extends keyof FormState>(key: K, value: FormState[K]) =>
     setForm((f) => ({ ...f, [key]: value }));
 
+  const handlePickup = (point: PickupPoint) => {
+    setPickupPoint(point);
+    setForm((f) => ({
+      ...f,
+      city: point.city ?? f.city,
+      street: shortAddress(point.address ?? point.name, point.city),
+      house: '',
+      comment: `СДЭК, ${point.name} (код ${point.code})`,
+    }));
+  };
+
   const invalid = {
     recipientName: !form.recipientName.trim(),
     phone: !form.phone.trim(),
     city: !form.city.trim(),
     street: !form.street.trim(),
-    house: !form.house.trim(),
   };
   const hasErrors = Object.values(invalid).some(Boolean);
 
@@ -188,15 +226,14 @@ function AddressFormSheet() {
                   <button
                     key={label}
                     type="button"
-                    className={
-                      form.label === label ? styles.chipActive : styles.chip
-                    }
-                    onClick={() => set('label', label)}
+                    className={styles.chipDisabled}
+                    disabled
                   >
                     {LABEL_TEXT[label]}
                   </button>
                 ))}
               </div>
+              <p className={styles.soonNote}>Скоро откроется</p>
             </div>
 
             <Field
@@ -218,79 +255,39 @@ function AddressFormSheet() {
               error={touched && invalid.phone}
             />
 
-            <div className={styles.row2}>
-              <Field
-                label="Город"
-                value={form.city}
-                onChange={(v) => set('city', v)}
-                placeholder="Москва"
-                required
-                error={touched && invalid.city}
-              />
-              <Field
-                label="Индекс"
-                value={form.postalCode}
-                onChange={(v) => set('postalCode', v)}
-                placeholder="101000"
-                inputMode="numeric"
-              />
+            <div className={styles.field}>
+              <span className={styles.fieldLabel}>
+                Пункт выдачи
+                <span className={styles.req}>*</span>
+              </span>
+              <CdekPickup onSelect={handlePickup} showSelected={false} />
+
+              {pickupPoint ? (
+                <div className={styles.pickupCard}>
+                  <span className={styles.pickupName}>{pickupPoint.name}</span>
+                  {(pickupPoint.city || pickupPoint.address) && (
+                    <span className={styles.pickupAddress}>
+                      {pickupPoint.city && `${pickupPoint.city}, `}
+                      {pickupPoint.address}
+                    </span>
+                  )}
+                  <span className={styles.pickupCode}>
+                    Код ПВЗ: {pickupPoint.code}
+                  </span>
+                </div>
+              ) : editingId && form.city && form.street ? (
+                <div className={styles.pickupCard}>
+                  <span className={styles.pickupName}>Текущий адрес</span>
+                  <span className={styles.pickupAddress}>
+                    {form.city}, {form.street}
+                  </span>
+                </div>
+              ) : null}
+
+              {touched && (invalid.city || invalid.street) && (
+                <p className={styles.fieldError}>Выберите пункт выдачи</p>
+              )}
             </div>
-
-            <Field
-              label="Улица"
-              value={form.street}
-              onChange={(v) => set('street', v)}
-              placeholder="ул. Ленина"
-              required
-              error={touched && invalid.street}
-            />
-
-            <div className={styles.row3}>
-              <Field
-                label="Дом"
-                value={form.house}
-                onChange={(v) => set('house', v)}
-                placeholder="10"
-                required
-                error={touched && invalid.house}
-              />
-              <Field
-                label="Кв./офис"
-                value={form.apartment}
-                onChange={(v) => set('apartment', v)}
-                placeholder="42"
-              />
-              <Field
-                label="Подъезд"
-                value={form.entrance}
-                onChange={(v) => set('entrance', v)}
-                placeholder="2"
-                inputMode="numeric"
-              />
-            </div>
-
-            <div className={styles.row2}>
-              <Field
-                label="Этаж"
-                value={form.floor}
-                onChange={(v) => set('floor', v)}
-                placeholder="5"
-                inputMode="numeric"
-              />
-              <Field
-                label="Домофон"
-                value={form.intercom}
-                onChange={(v) => set('intercom', v)}
-                placeholder="42К"
-              />
-            </div>
-
-            <Field
-              label="Комментарий курьеру"
-              value={form.comment}
-              onChange={(v) => set('comment', v)}
-              placeholder="Код на воротах, удобное время…"
-            />
 
             <button
               type="button"
@@ -307,8 +304,7 @@ function AddressFormSheet() {
 
             {touched && hasErrors && (
               <p className={styles.error}>
-                Заполните обязательные поля: получатель, телефон, город, улица,
-                дом.
+                Укажите получателя, телефон и пункт выдачи.
               </p>
             )}
 
