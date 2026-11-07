@@ -23,11 +23,41 @@ import styles from "./ProductPage.module.scss";
 import "swiper/css";
 import "swiper/css/pagination";
 
+interface ProductCacheEntry {
+  product?: Product;
+  reviews?: Review[];
+}
+
+/**
+ * Кэш последних открытых товаров. Без него каждый возврат на страницу товара
+ * показывал скелетон и заново ждал ответ сервера (~1 c на Render). Теперь
+ * карточка рисуется мгновенно из памяти и тихо обновляется в фоне.
+ */
+const productCache = new Map<string, ProductCacheEntry>();
+const PRODUCT_CACHE_LIMIT = 20;
+
+function writeProductCache(id: string, patch: ProductCacheEntry) {
+  const next = { ...productCache.get(id), ...patch };
+  // Переставляем запись в конец, чтобы вытеснялись самые старые.
+  productCache.delete(id);
+  productCache.set(id, next);
+
+  if (productCache.size > PRODUCT_CACHE_LIMIT) {
+    const oldest = productCache.keys().next().value;
+    if (oldest) productCache.delete(oldest);
+  }
+}
+
 function ProductPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [product, setProduct] = useState<Product | undefined>(undefined);
-  const [reviews, setReviews] = useState<Review[]>([]);
+  const initialCache = id ? productCache.get(id) : undefined;
+  const [product, setProduct] = useState<Product | undefined>(
+    initialCache?.product,
+  );
+  const [reviews, setReviews] = useState<Review[]>(
+    initialCache?.reviews ?? [],
+  );
   const [notFound, setNotFound] = useState(false);
 
   const [selectedSize, setSelectedSize] = useState<string | undefined>(undefined);
@@ -46,26 +76,39 @@ function ProductPage() {
       return;
     }
     let alive = true;
-    setProduct(undefined);
-    setReviews([]);
+    const cached = productCache.get(id);
+
+    if (cached?.product) {
+      setProduct(cached.product);
+    } else {
+      setProduct(undefined);
+    }
+    setReviews(cached?.reviews ?? []);
     setNotFound(false);
 
     leroyApi
       .product(id)
       .then((dto) => {
-        if (alive) setProduct(mapProduct(dto));
+        if (!alive) return;
+        const mapped = mapProduct(dto);
+        writeProductCache(id, { product: mapped });
+        setProduct(mapped);
       })
       .catch(() => {
-        if (alive) setNotFound(true);
+        // Если данные уже были в кэше, оставляем их на экране.
+        if (alive && !cached?.product) setNotFound(true);
       });
 
     leroyApi
       .reviews(id)
       .then((res) => {
-        if (alive) setReviews(res.items.map(mapReview));
+        if (!alive) return;
+        const mapped = res.items.map(mapReview);
+        writeProductCache(id, { reviews: mapped });
+        setReviews(mapped);
       })
       .catch(() => {
-        if (alive) setReviews([]);
+        if (alive && !cached?.reviews) setReviews([]);
       });
 
     return () => {

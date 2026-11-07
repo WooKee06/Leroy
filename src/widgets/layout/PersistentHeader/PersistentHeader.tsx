@@ -31,12 +31,12 @@ function resolveShape(pathname: string): HeaderShape {
 }
 
 const contentAnim: Variants = {
-  initial: { opacity: 0, y: 6 },
-  animate: { opacity: 1, y: 0 },
-  exit: { opacity: 0, y: -6 },
+  initial: { opacity: 0 },
+  animate: { opacity: 1 },
+  exit: { opacity: 0 },
 };
 
-const contentTransition = { duration: 0.22, ease: [0.22, 1, 0.36, 1] as const };
+const contentTransition = { duration: 0.14, ease: [0.22, 1, 0.36, 1] as const };
 
 function PersistentHeader() {
   const location = useLocation();

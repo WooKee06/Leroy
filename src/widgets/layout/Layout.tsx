@@ -1,4 +1,4 @@
-import { useLayoutEffect, type CSSProperties } from 'react';
+import { Suspense, useLayoutEffect, type CSSProperties } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useLocation, useOutlet } from 'react-router-dom';
 import BottomNav from './BottomNav/BottomNav';
@@ -6,6 +6,7 @@ import BottomActionBar from './BottomActionBar/BottomActionBar';
 import PersistentHeader from './PersistentHeader/PersistentHeader';
 import ProductQuickView from '@widgets/product/ProductQuickView';
 import CheckoutSheet from '@widgets/checkout/CheckoutSheet';
+import RouteFallback from '@shared/ui/RouteFallback';
 import styles from './Layout.module.scss';
 
 /**
@@ -47,12 +48,11 @@ export default function Layout() {
           className={styles.layoutMain}
           style={pageStyle}
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.18, ease: [0.22, 1, 0.36, 1] }}
+          animate={{ opacity: 1, transition: { duration: 0.14, ease: [0.22, 1, 0.36, 1] } }}
+          exit={{ opacity: 0, transition: { duration: 0.06, ease: 'linear' } }}
         >
           <ScrollToTop />
-          {outlet}
+          <Suspense fallback={<RouteFallback />}>{outlet}</Suspense>
         </motion.main>
       </AnimatePresence>
 
