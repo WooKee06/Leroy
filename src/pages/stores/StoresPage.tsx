@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import {
   FiCheck,
   FiChevronRight,
@@ -119,12 +118,11 @@ function StoresPage() {
           ) : (
             <div className={styles.popularRow} ref={cardsRef}>
               {popular.map((s, i) => (
-                <motion.button
+                <button
                   key={s.id}
                   className={styles.popularCard}
                   style={{ backgroundImage: `url(${s.avatar})` }}
                   onClick={() => navigate(`/store/${s.id}`)}
-                  whileTap={{ scale: 0.96 }}
                 >
                   <span className={styles.popularScrim} aria-hidden />
                   <span className={styles.popularRank}>
@@ -141,7 +139,7 @@ function StoresPage() {
                     <FiStar size={12} fill="currentColor" /> {s.rating} ·{" "}
                     {formatOrders(s.orderCount)} продаж
                   </span>
-                </motion.button>
+                </button>
               ))}
             </div>
           )}
@@ -160,25 +158,23 @@ function StoresPage() {
             <ChipRowSkeleton count={4} />
           ) : (
             <div className={styles.chipsRow}>
-              <motion.button
+              <button
                 className={activeCat === "all" ? styles.chipActive : styles.chip}
                 onClick={() => setActiveCat("all")}
-                whileTap={{ scale: 0.92 }}
               >
                 Все
-              </motion.button>
+              </button>
               {storeCats.map((id) => {
                 const meta = catMeta.get(id);
                 return (
-                  <motion.button
+                  <button
                     key={id}
                     className={activeCat === id ? styles.chipActive : styles.chip}
                     onClick={() => setActiveCat(id)}
-                    whileTap={{ scale: 0.92 }}
-                  >
+                      >
                     {meta?.icon}
                     {meta?.label ?? id}
-                  </motion.button>
+                  </button>
                 );
               })}
             </div>
@@ -203,11 +199,10 @@ function StoresPage() {
                   ? (catMeta.get(cat)?.label ?? cat)
                   : "Магазин";
                 return (
-                  <motion.button
+                  <button
                     key={s.id}
                     className={styles.storeRow}
                     onClick={() => navigate(`/store/${s.id}`)}
-                    whileTap={{ scale: 0.98 }}
                   >
                     {s.avatar && (
                       <img
@@ -240,7 +235,7 @@ function StoresPage() {
                       </span>
                     </span>
                     <FiChevronRight size={18} className={styles.storeRowArrow} />
-                  </motion.button>
+                  </button>
                 );
               })}
               {noResults && (

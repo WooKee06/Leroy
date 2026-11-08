@@ -56,6 +56,15 @@ const PREFETCH_AFTER_IDLE = [
   pageLoaders.cart,
   pageLoaders.stores,
   pageLoaders.profile,
+  pageLoaders.favorites,
+  pageLoaders.discover,
+  pageLoaders.myStore,
+  pageLoaders.storeEdit,
+  pageLoaders.orders,
+  pageLoaders.orderDetail,
+  pageLoaders.settings,
+  pageLoaders.addresses,
+  pageLoaders.role,
 ];
 
 export default function App() {

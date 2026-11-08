@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion";
 import { FiCheck } from "react-icons/fi";
 import type { Product, Seller } from "@shared/api/models";
 import { mapProduct, mapSeller } from "@shared/api/models";
@@ -143,14 +142,7 @@ export default function StorePage() {
         </div>
 
         <div className={styles.content}>
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.div
-              key={tab}
-              initial={{ opacity: 0, y: 10, filter: "blur(6px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              exit={{ opacity: 0, y: -10, filter: "blur(6px)" }}
-              transition={{ duration: 0.22, ease: "easeInOut" }}
-            >
+          <div key={tab} className={styles.tabContent}>
               {tab === "analytics" ? (
                 <div className={styles.analytics}>
                   <div className={styles.analyticsRow}>
@@ -191,8 +183,7 @@ export default function StorePage() {
                   ))}
                 </div>
               )}
-            </motion.div>
-          </AnimatePresence>
+          </div>
         </div>
       </PageContainer>
     </div>

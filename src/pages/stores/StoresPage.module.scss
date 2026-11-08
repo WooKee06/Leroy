@@ -97,6 +97,11 @@
   background-color: var(--bg-surface-secondary);
   background-size: cover;
   background-position: center;
+  transition: transform 0.14s ease;
+
+  &:active {
+    transform: scale(0.97);
+  }
 }
 
 .popularScrim {
@@ -185,6 +190,11 @@
   display: flex;
   align-items: center;
   gap: 6px;
+  transition: transform 0.14s ease;
+
+  &:active {
+    transform: scale(0.94);
+  }
 }
 
 .chipActive {
@@ -199,6 +209,11 @@
   display: flex;
   align-items: center;
   gap: 6px;
+  transition: transform 0.14s ease;
+
+  &:active {
+    transform: scale(0.94);
+  }
 }
 
 .storesList {
@@ -220,6 +235,11 @@
   text-align: left;
   position: relative;
   overflow: hidden;
+  transition: transform 0.14s ease;
+
+  &:active {
+    transform: scale(0.985);
+  }
 
   &::before {
     content: "";
@@ -244,9 +264,7 @@
   object-fit: cover;
   flex-shrink: 0;
   z-index: 0;
-  opacity: 0.25;
-  filter: blur(10px) saturate(1.2);
-  transform: scale(1.1);
+  opacity: 0.18;
   pointer-events: none;
 }
 

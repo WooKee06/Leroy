@@ -280,55 +280,36 @@ function ProductPage() {
             ).map((tab) => {
               const active = activeTab === tab.id;
               return (
-                <motion.button
+                <button
                   key={tab.id}
                   className={active ? styles.tabActive : styles.tab}
                   onClick={() => setActiveTab(tab.id)}
-                  whileTap={{ scale: 0.94 }}
                 >
-                  {active && (
-                    <motion.span
-                      layoutId="productTabPill"
-                      className={styles.tabPill}
-                      transition={{ type: "spring", stiffness: 400, damping: 32 }}
-                    />
-                  )}
                   <span className={styles.tabIcon}>
                     <tab.icon size={15} />
                   </span>
                   <span className={styles.tabLabel}>{tab.label}</span>
-                </motion.button>
+                </button>
               );
             })}
           </div>
 
           <div className={styles.tabBody}>
-            <AnimatePresence mode="wait" initial={false}>
-              <motion.div
-                key={activeTab}
-                initial={{ opacity: 0, y: 10, filter: "blur(6px)" }}
-                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                exit={{ opacity: 0, y: -8, filter: "blur(6px)" }}
-                transition={{ duration: 0.22, ease: "easeInOut" }}
-              >
-                {activeTab === "description" && (
-                  <p className={styles.detailsText}>{product.description}</p>
-                )}
-                {activeTab === "specs" && (
-                  <Specs
-                    product={product}
-                    color={selectedColor}
-                    size={selectedSize}
-                  />
-                )}
-                {activeTab === "reviews" && (
-                  <Reviews
-                    reviews={reviews}
-                    onWrite={() => setReviewOpen(true)}
-                  />
-                )}
-              </motion.div>
-            </AnimatePresence>
+            <div key={activeTab} className={styles.tabBodyInner}>
+              {activeTab === "description" && (
+                <p className={styles.detailsText}>{product.description}</p>
+              )}
+              {activeTab === "specs" && (
+                <Specs
+                  product={product}
+                  color={selectedColor}
+                  size={selectedSize}
+                />
+              )}
+              {activeTab === "reviews" && (
+                <Reviews reviews={reviews} onWrite={() => setReviewOpen(true)} />
+              )}
+            </div>
           </div>
         </div>
       </PageContainer>

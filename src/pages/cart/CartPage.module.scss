@@ -207,7 +207,11 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: opacity 0.15s ease;
+    transition: opacity 0.15s ease, transform 0.14s ease;
+
+    &:active:not(:disabled) {
+      transform: scale(0.9);
+    }
 
     &:disabled {
       opacity: 0.4;

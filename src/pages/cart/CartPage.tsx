@@ -1,6 +1,5 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion";
 import { observer } from "mobx-react-lite";
 import {
   FiChevronRight,
@@ -90,14 +89,9 @@ function CartPage() {
                     </button>
 
                     <div className={styles["cartPage-items"]}>
-                      <AnimatePresence initial={false}>
                         {items.map((item) => (
-                          <motion.div
+                          <div
                             key={`${item.product.id}-${item.selectedSize}-${item.selectedColor}`}
-                            layout
-                            initial={{ opacity: 0, scale: 0.96 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            exit={{ opacity: 0, scale: 0.96 }}
                             className={styles["cartPage-item"]}
                           >
                             <div className={styles["cartPage-item-top"]}>
@@ -159,7 +153,7 @@ function CartPage() {
                               </div>
                               <div className={styles["cartPage-item-actions"]}>
                                 <div className={styles["cartPage-item-stepper"]}>
-                                  <motion.button
+                                  <button
                                     className={
                                       styles["cartPage-item-stepper-btn"]
                                     }
@@ -172,11 +166,10 @@ function CartPage() {
                                         item.selectedColor,
                                       )
                                     }
-                                    whileTap={{ scale: 0.88 }}
                                     aria-label="Меньше"
                                   >
                                     <FiMinus size={15} />
-                                  </motion.button>
+                                  </button>
                                   <span
                                     className={
                                       styles["cartPage-item-stepper-value"]
@@ -184,7 +177,7 @@ function CartPage() {
                                   >
                                     {item.quantity}
                                   </span>
-                                  <motion.button
+                                  <button
                                     className={
                                       styles["cartPage-item-stepper-btn"]
                                     }
@@ -196,11 +189,10 @@ function CartPage() {
                                         item.selectedColor,
                                       )
                                     }
-                                    whileTap={{ scale: 0.88 }}
                                     aria-label="Больше"
                                   >
                                     <FiPlus size={15} />
-                                  </motion.button>
+                                  </button>
                                 </div>
                                 <button
                                   className={
@@ -219,9 +211,8 @@ function CartPage() {
                                 </button>
                               </div>
                             </div>
-                          </motion.div>
+                          </div>
                         ))}
-                      </AnimatePresence>
                     </div>
                   </div>
                 );

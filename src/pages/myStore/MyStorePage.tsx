@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
 import { FiCheck, FiPlus, FiShoppingBag } from "react-icons/fi";
 import type { Product, Seller } from "@shared/api/models";
 import { mapProduct, mapSeller } from "@shared/api/models";
@@ -182,14 +181,7 @@ export default function MyStorePage() {
         </div>
 
         <div className={storeStyles.content}>
-          <AnimatePresence mode="wait" initial={false}>
-            <motion.div
-              key={tab}
-              initial={{ opacity: 0, y: 10, filter: "blur(6px)" }}
-              animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-              exit={{ opacity: 0, y: -10, filter: "blur(6px)" }}
-              transition={{ duration: 0.22, ease: "easeInOut" }}
-            >
+          <div key={tab} className={storeStyles.tabContent}>
               {tab === "analytics" ? (
                 <div className={storeStyles.analytics}>
                   <div className={storeStyles.analyticsRow}>
@@ -242,8 +234,7 @@ export default function MyStorePage() {
                   </div>
                 </>
               )}
-            </motion.div>
-          </AnimatePresence>
+          </div>
         </div>
       </PageContainer>
 

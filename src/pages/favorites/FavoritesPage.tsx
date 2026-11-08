@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AnimatePresence, motion } from "framer-motion";
 import { observer } from "mobx-react-lite";
 import { FiHeart } from "react-icons/fi";
 import { favoritesStore } from "@shared/stores/favoritesStore";
@@ -91,27 +90,13 @@ function FavoritesPage() {
               ))}
             </div>
 
-            <motion.div className={styles.grid} layout>
-              <AnimatePresence mode="popLayout">
-                {items.map((item, i) => (
-                  <motion.div
-                    key={item.id}
-                    layout
-                    initial={{ opacity: 0, y: 16 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.95 }}
-                    transition={{
-                      opacity: { duration: 0.25 },
-                      y: { duration: 0.3 },
-                      delay: i * 0.04,
-                    }}
-                    className={styles.cell}
-                  >
-                    <ProductCard product={item} variant="medium" />
-                  </motion.div>
-                ))}
-              </AnimatePresence>
-            </motion.div>
+            <div className={styles.grid}>
+              {items.map((item) => (
+                <div key={item.id} className={styles.cell}>
+                  <ProductCard product={item} variant="medium" />
+                </div>
+              ))}
+            </div>
           </>
         )}
       </PageContainer>

@@ -125,6 +125,11 @@
   border: 1px solid $color-border;
   box-shadow: $shadow-soft;
   text-align: center;
+  transition: transform 0.14s ease;
+
+  &:active {
+    transform: scale(0.95);
+  }
 }
 
 .orderIcon {
@@ -168,6 +173,11 @@
   text-align: left;
   width: 100%;
   background: none;
+  transition: transform 0.14s ease;
+
+  &:active {
+    transform: scale(0.99);
+  }
 
   &:last-child {
     border-bottom: none;

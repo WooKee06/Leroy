@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { observer } from "mobx-react-lite";
 import { FiArrowLeft, FiEdit, FiSearch, FiSettings, FiShare, FiSliders } from "react-icons/fi";
@@ -32,14 +31,6 @@ function resolveShape(pathname: string): HeaderShape {
 function PersistentHeader() {
   const location = useLocation();
   const navigate = useNavigate();
-  const [scrolled, setScrolled] = useState(false);
-
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 4);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
 
   const shape = resolveShape(location.pathname);
   const favCount = favoritesStore.count;
@@ -167,7 +158,7 @@ function PersistentHeader() {
   );
 
   return (
-    <header className={`${styles.header} ${scrolled ? styles.headerScrolled : ""}`}>
+    <header className={styles.header}>
       <div className={styles.row}>
         <div className={`${styles.slot} ${styles.leftSlot}`}>
           <div key={`left-${shape.left}`} className={styles.content}>

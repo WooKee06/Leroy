@@ -1,15 +1,10 @@
-import { motion } from "framer-motion";
 import { observer } from "mobx-react-lite";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination } from "swiper/modules";
 import { FiArrowRight } from "react-icons/fi";
 import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
 import type { Product } from "@shared/api/models";
 import { quickViewStore } from "@shared/stores/quickViewStore";
 import { favoritesStore } from "@shared/stores/favoritesStore";
 import styles from "./ProductCard.module.scss";
-import "swiper/css";
-import "swiper/css/pagination";
 
 interface Props {
   product: Product;
@@ -17,6 +12,13 @@ interface Props {
   showSeller?: boolean;
 }
 
+/**
+ * Карточка товара намеренно НЕ содержит Swiper: раньше каждая карточка
+ * создавала отдельный экземпляр слайдера, и на экране с 20 товарами это
+ * означало 20 Swiper'ов, 20 наборов event-слушателей и тяжёлый первый кадр.
+ * Галерея с несколькими фото доступна в быстром просмотре и на странице
+ * товара — там достаточно одного экземпляра.
+ */
 function ProductCard({ product, variant, showSeller = false }: Props) {
   const filledStars = Math.round(product.rating);
   const isFav = favoritesStore.isFavorite(product.id);
@@ -31,67 +33,48 @@ function ProductCard({ product, variant, showSeller = false }: Props) {
   const open = () => quickViewStore.open(product);
 
   return (
-    <motion.div className={cardClass} onClick={open}>
+    <div className={cardClass} onClick={open}>
       <div className={styles.imageWrap}>
         <div className={styles.imageBox}>
-          {product.images.length > 1 ? (
-            <Swiper
-              grabCursor
-              modules={[Pagination]}
-              pagination={{ clickable: true }}
-              className={styles.cardSwiper}
-            >
-              {product.images.map((src, i) => (
-                <SwiperSlide key={i}>
-                  <img
-                    src={src}
-                    alt={product.name}
-                    className={styles.image}
-                    loading="lazy"
-                  />
-                </SwiperSlide>
-              ))}
-            </Swiper>
-          ) : (
-            <img
-              src={product.images[0]}
-              alt={product.name}
-              className={styles.image}
-              loading="lazy"
-            />
-          )}
+          <img
+            src={product.images[0]}
+            alt={product.name}
+            className={styles.image}
+            loading="lazy"
+            decoding="async"
+          />
         </div>
 
         {product.rating > 0 && (
           <span className={styles.rating}>
             <span className={styles.ratingStars}>
-              {[1].map((i) => (
-                <span
-                  key={i}
-                  className={
-                    i <= filledStars ? styles.ratingStarOn : styles.ratingStarOff
-                  }
-                >
-                  ★
-                </span>
-              ))}
+              <span
+                className={
+                  filledStars > 0
+                    ? styles.ratingStarOn
+                    : styles.ratingStarOff
+                }
+              >
+                ★
+              </span>
             </span>
-            <span className={styles.ratingValue}>{product.rating.toFixed(1)}</span>
+            <span className={styles.ratingValue}>
+              {product.rating.toFixed(1)}
+            </span>
           </span>
         )}
 
-        <motion.button
+        <button
           className={`${styles.like}${isFav ? ` ${styles.likeActive}` : ""}`}
           onClick={(e) => {
             e.stopPropagation();
             void favoritesStore.toggle(product.id, product);
           }}
-          whileTap={{ scale: 0.85 }}
           aria-label={isFav ? "Убрать из избранного" : "В избранное"}
           aria-pressed={isFav}
         >
           {isFav ? <AiFillHeart size={17} /> : <AiOutlineHeart size={17} />}
-        </motion.button>
+        </button>
       </div>
 
       <div className={styles.info}>
@@ -104,20 +87,19 @@ function ProductCard({ product, variant, showSeller = false }: Props) {
           <span className={styles.seller}>{product.seller.name}</span>
         )}
 
-        <motion.button
+        <button
           className={styles.detailsBtn}
           onClick={(e) => {
             e.stopPropagation();
             open();
           }}
-          whileTap={{ scale: 0.96 }}
           aria-label={`Подробнее: ${product.name}`}
         >
           <span>Подробнее</span>
           <FiArrowRight size={14} />
-        </motion.button>
+        </button>
       </div>
-    </motion.div>
+    </div>
   );
 }
 

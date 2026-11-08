@@ -305,14 +305,8 @@
 }
 
 .tabActive {
-  color: var(--inverted-fg);
-}
-
-.tabPill {
-  position: absolute;
-  inset: 0;
-  border-radius: $radius-pill;
   background: var(--inverted);
+  color: var(--inverted-fg);
 }
 
 .tabIcon,
@@ -333,6 +327,25 @@
 
 .tabBody {
   margin-top: $space-lg;
+}
+
+.tabBodyInner {
+  animation: tab-fade 0.14s ease-out;
+}
+
+@keyframes tab-fade {
+  from {
+    opacity: 0.6;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tabBodyInner {
+    animation: none;
+  }
 }
 
 .detailsText {
@@ -450,8 +463,7 @@
   position: fixed;
   inset: 0;
   z-index: 90;
-  background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(2px);
+  background: rgba(0, 0, 0, 0.5);
 }
 
 .sheet {

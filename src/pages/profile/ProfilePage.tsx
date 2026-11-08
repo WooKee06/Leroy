@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
 import { observer } from "mobx-react-lite";
 import {
   FiCheck,
@@ -231,10 +230,9 @@ function ProfilePage() {
 
         <div className={styles.orderRow}>
           {orderTiles.map((t) => (
-            <motion.button
+            <button
               key={t.label}
               className={styles.orderTile}
-              whileTap={{ scale: 0.94 }}
               onClick={() => navigate(`/orders?tab=${t.tab}`)}
             >
               <span className={styles.orderIcon} style={{ background: t.tint }}>
@@ -246,7 +244,7 @@ function ProfilePage() {
                 <span className={styles.orderValue}>{t.value}</span>
               )}
               <span className={styles.orderLabel}>{t.label}</span>
-            </motion.button>
+            </button>
           ))}
         </div>
 
@@ -256,10 +254,9 @@ function ProfilePage() {
 
         <div className={styles.menu}>
           {menu.map((m) => (
-            <motion.button
+            <button
               key={m.label}
               className={styles.menuItem}
-              whileTap={{ scale: 0.98 }}
               onClick={() => m.path && navigate(m.path)}
             >
               <span
@@ -277,7 +274,7 @@ function ProfilePage() {
                 className={styles.menuChevron}
                 color="#C7C7CC"
               />
-            </motion.button>
+            </button>
           ))}
         </div>
 

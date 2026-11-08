@@ -72,24 +72,13 @@ function BottomNav() {
           .join(" ");
 
         return (
-          <motion.button
+          <button
             key={item.key}
             className={itemClass}
             onClick={() => navigate(item.path)}
-            whileTap={{ scale: 0.9 }}
             aria-label={item.label}
+            aria-current={active ? "page" : undefined}
           >
-            {active && (
-              <motion.span
-                layoutId="bottomNavActivePill"
-                className={styles.bottomNavPill}
-                transition={{ type: "spring", stiffness: 280, damping: 28, mass: 0.9 }}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-              />
-            )}
-
             <span className={styles.bottomNavItemIcon}>
               {item.icon(active)}
             </span>
@@ -97,7 +86,7 @@ function BottomNav() {
             {item.key === "cart" && cartCount > 0 && (
               <span className={styles.bottomNavBadge}>{cartCount}</span>
             )}
-          </motion.button>
+          </button>
         );
       })}
     </motion.nav>

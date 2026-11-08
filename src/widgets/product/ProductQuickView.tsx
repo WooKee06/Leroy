@@ -1,8 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination } from "swiper/modules";
 import { FiCheck, FiArrowRight } from "react-icons/fi";
 import { observer } from "mobx-react-lite";
 import type { Product } from "@shared/api/models";
@@ -11,8 +9,68 @@ import { cartStore } from "@shared/stores/cartStore";
 import { favoritesStore } from "@shared/stores/favoritesStore";
 import FavoriteButton from "@shared/ui/FavoriteButton";
 import styles from "./ProductQuickView.module.scss";
-import "swiper/css";
-import "swiper/css/pagination";
+
+/**
+ * Лёгкая галерея на CSS scroll-snap вместо Swiper.
+ *
+ * Swiper на каждое открытие модалки инициализирует наблюдатели, слушатели и
+ * пересчитывает размеры — на слабых устройствах это заметный «затык» ровно
+ * в момент, когда шторка начинает выезжать. Нативная прокрутка с snap даёт
+ * тот же UX, но без единого лишнего экземпляра слайдера.
+ */
+function QuickViewGallery({ product }: { product: Product }) {
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [index, setIndex] = useState(0);
+
+  const handleScroll = () => {
+    const track = trackRef.current;
+    if (!track) return;
+    const next = Math.round(track.scrollLeft / track.clientWidth);
+    setIndex((prev) => (prev === next ? prev : next));
+  };
+
+  const goTo = (next: number) => {
+    const track = trackRef.current;
+    if (!track) return;
+    track.scrollTo({ left: next * track.clientWidth, behavior: "smooth" });
+  };
+
+  return (
+    <div className={styles.galleryWrap}>
+      <div
+        ref={trackRef}
+        className={styles.gallery}
+        onScroll={handleScroll}
+      >
+        {product.images.map((src, i) => (
+          <div className={styles.gallerySlide} key={i}>
+            <img
+              className={styles.image}
+              src={src}
+              alt={`${product.name} — фото ${i + 1}`}
+              loading={i === 0 ? "eager" : "lazy"}
+              decoding="async"
+            />
+          </div>
+        ))}
+      </div>
+
+      {product.images.length > 1 && (
+        <div className={styles.dots}>
+          {product.images.map((_, i) => (
+            <button
+              key={i}
+              type="button"
+              className={i === index ? styles.dotActive : styles.dot}
+              onClick={() => goTo(i)}
+              aria-label={`Фото ${i + 1}`}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function ProductQuickView() {
   const product = quickViewStore.product;
@@ -40,6 +98,7 @@ function ProductQuickView() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.16 }}
             onClick={close}
             aria-hidden="true"
           />
@@ -51,7 +110,7 @@ function ProductQuickView() {
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
-            transition={{ type: "spring", stiffness: 320, damping: 34 }}
+            transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
           >
             <div className={styles.handle} />
             <button
@@ -112,24 +171,7 @@ const QuickViewBody = observer(function QuickViewBody({
     <>
       <div className={styles.scroller}>
         <div className={styles.imageWrap}>
-          <Swiper
-            grabCursor
-            modules={[Pagination]}
-            pagination={{ clickable: true }}
-            slidesPerView={1}
-            className={styles.qvSwiper}
-          >
-            {product.images.map((src, i) => (
-              <SwiperSlide key={i}>
-                <img
-                  className={styles.image}
-                  src={src}
-                  alt={product.name}
-                  loading="lazy"
-                />
-              </SwiperSlide>
-            ))}
-          </Swiper>
+          <QuickViewGallery product={product} />
           <div className={styles.favorite}>
             <FavoriteButton
               isActive={isFav}
@@ -180,57 +222,26 @@ const QuickViewBody = observer(function QuickViewBody({
 
       <div className={styles.footer}>
         <div className={styles.footerRow}>
-          <AnimatePresence initial={false}>
-            {sizeChosen && (
-              <motion.span
-                key="price"
-                className={styles.price}
-                initial={{ opacity: 0, x: -8, filter: "blur(4px)" }}
-                animate={{ opacity: 1, x: 0, filter: "blur(0px)" }}
-                exit={{ opacity: 0, x: -8, filter: "blur(4px)" }}
-                transition={{ duration: 0.22, ease: "easeInOut" }}
-              >
-                {product.price.toLocaleString("ru-RU")} ₽
-              </motion.span>
-            )}
-          </AnimatePresence>
-          <motion.button
-            className={styles.addBtn}
-            layout
+          {sizeChosen && (
+            <span className={styles.price}>
+              {product.price.toLocaleString("ru-RU")} ₽
+            </span>
+          )}
+          <button
+            className={`${styles.addBtn} ${inCart ? styles.addBtnInCart : ""}`}
             onClick={handleAdd}
-            whileTap={sizeChosen ? { scale: 0.94 } : undefined}
-            animate={{
-              backgroundColor: inCart ? "#34c759" : "--inverted",
-              opacity: sizeChosen ? 1 : 0.5,
-            }}
-            transition={{ duration: 0.25 }}
+            disabled={!sizeChosen}
           >
-            <AnimatePresence mode="wait" initial={false}>
+            <span key={inCart ? "added" : "add"} className={styles.addLabel}>
               {inCart ? (
-                <motion.span
-                  key="added"
-                  className={styles.addLabel}
-                  initial={{ opacity: 0, filter: "blur(4px)" }}
-                  animate={{ opacity: 1, filter: "blur(0px)" }}
-                  exit={{ opacity: 0, filter: "blur(4px)" }}
-                  transition={{ duration: 0.18, ease: "easeInOut" }}
-                >
+                <>
                   <FiCheck size={18} /> Добавлено
-                </motion.span>
+                </>
               ) : (
-                <motion.span
-                  key="add"
-                  className={styles.addLabel}
-                  initial={{ opacity: 0, filter: "blur(4px)" }}
-                  animate={{ opacity: 1, filter: "blur(0px)" }}
-                  exit={{ opacity: 0, filter: "blur(4px)" }}
-                  transition={{ duration: 0.18, ease: "easeInOut" }}
-                >
-                  В корзину
-                </motion.span>
+                "В корзину"
               )}
-            </AnimatePresence>
-          </motion.button>
+            </span>
+          </button>
           <button
             className={styles.arrowBtn}
             onClick={gotoPage}

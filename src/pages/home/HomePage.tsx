@@ -1,7 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { FiSliders, FiArrowRight } from "react-icons/fi";
-import { motion } from "framer-motion";
 import { observer } from "mobx-react-lite";
 import type { Product } from "@shared/api/models";
 import { catalogStore } from "@shared/stores/catalogStore";
@@ -102,7 +101,7 @@ function HomePage() {
           aria-label="Фильтры товаров"
         >
           {filters.map((f) => (
-            <motion.button
+            <button
               key={f.id}
               role="tab"
               aria-selected={activeFilter === f.id}
@@ -112,10 +111,9 @@ function HomePage() {
                   : styles.filterChip
               }
               onClick={() => setActiveFilter(f.id)}
-              whileTap={{ scale: 0.94 }}
             >
               {f.label}
-            </motion.button>
+            </button>
           ))}
         </div>
 

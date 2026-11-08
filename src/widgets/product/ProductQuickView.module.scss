@@ -3,9 +3,7 @@
 .backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(2px);
-  -webkit-backdrop-filter: blur(2px);
+  background: rgba(0, 0, 0, 0.5);
   z-index: 110;
 }
 
@@ -41,7 +39,6 @@
   border-radius: 16px;
   background: var(--bg-surface);
   color: var(--text-primary);
-  backdrop-filter: blur(13px);
   display: flex;
   align-items: center;
   font-size: 15px;
@@ -66,42 +63,62 @@
   background: $bg-surface-secondary;
 }
 
-.qvSwiper {
+.galleryWrap {
+  position: relative;
   width: 100%;
   height: 100%;
-  max-width: 100%;
+}
 
-  :global(.swiper-slide) {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
+.gallery {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
 
-  :global(.swiper-pagination) {
-    position: absolute;
-    bottom: 8px;
-    left: 0;
-    right: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+  &::-webkit-scrollbar {
+    display: none;
   }
+}
 
-  :global(.swiper-pagination-bullet) {
-    width: 5px;
-    height: 5px;
-    border-radius: 3px;
-    background: var(--text-primary);
-    opacity: 0.6;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
-    margin: 0 3px;
-    transition: all 0.25s ease;
-  }
+.gallerySlide {
+  flex: 0 0 100%;
+  height: 100%;
+  scroll-snap-align: center;
+  scroll-snap-stop: always;
+}
 
-  :global(.swiper-pagination-bullet-active) {
-    opacity: 1;
-    width: 15px;
-  }
+.dots {
+  position: absolute;
+  bottom: 8px;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.dot,
+.dotActive {
+  width: 5px;
+  height: 5px;
+  padding: 0;
+  border: none;
+  border-radius: 3px;
+  background: var(--text-primary);
+  opacity: 0.55;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  transition: opacity 0.18s ease, width 0.18s ease;
+  pointer-events: auto;
+}
+
+.dotActive {
+  opacity: 1;
+  width: 15px;
 }
 
 .image {
@@ -228,6 +245,19 @@
   white-space: nowrap;
   overflow: hidden;
   margin-left: auto;
+  transition: background-color 0.2s ease, transform 0.14s ease, opacity 0.15s ease;
+
+  &:active:not(:disabled) {
+    transform: scale(0.96);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+  }
+}
+
+.addBtnInCart {
+  background: #34c759;
 }
 
 .addLabel {
@@ -235,6 +265,22 @@
   align-items: center;
   gap: 6px;
   white-space: nowrap;
+  animation: label-in 0.14s ease-out;
+}
+
+@keyframes label-in {
+  from {
+    opacity: 0.5;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .addLabel {
+    animation: none;
+  }
 }
 
 .arrowBtn {

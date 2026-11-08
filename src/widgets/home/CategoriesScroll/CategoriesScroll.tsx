@@ -1,5 +1,4 @@
 import { useEffect } from 'react';
-import { motion } from 'framer-motion';
 import { observer } from 'mobx-react-lite';
 import { catalogStore } from '@shared/stores/catalogStore';
 import styles from './CategoriesScroll.module.scss';
@@ -18,27 +17,25 @@ function CategoriesScroll({ active, onChange }: Props) {
 
   return (
     <nav className={styles.categoriesScroll} aria-label="Категории">
-      <motion.ul className={styles.categoriesScrollList} layout>
+      <ul className={styles.categoriesScrollList}>
         {categories.map((cat) => {
           const isActive = active === cat.id;
           return (
             <li key={cat.id}>
-              <motion.button
+              <button
                 className={
                   isActive
                     ? styles.categoriesScrollPillActive
                     : styles.categoriesScrollPill
                 }
                 onClick={() => onChange(cat.id)}
-                whileTap={{ scale: 0.92 }}
-                layout
               >
                 {cat.name}
-              </motion.button>
+              </button>
             </li>
           );
         })}
-      </motion.ul>
+      </ul>
     </nav>
   );
 }

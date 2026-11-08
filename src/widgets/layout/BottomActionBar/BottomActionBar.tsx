@@ -26,33 +26,25 @@ function BottomActionBar() {
 
   const show = shape.left !== "" || shape.right !== "";
 
-  const slotAnim = {
-    initial: { opacity: 0 },
-    animate: { opacity: 1 },
-    exit: { opacity: 0 },
-  } as const;
-
   const renderLeft = () => {
     if (shape.left === "qty") {
       return (
         <div className={styles.qty}>
-          <motion.button
+          <button
             className={styles.qtyBtn}
             onClick={() => productBarStore.dec()}
-            whileTap={{ scale: 0.88 }}
             aria-label="Меньше"
           >
             <FiMinus size={16} />
-          </motion.button>
+          </button>
           <span className={styles.qtyValue}>{productBarStore.qty}</span>
-          <motion.button
+          <button
             className={styles.qtyBtn}
             onClick={() => productBarStore.inc()}
-            whileTap={{ scale: 0.88 }}
             aria-label="Больше"
           >
             <FiPlus size={16} />
-          </motion.button>
+          </button>
         </div>
       );
     }
@@ -74,25 +66,15 @@ function BottomActionBar() {
     if (shape.right === "cart") {
       const inCart = productBarStore.inCart;
       return (
-        <motion.button
-          className={styles.cartBtn}
+        <button
+          className={`${styles.cartBtn} ${inCart ? styles.cartBtnActive : ""}`}
           onClick={() => productBarStore.toggleCart()}
-          whileTap={{ scale: 0.88 }}
-          animate={{ backgroundColor: inCart ? "#34c759" : "var(--bg-surface)" }}
-          transition={{ duration: 0.2 }}
           aria-label={inCart ? "В корзине" : "В корзину"}
         >
-          <motion.span
-            key={inCart ? "added" : "add"}
-            className={styles.cartIcon}
-            initial={{ opacity: 0, scale: 0.6 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.6 }}
-            transition={{ duration: 0.14 }}
-          >
+          <span key={inCart ? "added" : "add"} className={styles.cartIcon}>
             {inCart ? <FiCheck size={22} /> : <FiShoppingCart size={22} />}
-          </motion.span>
-        </motion.button>
+          </span>
+        </button>
       );
     }
     if (shape.right === "order") {
@@ -121,19 +103,9 @@ function BottomActionBar() {
           transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
         >
           <div className={styles.left}>
-            <AnimatePresence mode="popLayout" initial={false}>
-              <motion.div
-                key={shape.left || "empty"}
-                variants={slotAnim}
-                initial="initial"
-                animate="animate"
-                exit="exit"
-                transition={{ duration: 0.14, ease: [0.22, 1, 0.36, 1] }}
-                className={styles.slot}
-              >
-                {renderLeft()}
-              </motion.div>
-            </AnimatePresence>
+            <div key={shape.left || "empty"} className={styles.slot}>
+              {renderLeft()}
+            </div>
           </div>
 
           <div className={styles.center}>
@@ -145,19 +117,9 @@ function BottomActionBar() {
           </div>
 
           <div className={styles.right}>
-            <AnimatePresence mode="popLayout" initial={false}>
-              <motion.div
-                key={shape.right || "empty"}
-                variants={slotAnim}
-                initial="initial"
-                animate="animate"
-                exit="exit"
-                transition={{ duration: 0.14, ease: [0.22, 1, 0.36, 1] }}
-                className={styles.slot}
-              >
-                {renderRight()}
-              </motion.div>
-            </AnimatePresence>
+            <div key={shape.right || "empty"} className={styles.slot}>
+              {renderRight()}
+            </div>
           </div>
         </motion.div>
       )}

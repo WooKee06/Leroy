@@ -10,8 +10,6 @@
   max-width: 300px;
   z-index: 100;
   background: var(--inverted);
-  backdrop-filter: blur(30px);
-  -webkit-backdrop-filter: blur(20px);
   border-radius: 100px;
   box-shadow: $shadow-nav;
   display: flex;
@@ -32,6 +30,11 @@
   position: relative;
   height: 100%;
   border-radius: $radius-lg;
+  transition: transform 0.14s ease, background-color 0.16s ease;
+
+  &:active {
+    transform: scale(0.92);
+  }
 }
 
 .bottomNavItemCenter {
@@ -49,17 +52,11 @@
 .bottomNavItemActive {
   color: var(--text-primary);
   border-radius: 100px;
+  background: var(--bg-surface);
 }
 
 .bottomNavItemActive .bottomNavItemLabel {
   color: $text-primary;
-}
-
-.bottomNavPill {
-  position: absolute;
-  inset: 0;
-  border-radius: 100px;
-  background: var(--bg-surface);
 }
 
 .bottomNavItemIcon {
