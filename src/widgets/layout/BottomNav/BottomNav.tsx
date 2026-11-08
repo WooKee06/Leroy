@@ -54,10 +54,10 @@ function BottomNav() {
   return (
     <motion.nav
       className={styles.bottomNav}
-      initial={{ filter: "blur(10px)", opacity: 0, y: 20, scale: 0.96 }}
-      animate={{ filter: "blur(0px)", opacity: 1, y: 0, scale: 1 }}
-      exit={{ filter: "blur(10px)", opacity: 0, y: 20, scale: 0.96 }}
-      transition={{ type: "spring", stiffness: 230, damping: 28 }}
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 10 }}
+      transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
     >
       {items.map((item) => {
         const active = getActive(item.path);

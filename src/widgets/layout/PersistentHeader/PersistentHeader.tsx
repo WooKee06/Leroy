@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { AnimatePresence, motion, type Variants } from "framer-motion";
 import { observer } from "mobx-react-lite";
 import { FiArrowLeft, FiEdit, FiSearch, FiSettings, FiShare, FiSliders } from "react-icons/fi";
 import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
@@ -29,14 +28,6 @@ function resolveShape(pathname: string): HeaderShape {
   if (pathname === "/settings" || pathname === "/role") return { left: "back", right: [] };
   return { left: "back", right: [] };
 }
-
-const contentAnim: Variants = {
-  initial: { opacity: 0 },
-  animate: { opacity: 1 },
-  exit: { opacity: 0 },
-};
-
-const contentTransition = { duration: 0.14, ease: [0.22, 1, 0.36, 1] as const };
 
 function PersistentHeader() {
   const location = useLocation();
@@ -179,35 +170,18 @@ function PersistentHeader() {
     <header className={`${styles.header} ${scrolled ? styles.headerScrolled : ""}`}>
       <div className={styles.row}>
         <div className={`${styles.slot} ${styles.leftSlot}`}>
-          <AnimatePresence mode="popLayout" initial={false}>
-            <motion.div
-              key={`left-${shape.left}`}
-              className={styles.content}
-              variants={contentAnim}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-              transition={contentTransition}
-            >
-              {renderLeft()}
-            </motion.div>
-          </AnimatePresence>
+          <div key={`left-${shape.left}`} className={styles.content}>
+            {renderLeft()}
+          </div>
         </div>
 
         <div className={`${styles.slot} ${styles.rightSlot}`}>
-          <AnimatePresence mode="popLayout" initial={false}>
-            <motion.div
-              key={`right-${shape.right.join("+")}`}
-              className={styles.content}
-              variants={contentAnim}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-              transition={contentTransition}
-            >
-              {renderRight()}
-            </motion.div>
-          </AnimatePresence>
+          <div
+            key={`right-${shape.right.join("+")}`}
+            className={styles.content}
+          >
+            {renderRight()}
+          </div>
         </div>
       </div>
     </header>

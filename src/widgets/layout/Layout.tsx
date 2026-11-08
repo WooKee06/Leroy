@@ -1,5 +1,5 @@
 import { Suspense, useLayoutEffect, type CSSProperties } from 'react';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import { useLocation, useOutlet } from 'react-router-dom';
 import BottomNav from './BottomNav/BottomNav';
 import BottomActionBar from './BottomActionBar/BottomActionBar';
@@ -10,9 +10,8 @@ import RouteFallback from '@shared/ui/RouteFallback';
 import styles from './Layout.module.scss';
 
 /**
- * Сбрасывает прокрутку после завершения анимации ухода старой страницы.
- * Компонент живёт внутри keyed-контейнера, поэтому монтируется уже вместе
- * с новой страницей — старой странице не приходится «прыгать» вверх.
+ * Сбрасывает прокрутку до отрисовки новой страницы (useLayoutEffect), чтобы
+ * первый кадр уже был вверху и не мигал старым скроллом.
  */
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -33,8 +32,7 @@ export default function Layout() {
     location.pathname,
   );
 
-  // Отступ под навигацию задаём на самой странице. Так уходящая страница
-  // сохраняет свой отступ до конца анимации и контент не дёргается.
+  // На не-табовых страницах нижней навигации нет — убираем отступ под неё.
   const pageStyle = showBottomNav
     ? undefined
     : ({ '--bottom-nav-space': '0px' } as CSSProperties);
@@ -42,19 +40,14 @@ export default function Layout() {
   return (
     <div className={styles.layout}>
       <PersistentHeader />
-      <AnimatePresence mode="wait" initial={false}>
-        <motion.main
-          key={location.pathname}
-          className={styles.layoutMain}
-          style={pageStyle}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1, transition: { duration: 0.14, ease: [0.22, 1, 0.36, 1] } }}
-          exit={{ opacity: 0, transition: { duration: 0.06, ease: 'linear' } }}
-        >
-          <ScrollToTop />
-          <Suspense fallback={<RouteFallback />}>{outlet}</Suspense>
-        </motion.main>
-      </AnimatePresence>
+      <main
+        key={location.pathname}
+        className={styles.layoutMain}
+        style={pageStyle}
+      >
+        <ScrollToTop />
+        <Suspense fallback={<RouteFallback />}>{outlet}</Suspense>
+      </main>
 
       <AnimatePresence>
         {showBottomNav && <BottomNav key="bottom-nav" />}

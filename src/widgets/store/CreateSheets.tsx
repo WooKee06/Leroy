@@ -3,16 +3,11 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
 import { FiCamera, FiImage, FiPlus, FiX } from "react-icons/fi";
 import { observer } from "mobx-react-lite";
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-  type ChangeEvent,
-} from "react";
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { catalogStore } from "@shared/stores/catalogStore";
 import { leroyApi } from "@shared/api/leroyApi";
 import { fileUrlFromApi } from "@shared/api/client";
+import ImageCropModal from "@shared/ui/ImageCropModal";
 import styles from "./CreateSheets.module.scss";
 import "swiper/css";
 import "swiper/css/pagination";
@@ -127,6 +122,10 @@ export const StoreCreateSheet = observer(function StoreCreateSheet({
   const [coverFile, setCoverFile] = useState<File | undefined>(undefined);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [cropRequest, setCropRequest] = useState<{
+    file: File;
+    target: "logo" | "cover";
+  } | null>(null);
   const coverInputRef = useRef<HTMLInputElement>(null);
   const avatarInputRef = useRef<HTMLInputElement>(null);
 
@@ -145,20 +144,27 @@ export const StoreCreateSheet = observer(function StoreCreateSheet({
       setDescription("");
       setLogoFile(undefined);
       setCoverFile(undefined);
+      setCropRequest(null);
       setError(null);
     }
   }, [open]);
 
   const pickCover = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) setCoverFile(file);
+    if (file) setCropRequest({ file, target: "cover" });
     e.target.value = "";
   };
 
   const pickAvatar = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (file) setLogoFile(file);
+    if (file) setCropRequest({ file, target: "logo" });
     e.target.value = "";
+  };
+
+  const applyCrop = (file: File) => {
+    if (cropRequest?.target === "logo") setLogoFile(file);
+    else if (cropRequest?.target === "cover") setCoverFile(file);
+    setCropRequest(null);
   };
 
   const submit = async () => {
@@ -215,7 +221,11 @@ export const StoreCreateSheet = observer(function StoreCreateSheet({
             transition={{ type: "spring", stiffness: 320, damping: 34 }}
           >
             <div className={styles.handle} />
-            <button className={styles.closeBtn} onClick={onClose} aria-label="Закрыть">
+            <button
+              className={styles.closeBtn}
+              onClick={onClose}
+              aria-label="Закрыть"
+            >
               <FiX size={18} />
             </button>
 
@@ -231,10 +241,13 @@ export const StoreCreateSheet = observer(function StoreCreateSheet({
                 onClick={() => coverInputRef.current?.click()}
               >
                 {coverPreview && (
-                  <img className={styles.coverPreview} src={coverPreview} alt="" />
+                  <img
+                    className={styles.coverPreview}
+                    src={coverPreview}
+                    alt=""
+                  />
                 )}
                 <span className={styles.coverHint}>
-                  <FiCamera size={16} />
                   {coverPreview ? "Заменить шапку" : "Добавить шапку"}
                 </span>
                 <input
@@ -252,7 +265,11 @@ export const StoreCreateSheet = observer(function StoreCreateSheet({
                 onClick={() => avatarInputRef.current?.click()}
               >
                 {avatarPreview ? (
-                  <img className={styles.avatarPreview} src={avatarPreview} alt="" />
+                  <img
+                    className={styles.avatarPreview}
+                    src={avatarPreview}
+                    alt=""
+                  />
                 ) : (
                   <span className={styles.avatarPlaceholder}>
                     <FiPlus size={26} />
@@ -299,6 +316,21 @@ export const StoreCreateSheet = observer(function StoreCreateSheet({
               {saving ? "Создаём…" : "Создать магазин"}
             </button>
           </motion.div>
+
+          <ImageCropModal
+            open={cropRequest !== null}
+            file={cropRequest?.file ?? null}
+            title={
+              cropRequest?.target === "cover"
+                ? "Обрезка шапки"
+                : "Обрезка аватарки"
+            }
+            aspect={cropRequest?.target === "cover" ? 16 / 9 : 1}
+            cropShape={cropRequest?.target === "cover" ? "rect" : "round"}
+            outputWidth={cropRequest?.target === "cover" ? 1440 : 512}
+            onCancel={() => setCropRequest(null)}
+            onApply={applyCrop}
+          />
         </>
       )}
     </AnimatePresence>
@@ -392,12 +424,18 @@ export const ProductFormSheet = observer(function ProductFormSheet({
             transition={{ type: "spring", stiffness: 320, damping: 34 }}
           >
             <div className={styles.handle} />
-            <button className={styles.closeBtn} onClick={onClose} aria-label="Закрыть">
+            <button
+              className={styles.closeBtn}
+              onClick={onClose}
+              aria-label="Закрыть"
+            >
               <FiX size={18} />
             </button>
 
             <h2 className={styles.sheetTitle}>Добавить товар</h2>
-            <p className={styles.sheetSubtitle}>Укажите параметры нового товара</p>
+            <p className={styles.sheetSubtitle}>
+              Укажите параметры нового товара
+            </p>
 
             <label className={styles.field}>
               <span className={styles.fieldLabel}>Название</span>
@@ -415,7 +453,9 @@ export const ProductFormSheet = observer(function ProductFormSheet({
                 className={styles.input}
                 inputMode="numeric"
                 value={price}
-                onChange={(e) => setPrice(e.target.value.replace(/[^\d.]/g, ""))}
+                onChange={(e) =>
+                  setPrice(e.target.value.replace(/[^\d.]/g, ""))
+                }
                 placeholder="1 250"
               />
             </label>

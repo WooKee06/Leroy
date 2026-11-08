@@ -72,6 +72,23 @@
   align-items: center;
   gap: 6px;
   min-height: 44px;
+  /* Лёгкое появление при смене набора кнопок, без crossfade и сдвигов. */
+  animation: header-content-in 0.16s ease-out both;
+}
+
+@keyframes header-content-in {
+  from {
+    opacity: 0.65;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .content {
+    animation: none;
+  }
 }
 
 .favActive {

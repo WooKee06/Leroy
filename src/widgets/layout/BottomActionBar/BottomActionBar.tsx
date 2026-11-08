@@ -27,9 +27,9 @@ function BottomActionBar() {
   const show = shape.left !== "" || shape.right !== "";
 
   const slotAnim = {
-    initial: { opacity: 0, y: 8, scale: 0.92, filter: "blur(6px)" },
-    animate: { opacity: 1, y: 0, scale: 1, filter: "blur(0px)" },
-    exit: { opacity: 0, y: -6, scale: 0.92, filter: "blur(6px)" },
+    initial: { opacity: 0 },
+    animate: { opacity: 1 },
+    exit: { opacity: 0 },
   } as const;
 
   const renderLeft = () => {
@@ -115,10 +115,10 @@ function BottomActionBar() {
       {show && (
         <motion.div
           className={styles.bar}
-          initial={{ filter: "blur(10px)", opacity: 0, y: 22, scale: 0.96 }}
-          animate={{ filter: "blur(0px)", opacity: 1, y: 0, scale: 1 }}
-          exit={{ filter: "blur(10px)", opacity: 0, y: 22, scale: 0.96 }}
-          transition={{ type: "spring", stiffness: 260, damping: 30, delay: 0.1 }}
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: 14 }}
+          transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
         >
           <div className={styles.left}>
             <AnimatePresence mode="popLayout" initial={false}>
@@ -128,7 +128,7 @@ function BottomActionBar() {
                 initial="initial"
                 animate="animate"
                 exit="exit"
-                transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: 0.14, ease: [0.22, 1, 0.36, 1] }}
                 className={styles.slot}
               >
                 {renderLeft()}
@@ -152,7 +152,7 @@ function BottomActionBar() {
                 initial="initial"
                 animate="animate"
                 exit="exit"
-                transition={{ duration: 0.24, ease: [0.22, 1, 0.36, 1] }}
+                transition={{ duration: 0.14, ease: [0.22, 1, 0.36, 1] }}
                 className={styles.slot}
               >
                 {renderRight()}
