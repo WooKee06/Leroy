@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Cropper, { type Area } from "react-easy-crop";
 import { AnimatePresence, motion } from "framer-motion";
-import { FiX } from "react-icons/fi";
+
 import { cropImageToFile } from "@shared/lib/cropImage";
 import styles from "./ImageCropModal.module.scss";
 import "react-easy-crop/react-easy-crop.css";

@@ -1,7 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Pagination } from "swiper/modules";
-import { FiCamera, FiImage, FiPlus, FiX } from "react-icons/fi";
+import { FiImage, FiPlus, FiX } from "react-icons/fi";
 import { observer } from "mobx-react-lite";
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { catalogStore } from "@shared/stores/catalogStore";
