@@ -107,9 +107,9 @@ function ProductQuickView() {
             role="dialog"
             aria-modal="true"
             aria-label={`${product.name} — предпросмотр`}
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "100%" }}
+            initial={{ y: "100%", scale: 0.98 }}
+            animate={{ y: 0, scale: 1 }}
+            exit={{ y: "100%", scale: 0.98 }}
             transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }}
           >
             <div className={styles.handle} />

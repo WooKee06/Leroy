@@ -6,23 +6,23 @@
   min-height: 100dvh;
   padding-top: calc(64px + var(--safe-top));
   /*
-   * Переход страниц: только короткое проявление, без transform.
+   * Мягкое появление страницы: opacity + небольшой подъём.
    *
-   * Раньше здесь был ещё и translateY(8px). Анимация transform на всём
-   * дереве страницы заставляет браузер перерисовывать/перекомпоновывать
-   * весь контент, а вместе с backdrop-filter в шапке это давало заметные
-   * просадки. Opacity-анимация композитору обходится намного дешевле,
-   * а визуально переход всё равно ощущается мягким.
+   * fill-mode намеренно не задан, чтобы transform не создавал containing block
+   * для position: fixed элементов внутри страниц во время и после анимации.
+   * Без backdrop-filter в шапке эта анимация теперь не даёт просадок.
    */
-  animation: page-in 0.16s ease-out;
+  animation: page-in 0.24s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @keyframes page-in {
   from {
-    opacity: 0.65;
+    opacity: 0;
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
+    transform: translateY(0);
   }
 }
 

@@ -1,0 +1,85 @@
+@use "../../app/styles/variables" as *;
+
+.hint {
+  font-size: 15px;
+  line-height: 1.5;
+  color: $text-secondary;
+  margin-bottom: $space-xl;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: $space-xl;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: $space-md;
+  padding: 14px 16px;
+  background: var(--bg-surface);
+  border: 1px solid $color-border;
+  border-radius: $radius-xl;
+  box-shadow: $shadow-card;
+  transition: transform 0.14s ease;
+
+  &:active {
+    transform: scale(0.99);
+  }
+}
+
+.rowIcon {
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border-radius: 14px;
+  display: grid;
+  place-items: center;
+}
+
+.rowMain {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.rowLabel {
+  font-size: 15px;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.rowDesc {
+  font-size: 13px;
+  color: $text-secondary;
+}
+
+.addBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 52px;
+  border-radius: $radius-pill;
+  background: var(--inverted);
+  color: var(--inverted-fg);
+  font-size: 15px;
+  font-weight: 600;
+  transition: transform 0.14s ease;
+
+  &:active {
+    transform: scale(0.98);
+  }
+}
+
+.note {
+  margin-top: $space-lg;
+  font-size: 13px;
+  line-height: 1.5;
+  color: $text-tertiary;
+  text-align: center;
+}

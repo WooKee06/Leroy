@@ -78,11 +78,40 @@
   gap: 4px;
   row-gap: 15px;
   padding-bottom: $space-lg;
+
+  > * {
+    opacity: 0;
+    animation: card-rise 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  @for $i from 1 through 12 {
+    > *:nth-child(#{$i}) {
+      animation-delay: #{$i * 0.025}s;
+    }
+  }
 }
 
 .cell {
   min-width: 0;
   display: flex;
+}
+
+@keyframes card-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grid > * {
+    animation: none;
+    opacity: 1;
+  }
 }
 
 .empty {

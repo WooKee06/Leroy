@@ -1,0 +1,282 @@
+@use "../../app/styles/variables" as *;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 200;
+}
+
+.sheet {
+  position: fixed;
+  left: 5px;
+  right: 5px;
+  bottom: 5px;
+  z-index: 201;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100dvh - 24px);
+  background: var(--bg-surface);
+  border-radius: 30px;
+  overflow: hidden;
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.18);
+}
+
+.sheetHeader {
+  flex-shrink: 0;
+  padding: 8px $padding-page 10px;
+}
+
+.sheetHandle {
+  display: block;
+  width: 38px;
+  height: 4px;
+  margin: 0 auto 12px;
+  border-radius: 2px;
+  background: $color-border;
+}
+
+.sheetTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: $space-md;
+}
+
+.sheetTitle {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+
+.sheetHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sheetReset {
+  padding: 6px 2px;
+  font-size: 13px;
+  font-weight: 600;
+  color: $text-secondary;
+  background: transparent;
+
+  &:active {
+    color: $text-primary;
+  }
+}
+
+.sheetClose {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: var(--bg-surface-secondary);
+  color: $text-secondary;
+  display: grid;
+  place-items: center;
+  transition: transform 0.14s ease;
+
+  &:active {
+    transform: scale(0.9);
+  }
+}
+
+.sheetBody {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 $padding-page 8px;
+}
+
+.sheetSection {
+  padding: 16px 0;
+  border-bottom: 1px solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.sheetSectionTitle {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1px;
+  text-transform: uppercase;
+  color: $text-secondary;
+  margin-bottom: $space-md;
+}
+
+.options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.option,
+.optionActive {
+  padding: 10px 16px;
+  border-radius: $radius-pill;
+  font-size: 14px;
+  font-weight: 600;
+  white-space: nowrap;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    border-color 0.15s ease,
+    transform 0.14s ease;
+
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.option {
+  background: var(--bg-surface-secondary);
+  color: $text-primary;
+  border: 1px solid $color-border;
+}
+
+.optionActive {
+  background: var(--inverted);
+  color: var(--inverted-fg);
+  border: 1px solid var(--inverted);
+}
+
+.priceRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.priceField {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 48px;
+  padding: 0 14px;
+  border-radius: $radius-md;
+  background: var(--bg-surface-secondary);
+  border: 1px solid $color-border;
+  transition: border-color 0.15s ease;
+
+  &:focus-within {
+    border-color: var(--text-primary);
+  }
+}
+
+.priceLabel {
+  font-size: 13px;
+  font-weight: 600;
+  color: $text-tertiary;
+}
+
+.priceInput {
+  width: 100%;
+  min-width: 0;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 16px;
+  font-weight: 600;
+  color: $text-primary;
+}
+
+.priceDash {
+  padding-bottom: 14px;
+  color: $text-tertiary;
+  font-size: 15px;
+}
+
+.colorGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(62px, 1fr));
+  gap: 10px;
+}
+
+.colorItem,
+.colorItemActive {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 2px;
+  border-radius: $radius-sm;
+  background: transparent;
+  transition:
+    background-color 0.15s ease,
+    transform 0.14s ease;
+
+  &:active {
+    transform: scale(0.94);
+  }
+}
+
+.colorItemActive {
+  background: var(--bg-surface-secondary);
+}
+
+.colorSwatch {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  transition: box-shadow 0.15s ease;
+}
+
+.colorItemActive .colorSwatch {
+  box-shadow:
+    0 0 0 2px var(--bg-surface),
+    0 0 0 4px var(--text-primary);
+}
+
+.colorName {
+  font-size: 11.5px;
+  font-weight: 500;
+  color: $text-secondary;
+  text-align: center;
+  line-height: 1.2;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.colorItemActive .colorName {
+  color: $text-primary;
+  font-weight: 600;
+}
+
+.sheetFooter {
+  flex-shrink: 0;
+  padding: 12px $padding-page calc(14px + var(--safe-bottom));
+  background: var(--bg-surface);
+  border-top: 1px solid $color-divider;
+}
+
+.doneBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 52px;
+  border-radius: $radius-pill;
+  background: var(--inverted);
+  color: var(--inverted-fg);
+  font-size: 16px;
+  font-weight: 600;
+  transition: transform 0.14s ease;
+
+  &:active {
+    transform: scale(0.98);
+  }
+}

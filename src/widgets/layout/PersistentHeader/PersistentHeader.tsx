@@ -1,16 +1,15 @@
 import { useLocation, useNavigate } from "react-router-dom";
 import { observer } from "mobx-react-lite";
-import { FiArrowLeft, FiEdit, FiSearch, FiSettings, FiShare, FiSliders } from "react-icons/fi";
+import { FiArrowLeft, FiEdit, FiSearch, FiSettings, FiShare } from "react-icons/fi";
 import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
 import { BsCartDash } from "react-icons/bs";
 import { accountStore } from "@shared/stores/accountStore";
 import { favoritesStore } from "@shared/stores/favoritesStore";
-import { pageActionsStore } from "@shared/stores/pageActionsStore";
 import hStyles from "@widgets/home/HeroSection/HomeHeader.module.scss";
 import styles from "./PersistentHeader.module.scss";
 
 type LeftId = "profile" | "back";
-type ActionId = "search" | "favorites" | "cart" | "favorite" | "share" | "filters" | "settings" | "edit";
+type ActionId = "search" | "favorites" | "cart" | "favorite" | "share" | "settings" | "edit";
 
 interface HeaderShape {
   left: LeftId;
@@ -19,7 +18,6 @@ interface HeaderShape {
 
 function resolveShape(pathname: string): HeaderShape {
   if (pathname === "/") return { left: "profile", right: ["settings", "search", "favorites", "cart"] };
-  if (pathname.startsWith("/search")) return { left: "back", right: ["filters"] };
   if (pathname.startsWith("/product/")) return { left: "back", right: ["favorite", "share"] };
   if (pathname.startsWith("/store/")) return { left: "back", right: ["share"] };
   if (pathname === "/my-store") return { left: "back", right: ["edit"] };
@@ -83,7 +81,7 @@ function PersistentHeader() {
       {shape.right.includes("search") && (
         <button
           className={hStyles.homeHeaderIconBtn}
-          onClick={() => navigate("/search")}
+          onClick={() => navigate("/discover")}
           aria-label="Поиск"
         >
           <FiSearch size={20} />
@@ -134,15 +132,6 @@ function PersistentHeader() {
           aria-label="Настройки"
         >
           <FiSettings size={20} />
-        </button>
-      )}
-      {shape.right.includes("filters") && (
-        <button
-          className={hStyles.homeHeaderIconBtn}
-          onClick={() => pageActionsStore.run("filters")}
-          aria-label="Фильтры"
-        >
-          <FiSliders size={20} />
         </button>
       )}
       {shape.right.includes("edit") && (

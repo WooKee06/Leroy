@@ -159,6 +159,7 @@ function ProfilePage() {
       iconColor: "#34c759",
       label: "Способы оплаты",
       desc: "Карты, Stars",
+      path: "/payment-methods",
     },
     {
       icon: <FiCreditCard size={20} />,
@@ -166,13 +167,15 @@ function ProfilePage() {
       iconColor: "#f5a623",
       label: "Баланс",
       desc: `${accountStore.balance.toLocaleString("ru-RU")} ₽`,
+      path: "/balance",
     },
     {
       icon: <FiGift size={20} />,
       iconBg: "var(--tint-purple)",
       iconColor: "#8e5cf7",
       label: "Мои подарки",
-      desc: "3 подарка",
+      desc: "Скоро",
+      path: "/gifts",
     },
     {
       icon: <FiSettings size={20} />,

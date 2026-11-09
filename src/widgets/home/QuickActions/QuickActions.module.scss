@@ -2,7 +2,7 @@
 
 .quickActions {
   display: flex;
-  gap: $space-lg;
+  gap: 5px;
   justify-content: space-between;
   overflow-x: auto;
   padding: $space-2xl 0 $space-lg;
@@ -12,7 +12,7 @@
 .quickAction {
   flex: none;
   display: flex;
-  width: 62px;
+  flex: 1;
   flex-direction: column;
   align-items: center;
   gap: 7px;
@@ -26,8 +26,8 @@
 }
 
 .quickActionIcon {
-  width: 60px;
-  height: 50px;
+  width: 100%;
+  aspect-ratio: 1/0.7;
   border-radius: 17px;
   background: var(--bg-surface-secondary);
   border: 1px solid rgba(0, 0, 0, 0.03);
@@ -38,7 +38,7 @@
 }
 
 .quickActionLabel {
-  font-size: 11px;
+  font-size: 14px;
   font-weight: 600;
   line-height: 1.25;
   text-align: center;

@@ -77,6 +77,17 @@
   overflow-x: auto;
   padding: $space-sm 0;
   scroll-snap-type: x mandatory;
+
+  > * {
+    opacity: 0;
+    animation: card-rise 0.32s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  @for $i from 1 through 8 {
+    > *:nth-child(#{$i}) {
+      animation-delay: #{$i * 0.04}s;
+    }
+  }
 }
 
 .popularCard {
@@ -221,6 +232,17 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
+
+  > * {
+    opacity: 0;
+    animation: row-in 0.28s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+
+  @for $i from 1 through 10 {
+    > *:nth-child(#{$i}) {
+      animation-delay: #{$i * 0.025}s;
+    }
+  }
 }
 
 .storeRow {
@@ -345,4 +367,34 @@
   text-align: center;
   font-size: 15px;
   color: $text-secondary;
+}
+
+@keyframes card-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes row-in {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .popularRow > *,
+  .storesList > * {
+    animation: none;
+    opacity: 1;
+  }
 }

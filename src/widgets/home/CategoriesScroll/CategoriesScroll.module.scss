@@ -1,15 +1,14 @@
 @use '../../../app/styles/variables' as *;
 
 .categoriesScroll {
+  margin: 0 (-$padding-page);
   padding: $space-2xl 0 $space-lg;
-  -webkit-overflow-scrolling: touch;
-}
-
-.categoriesScrollList {
-  display: flex;
-  gap: $space-sm;
-  padding: 0 $padding-page;
   overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x proximity;
+  scroll-padding-inline: $padding-page;
+  overscroll-behavior-x: contain;
+  -webkit-overflow-scrolling: touch;
   scrollbar-width: none;
 
   &::-webkit-scrollbar {
@@ -17,20 +16,40 @@
   }
 }
 
-.categoriesScrollPill {
+.categoriesScrollList {
+  display: flex;
+  flex-wrap: nowrap;
+  width: max-content;
+  gap: 10px;
+  padding: 0 $padding-page;
+
+  > li {
+    flex-shrink: 0;
+    scroll-snap-align: start;
+  }
+}
+
+.categoriesScrollPill,
+.categoriesScrollPillActive {
   padding: 10px 18px;
   border-radius: $radius-pill;
-  background: $bg-surface;
   font-size: 14px;
   font-weight: 500;
-  color: $text-secondary;
   white-space: nowrap;
-  transition: all 0.2s ease;
-  box-shadow: $shadow-card;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.14s ease;
 
   &:active {
     transform: scale(0.95);
   }
+}
+
+.categoriesScrollPill {
+  background: $bg-surface;
+  color: $text-secondary;
+  box-shadow: $shadow-card;
 }
 
 .categoriesScrollPillActive {

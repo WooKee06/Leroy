@@ -137,9 +137,9 @@ function CheckoutSheet() {
           />
           <motion.div
             className={styles.sheet}
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "100%" }}
+            initial={{ y: "100%", scale: 0.98 }}
+            animate={{ y: 0, scale: 1 }}
+            exit={{ y: "100%", scale: 0.98 }}
             transition={{ type: "spring", stiffness: 320, damping: 34 }}
             role="dialog"
             aria-modal="true"

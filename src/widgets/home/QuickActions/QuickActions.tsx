@@ -11,9 +11,9 @@ interface QuickAction {
 }
 
 const actions: QuickAction[] = [
-  { id: "stars", label: "За Stars", icon: <FiStar size={19} fill="currentColor" />, to: "/search" },
-  { id: "deals", label: "Deals", icon: <FiZap size={19} />, to: "/search" },
-  { id: "gifts", label: "Подарки", icon: <FiGift size={19} />, to: "/search" },
+  { id: "stars", label: "За Stars", icon: <FiStar size={19} fill="currentColor" />, to: "/discover" },
+  { id: "deals", label: "Deals", icon: <FiZap size={19} />, to: "/discover" },
+  { id: "gifts", label: "Подарки", icon: <FiGift size={19} />, to: "/gifts" },
   { id: "stores", label: "Магазины", icon: <FiShoppingBag size={19} />, to: "/stores" },
   { id: "favorites", label: "Избранное", icon: <FiHeart size={19} />, to: "/favorites" },
 ];

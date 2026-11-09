@@ -67,10 +67,10 @@ function HomePage() {
             value=""
             onChange={() => {}}
             placeholder="Что вы ищете?"
-            onFocus={() => navigate("/search")}
+            onFocus={() => navigate("/discover")}
             trailing={
               <FiSliders
-                onClick={() => navigate("/search")}
+                onClick={() => navigate("/discover")}
                 aria-label="Фильтры"
                 size={20}
               />
@@ -87,7 +87,7 @@ function HomePage() {
           <h2 className={styles.productsTitle}>Популярные товары</h2>
           <button
             className={styles.seeAll}
-            onClick={() => navigate("/search")}
+            onClick={() => navigate("/discover")}
             aria-label="Все товары"
           >
             Все

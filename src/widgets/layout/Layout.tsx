@@ -28,7 +28,7 @@ export default function Layout() {
   const outlet = useOutlet();
   // Нижняя навигация — только на корневых вкладках. На странице товара и в
   // корзине своя нижняя панель (BottomActionBar), а на остальных — нет.
-  const showBottomNav = ['/', '/search', '/stores', '/profile'].includes(
+  const showBottomNav = ['/', '/discover', '/stores', '/profile'].includes(
     location.pathname,
   );
 

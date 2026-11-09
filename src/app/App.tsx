@@ -17,7 +17,6 @@ const TON_MANIFEST_URL =
  * мгновенными, но стартовый JS остаётся маленьким.
  */
 const pageLoaders = {
-  search: () => import('@pages/search/SearchPage'),
   product: () => import('@pages/product/ProductPage'),
   store: () => import('@pages/store/StorePage'),
   cart: () => import('@pages/cart/CartPage'),
@@ -32,9 +31,11 @@ const pageLoaders = {
   orders: () => import('@pages/orders/OrdersPage'),
   orderDetail: () => import('@pages/orders/OrderDetailPage'),
   discover: () => import('@pages/discover/DiscoverPage'),
+  balance: () => import('@pages/balance/BalancePage'),
+  gifts: () => import('@pages/gifts/GiftsPage'),
+  paymentMethods: () => import('@pages/paymentMethods/PaymentMethodsPage'),
 };
 
-const SearchPage = lazy(pageLoaders.search);
 const ProductPage = lazy(pageLoaders.product);
 const StorePage = lazy(pageLoaders.store);
 const CartPage = lazy(pageLoaders.cart);
@@ -49,9 +50,11 @@ const StoreEditPage = lazy(pageLoaders.storeEdit);
 const OrdersPage = lazy(pageLoaders.orders);
 const OrderDetailPage = lazy(pageLoaders.orderDetail);
 const DiscoverPage = lazy(pageLoaders.discover);
+const BalancePage = lazy(pageLoaders.balance);
+const GiftsPage = lazy(pageLoaders.gifts);
+const PaymentMethodsPage = lazy(pageLoaders.paymentMethods);
 
 const PREFETCH_AFTER_IDLE = [
-  pageLoaders.search,
   pageLoaders.product,
   pageLoaders.cart,
   pageLoaders.stores,
@@ -65,6 +68,9 @@ const PREFETCH_AFTER_IDLE = [
   pageLoaders.settings,
   pageLoaders.addresses,
   pageLoaders.role,
+  pageLoaders.balance,
+  pageLoaders.gifts,
+  pageLoaders.paymentMethods,
 ];
 
 export default function App() {
@@ -90,12 +96,15 @@ export default function App() {
         <Routes>
           <Route element={<Layout />}>
             <Route path="/" element={<HomePage />} />
-            <Route path="/search" element={<SearchPage />} />
+            <Route path="/search" element={<Navigate to="/discover" replace />} />
+            <Route path="/discover" element={<DiscoverPage />} />
             <Route path="/stores" element={<StoresPage />} />
             <Route path="/product/:id" element={<ProductPage />} />
             <Route path="/store/:id" element={<StorePage />} />
             <Route path="/cart" element={<CartPage />} />
-            <Route path="/discover" element={<DiscoverPage />} />
+            <Route path="/balance" element={<BalancePage />} />
+            <Route path="/gifts" element={<GiftsPage />} />
+            <Route path="/payment-methods" element={<PaymentMethodsPage />} />
             <Route path="/favorites" element={<FavoritesPage />} />
             <Route path="/my-store" element={<MyStorePage />} />
             <Route path="/my-store/edit" element={<StoreEditPage />} />

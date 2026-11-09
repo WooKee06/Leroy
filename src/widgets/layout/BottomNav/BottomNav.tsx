@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
-import { FiHome, FiSearch, FiUser } from "react-icons/fi";
+import { FiGrid, FiHome, FiUser } from "react-icons/fi";
 import { observer } from "mobx-react-lite";
 import { cartStore } from "@shared/stores/cartStore";
 import styles from "./BottomNav.module.scss";
@@ -21,10 +21,10 @@ const items: NavItem[] = [
     icon: () => <FiHome strokeWidth={1} />,
   },
   {
-    key: "search",
-    path: "/search",
-    label: "Поиск",
-    icon: () => <FiSearch strokeWidth={1} />,
+    key: "catalog",
+    path: "/discover",
+    label: "Каталог",
+    icon: () => <FiGrid strokeWidth={1} />,
   },
   {
     key: "stores",

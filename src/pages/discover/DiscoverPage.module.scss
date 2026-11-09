@@ -4,8 +4,61 @@
   padding-bottom: 96px;
 }
 
+.filterBtn {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: $text-primary;
+  background: transparent;
+  transition: transform 0.14s ease;
+
+  &:active {
+    transform: scale(0.9);
+  }
+}
+
+.filterBadge {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  background: #ff3b30;
+  color: #ffffff;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .categoriesSkeleton {
   padding: $space-2xl 0 $space-lg;
+}
+
+.searchWrap {
+  margin-bottom: $space-md;
+}
+
+.searchClear {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--bg-surface-secondary);
+  color: $text-secondary;
+  transition: transform 0.14s ease;
+
+  &:active {
+    transform: scale(0.9);
+  }
 }
 
 .banners {
@@ -32,7 +85,63 @@
 }
 
 .empty {
-  color: $text-secondary;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
   text-align: center;
-  padding: 40px 0;
+  padding: 56px 20px 40px;
+}
+
+.emptyTitle {
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+  margin-bottom: 6px;
+}
+
+.emptyText {
+  font-size: 14px;
+  line-height: 1.5;
+  color: $text-secondary;
+  max-width: 260px;
+  margin-bottom: $space-xl;
+}
+
+.emptyBtn {
+  height: 44px;
+  padding: 0 22px;
+  border-radius: $radius-pill;
+  background: var(--inverted);
+  color: var(--inverted-fg);
+  font-size: 14px;
+  font-weight: 600;
+  transition: transform 0.14s ease;
+
+  &:active {
+    transform: scale(0.97);
+  }
+}
+
+.emptyActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.emptyBtnGhost {
+  height: 44px;
+  padding: 0 22px;
+  border-radius: $radius-pill;
+  background: var(--bg-surface-secondary);
+  color: $text-primary;
+  font-size: 14px;
+  font-weight: 600;
+  border: 1px solid $color-border;
+  transition: transform 0.14s ease;
+
+  &:active {
+    transform: scale(0.97);
+  }
 }
