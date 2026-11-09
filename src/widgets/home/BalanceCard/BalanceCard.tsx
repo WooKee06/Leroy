@@ -14,7 +14,6 @@ const BalanceCard = observer(function BalanceCard() {
           <span className={styles.balanceIconChar}>₽</span>
         </span>
         <span className={styles.balanceInfo}>
-          <span className={styles.balanceLabel}>Баланс</span>
           <span className={styles.balanceValue}>
             {accountStore.balance.toLocaleString("ru-RU")} ₽
           </span>

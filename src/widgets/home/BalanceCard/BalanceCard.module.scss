@@ -4,8 +4,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  margin-top: $space-lg;
   gap: $space-md;
-  padding: 14px 16px;
   background: linear-gradient(
     180deg,
     var(--bg-surface) 0%,
@@ -19,15 +19,16 @@
 .balanceLeft {
   display: flex;
   align-items: center;
+  padding: 2px;
   gap: $space-md;
   min-width: 0;
 }
 
 .balanceIcon {
-  width: 55px;
+  width: 65px;
   height: 60px;
   flex-shrink: 0;
-  border-radius: 15px;
+  border-radius: 22px;
   background: linear-gradient(135deg, #ffffff 0%, #ffffff 100%);
   color: #000000;
   display: flex;
@@ -78,9 +79,10 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  height: 36px;
-  padding: 0 14px;
-  border-radius: $radius-pill;
+  height: stretch;
+  padding: 0 25px;
+  margin: 2px;
+  border-radius: 22px;
   background: var(--inverted);
   color: var(--inverted-fg);
   font-size: 13px;

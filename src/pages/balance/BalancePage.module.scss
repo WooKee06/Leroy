@@ -159,7 +159,9 @@
   font-size: 16px;
   font-weight: 600;
   box-shadow: $shadow-soft;
-  transition: opacity 0.15s ease, transform 0.14s ease;
+  transition:
+    opacity 0.15s ease,
+    transform 0.14s ease;
 
   &:active:not(:disabled) {
     transform: scale(0.98);

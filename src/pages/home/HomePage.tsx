@@ -8,7 +8,7 @@ import SearchBar from "@shared/ui/SearchBar";
 import PageContainer from "@shared/ui/PageContainer";
 import { ProductGridSkeleton } from "@shared/ui/Skeletons";
 import HeroSection from "@widgets/home/HeroSection/HeroSection";
-import QuickActions from "@widgets/home/QuickActions/QuickActions";
+
 import BalanceCard from "@widgets/home/BalanceCard/BalanceCard";
 // import PopularStores from "@widgets/home/PopularStores/PopularStores";
 import FeaturedProducts from "@widgets/home/FeaturedProducts/FeaturedProducts";
@@ -78,9 +78,8 @@ function HomePage() {
           />
         </HeroSection>
 
-        <QuickActions />
+        {/* <QuickActions /> */}
         <BalanceCard />
-        {/* <PopularStores /> */}
       </PageContainer>
       <PageContainer>
         <div className={styles.productsHeader}>
