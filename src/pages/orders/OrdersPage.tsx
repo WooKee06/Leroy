@@ -102,7 +102,11 @@ export default function OrdersPage() {
               <button
                 key={order.id}
                 className={styles.card}
-                onClick={() => navigate(`/orders/${order.id}`)}
+                onClick={() =>
+                  navigate(`/orders/${order.id}`, {
+                    state: { orderNumber: order.orderNumber, order },
+                  })
+                }
               >
                 <div className={styles.cardHead}>
                   <span className={styles.orderNumber}>

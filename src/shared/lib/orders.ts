@@ -13,7 +13,7 @@ const STATUS_MAP: Record<string, StatusInfo> = {
   preparing: { label: "Готовится", group: "shipping", tint: "#007aff" },
   ready_for_delivery: { label: "Готов к отправке", group: "shipping", tint: "#007aff" },
   shipped: { label: "В пути", group: "shipping", tint: "#007aff" },
-  delivered: { label: "Доставлен", group: "received", tint: "#34c759" },
+  delivered: { label: "Получен", group: "received", tint: "#34c759" },
   completed: { label: "Выполнен", group: "received", tint: "#34c759" },
   canceled: { label: "Отменён", group: "received", tint: "#8e8e93" },
 };

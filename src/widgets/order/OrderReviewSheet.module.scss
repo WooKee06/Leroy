@@ -1,0 +1,490 @@
+@use "../../app/styles/variables" as *;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.52);
+  z-index: 400;
+}
+
+.sheet {
+  position: fixed;
+  left: 5px;
+  right: 5px;
+  bottom: 5px;
+  z-index: 401;
+  display: flex;
+  flex-direction: column;
+  max-height: calc(100dvh - 20px);
+  background: var(--bg-surface);
+  border-radius: 30px;
+  overflow: hidden;
+  box-shadow: 0 -12px 44px rgba(0, 0, 0, 0.22);
+}
+
+.top {
+  flex-shrink: 0;
+  padding: 8px $padding-page 12px;
+}
+
+.handle {
+  display: block;
+  width: 38px;
+  height: 4px;
+  margin: 0 auto 12px;
+  border-radius: 2px;
+  background: $color-border;
+}
+
+.headRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: $space-md;
+}
+
+.eyebrow {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: $text-tertiary;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.4px;
+}
+
+.close {
+  width: 36px;
+  height: 36px;
+  margin-top: 2px;
+  border-radius: 50%;
+  background: var(--bg-surface-secondary);
+  color: $text-secondary;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  transition: transform 0.14s ease;
+
+  &:active {
+    transform: scale(0.9);
+  }
+}
+
+.body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 0 $padding-page calc(18px + var(--safe-bottom));
+}
+
+.product {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px;
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
+  background: var(--bg-surface-secondary);
+}
+
+.productImageWrap {
+  width: 68px;
+  height: 68px;
+  border-radius: $radius-md;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--bg-surface);
+}
+
+.productImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.productImageFallback {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  color: $text-secondary;
+}
+
+.productInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.productName {
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1.3;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.productMeta {
+  font-size: 12px;
+  color: $text-secondary;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.ratingBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 22px 0 18px;
+}
+
+.ratingTitle {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.1px;
+  text-transform: uppercase;
+  color: $text-secondary;
+  margin-bottom: 10px;
+}
+
+.stars {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+}
+
+.star {
+  width: 46px;
+  height: 46px;
+  display: grid;
+  place-items: center;
+  color: #c9c9cf;
+  background: transparent;
+  transition:
+    color 0.16s ease,
+    transform 0.18s cubic-bezier(0.22, 1, 0.36, 1);
+
+  svg {
+    fill: transparent;
+    transition: fill 0.16s ease;
+  }
+
+  &:active {
+    transform: scale(0.86);
+  }
+}
+
+.starActive {
+  color: #ffb01f;
+  transform: translateY(-1px) scale(1.06);
+
+  svg {
+    fill: currentColor;
+  }
+}
+
+.ratingLabelWrap {
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 4px;
+}
+
+.ratingLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: $text-secondary;
+}
+
+.textField {
+  position: relative;
+  display: block;
+  padding: 12px 14px 26px;
+  border: 1px solid $color-border;
+  border-radius: 18px;
+  background: var(--bg-surface-secondary);
+  transition: border-color 0.15s ease;
+
+  &:focus-within {
+    border-color: $text-primary;
+  }
+}
+
+.textLabel {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1px;
+  text-transform: uppercase;
+  color: $text-secondary;
+
+  em {
+    font-style: normal;
+    font-weight: 500;
+    text-transform: none;
+    letter-spacing: 0;
+    color: $text-tertiary;
+  }
+}
+
+.textarea {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  min-height: 88px;
+  margin-top: 8px;
+  padding: 0;
+  border: none;
+  outline: none;
+  resize: none;
+  background: transparent;
+  color: $text-primary;
+  font-family: inherit;
+  font-size: 15px;
+  line-height: 1.45;
+
+  &::placeholder {
+    color: $text-tertiary;
+  }
+}
+
+.counter {
+  position: absolute;
+  right: 14px;
+  bottom: 9px;
+  font-size: 11px;
+  color: $text-tertiary;
+}
+
+.photos {
+  margin-top: $space-lg;
+}
+
+.photosHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+
+  .textLabel {
+    display: inline;
+  }
+}
+
+.photosCount {
+  font-size: 12px;
+  font-weight: 600;
+  color: $text-tertiary;
+}
+
+.photoRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.photo {
+  position: relative;
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  overflow: hidden;
+  background: var(--bg-surface-secondary);
+}
+
+.photoImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.photoRemove {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.66);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  transition: transform 0.14s ease;
+
+  &:active {
+    transform: scale(0.88);
+  }
+}
+
+.photoAdd {
+  width: 64px;
+  height: 64px;
+  border: 1px dashed $color-border;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  color: $text-secondary;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    color 0.15s ease,
+    transform 0.14s ease;
+
+  &:active {
+    transform: scale(0.96);
+  }
+}
+
+.photoAddBusy {
+  cursor: default;
+  border-style: solid;
+}
+
+.error {
+  margin-top: $space-md;
+  font-size: 13px;
+  color: $color-error;
+}
+
+.submit {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  height: 52px;
+  margin-top: $space-lg;
+  border-radius: $radius-pill;
+  background: var(--inverted);
+  color: var(--inverted-fg);
+  font-size: 15px;
+  font-weight: 700;
+  transition:
+    opacity 0.15s ease,
+    transform 0.12s ease;
+
+  &:disabled {
+    opacity: 0.42;
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.985);
+  }
+}
+
+.note {
+  margin-top: 10px;
+  text-align: center;
+  font-size: 12px;
+  color: $text-tertiary;
+}
+
+.spinner {
+  width: 17px;
+  height: 17px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+  animation: review-spin 0.7s linear infinite;
+}
+
+@keyframes review-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.success {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 26px 8px 4px;
+}
+
+.successIcon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(52, 199, 89, 0.14);
+  color: $color-success;
+  display: grid;
+  place-items: center;
+  margin-bottom: 14px;
+}
+
+.successTitle {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+
+.successText {
+  max-width: 300px;
+  margin-top: 6px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: $text-secondary;
+}
+
+.successStars {
+  display: flex;
+  gap: 3px;
+  margin: 16px 0 22px;
+  color: #d0d0d5;
+}
+
+.successStars .successStarActive {
+  color: #ffb01f;
+  fill: currentColor;
+}
+
+.done {
+  width: 100%;
+  height: 50px;
+  border-radius: $radius-pill;
+  background: var(--inverted);
+  color: var(--inverted-fg);
+  font-size: 15px;
+  font-weight: 700;
+  transition: transform 0.12s ease;
+
+  &:active {
+    transform: scale(0.985);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 1.4s;
+  }
+
+  .star,
+  .photoAdd,
+  .close,
+  .photoRemove,
+  .submit,
+  .done {
+    transition: none;
+  }
+}

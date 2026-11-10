@@ -1,7 +1,16 @@
-.wrap {
+@use "../../app/styles/variables" as *;
+
+.title {
+  padding: $space-lg 0 $space-xl;
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: -0.3px;
+}
+
+.body {
   display: grid;
   place-items: center;
-  min-height: 50dvh;
+  min-height: 40dvh;
 }
 
 .spinner {
@@ -16,5 +25,11 @@
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: 1.4s;
   }
 }

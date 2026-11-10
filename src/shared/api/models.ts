@@ -53,6 +53,7 @@ export interface CartItem {
 
 export interface OrderItemView {
   id: string;
+  productId?: string;
   name: string;
   imageUrl?: string;
   price: number;
@@ -85,6 +86,7 @@ export interface RawOrder {
     store?: StoreDto;
     items?: {
       id: string;
+      productId?: string;
       name: string;
       imageUrl?: string;
       price: number | string;
@@ -372,6 +374,7 @@ export function mapOrder(order: RawOrder): Order {
   const items = sellerOrders.flatMap((so) =>
     (so.items ?? []).map((i) => ({
       id: i.id,
+      productId: i.productId,
       name: i.name,
       imageUrl: i.imageUrl,
       price: Number(i.price),

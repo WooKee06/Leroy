@@ -203,12 +203,12 @@ export function OrderDetailSkeleton() {
 
         {Array.from({ length: 3 }, (_, index) => (
           <div key={index} className={styles.orderDetailItem}>
-            <Skeleton width={52} height={52} radius={12} />
+            <Skeleton width={64} height={64} radius={16} />
             <div className={styles.orderDetailItemInfo}>
               <Skeleton width="68%" height={14} radius={5} />
               <Skeleton width="42%" height={12} radius={4} />
+              <Skeleton width="30%" height={12} radius={4} />
             </div>
-            <Skeleton width={58} height={14} radius={4} />
           </div>
         ))}
 
@@ -356,8 +356,6 @@ export function AddressListSkeleton({ count = 2 }: { count?: number }) {
 export function StoreEditSkeleton() {
   return (
     <div className={styles.storeEdit} aria-hidden="true">
-      <Skeleton width={224} height={26} radius={6} />
-
       <div className={styles.storeEditPreview}>
         <Skeleton className={styles.storeEditCover} radius={20} />
         <Skeleton className={styles.storeEditAvatar} radius={24} />

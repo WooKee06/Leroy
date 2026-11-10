@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Pagination } from "swiper/modules";
 import { observer } from "mobx-react-lite";
-import { FiActivity, FiCheck, FiGrid, FiHeart } from "react-icons/fi";
+import { FiActivity, FiCheck, FiGrid } from "react-icons/fi";
 import { catalogStore } from "@shared/stores/catalogStore";
 import styles from "./PromoSlider.module.scss";
 import "swiper/css";
@@ -17,8 +17,6 @@ const slideImages = [
 
 const slideBadges = ["-15%", "-20%", "-40%"];
 
-const fmt = (n: number) => n.toLocaleString("ru-RU");
-
 function PromoSlider() {
   const navigate = useNavigate();
 
@@ -26,16 +24,16 @@ function PromoSlider() {
     void catalogStore.load();
   }, []);
 
-  const slides = useMemo(() => catalogStore.stores.slice(0, 3), [
-    catalogStore.stores,
-  ]);
+  const slides = useMemo(
+    () => catalogStore.stores.slice(0, 3),
+    [catalogStore.stores],
+  );
 
   return (
     <div className={styles.wrap}>
       <Swiper
-        slidesPerView={1.1}
+        slidesPerView={1.04}
         spaceBetween={12}
-        centeredSlides
         loop
         grabCursor
         modules={[Autoplay, Pagination]}
@@ -60,33 +58,21 @@ function PromoSlider() {
               <div
                 className={styles.card}
                 onClick={() => navigate(`/store/${store.id}`)}
+                style={{
+                  backgroundImage: `url(${store.avatar || slideImages[i % slideImages.length]})`,
+                }}
                 role="button"
                 tabIndex={0}
               >
-                <div className={styles.imageWrap}>
-                  <img
-                    className={styles.image}
-                    src={store.avatar || slideImages[i % slideImages.length]}
-                    alt={store.name}
-                    loading="lazy"
-                  />
-                  <span className={styles.overlayRow}>
-                    <button
-                      className={styles.overlayValue}
-                      onClick={(e) => e.stopPropagation()}
-                      aria-label={slideBadges[i % slideBadges.length]}
-                    >
-                      {slideBadges[i % slideBadges.length]}
-                    </button>
-                    <button
-                      className={styles.overlayIcon}
-                      onClick={(e) => e.stopPropagation()}
-                      aria-label="В избранное"
-                    >
-                      <FiHeart size={16} />
-                    </button>
-                  </span>
-                </div>
+                <span className={styles.overlayRow}>
+                  <button
+                    className={styles.overlayValue}
+                    onClick={(e) => e.stopPropagation()}
+                    aria-label={slideBadges[i % slideBadges.length]}
+                  >
+                    {slideBadges[i % slideBadges.length]}
+                  </button>
+                </span>
 
                 <div className={styles.info}>
                   <div className={styles.nameRow}>
@@ -97,21 +83,17 @@ function PromoSlider() {
                       </span>
                     )}
                   </div>
-                  <span className={styles.floor}>
-                    {minPrice != null
-                      ? `Floor price ${fmt(minPrice)} ₽`
-                      : "Floor price —"}
-                  </span>
+                  <p className={styles.description}>{store.description}</p>
                 </div>
 
                 <div className={styles.buttons}>
                   <span className={styles.btnLight}>
                     <FiActivity size={16} />
-                    Activity
+                    Активность
                   </span>
                   <span className={styles.btnDark}>
                     <FiGrid size={16} />
-                    Collection
+                    Коллекция
                   </span>
                 </div>
               </div>

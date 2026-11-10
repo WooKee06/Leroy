@@ -298,7 +298,12 @@ export const leroyApi = {
     productId: string;
     rating: number;
     text?: string;
+    images?: string[];
   }): Promise<ReviewDto> {
     return http.post<ReviewDto>("/reviews", dto);
+  },
+
+  myReviews(): Promise<ReviewDto[]> {
+    return http.get<ReviewDto[]>("/reviews/mine");
   },
 };

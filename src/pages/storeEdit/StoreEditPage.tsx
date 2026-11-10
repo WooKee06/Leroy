@@ -70,6 +70,7 @@ export default function StoreEditPage() {
     return (
       <div className={`page-wrapper ${styles.page}`}>
         <PageContainer>
+          <h1 className={styles.title}>Редактирование магазина</h1>
           <StoreEditSkeleton />
         </PageContainer>
       </div>

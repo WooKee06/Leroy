@@ -15,6 +15,7 @@ import {
 import { observer } from "mobx-react-lite";
 import type { Product, Review } from "@shared/api/models";
 import { mapProduct, mapReview } from "@shared/api/models";
+import { ApiError } from "@shared/api/client";
 import { leroyApi } from "@shared/api/leroyApi";
 import { productBarStore } from "@shared/stores/productBarStore";
 import PageContainer from "@shared/ui/PageContainer";
@@ -499,8 +500,12 @@ function ReviewFormSheet({
         text: text.trim(),
       });
       onDone();
-    } catch {
-      setError("Не удалось отправить отзыв. Попробуйте ещё раз");
+    } catch (err) {
+      setError(
+        err instanceof ApiError && err.message
+          ? err.message
+          : "Не удалось отправить отзыв. Попробуйте ещё раз",
+      );
     } finally {
       setSaving(false);
     }

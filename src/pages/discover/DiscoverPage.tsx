@@ -24,7 +24,7 @@ import {
 } from "@shared/lib/productFilters";
 import CategoriesScroll from "@widgets/home/CategoriesScroll/CategoriesScroll";
 import PromoSlider from "@widgets/home/PromoSlider/PromoSlider";
-import PopularStores from "@widgets/home/PopularStores/PopularStores";
+
 import FeaturedProducts from "@widgets/home/FeaturedProducts/FeaturedProducts";
 import styles from "./DiscoverPage.module.scss";
 
@@ -107,7 +107,7 @@ const DiscoverPage = observer(function DiscoverPage() {
 
   const handleQuickCategory = (id: string) => {
     setActive(id);
-    // Быстрые чипы и мультивыбор категорий не должны конфликтовать.
+
     if (filters.categories.length > 0) {
       setFilters((f) => ({ ...f, categories: [] }));
     }
@@ -228,12 +228,6 @@ const DiscoverPage = observer(function DiscoverPage() {
                 </button>
               )}
             </div>
-          </div>
-        )}
-
-        {!loading && showCatalogExtras && (
-          <div className={styles.storesBlock}>
-            <PopularStores />
           </div>
         )}
       </PageContainer>

@@ -10,7 +10,7 @@ import { ProductGridSkeleton } from "@shared/ui/Skeletons";
 import HeroSection from "@widgets/home/HeroSection/HeroSection";
 
 import BalanceCard from "@widgets/home/BalanceCard/BalanceCard";
-// import PopularStores from "@widgets/home/PopularStores/PopularStores";
+
 import FeaturedProducts from "@widgets/home/FeaturedProducts/FeaturedProducts";
 import styles from "./HomePage.module.scss";
 

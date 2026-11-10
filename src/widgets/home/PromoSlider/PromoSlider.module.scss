@@ -4,7 +4,6 @@
   width: 100%;
   overflow-x: clip;
   overflow-y: visible;
-  padding: 10px 10px 0;
 }
 
 .deck {
@@ -43,12 +42,15 @@
 
 .card {
   width: 100%;
+  height: 380px;
   display: flex;
   flex-direction: column;
   gap: $space-md;
   padding: $space-sm;
   border-radius: $radius-2xl;
-  background: linear-gradient(135deg, var(--bg-surface) 0%, var(--bg-surface-secondary) 100%);
+  position: relative;
+  background-size: cover;
+  background-position: center;
   border: 1px solid rgba(0, 0, 0, 0.04);
   cursor: pointer;
   user-select: none;
@@ -58,15 +60,22 @@
   &:active {
     transform: scale(0.985);
   }
-}
 
-.imageWrap {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  border-radius: $radius-lg;
-  overflow: hidden;
-  background: $bg-surface-secondary;
+  &::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: $radius-2xl;
+    background: linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0) 0%,
+      rgb(0 0 0 / 54%) 100%
+    );
+    z-index: 1;
+  }
 }
 
 .image {
@@ -108,12 +117,23 @@
 
 .info {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: $space-md;
-  padding: 0 $space-sm;
+  gap: 0;
+  padding: 0 8px;
+  margin-top: auto;
+  position: relative;
+  z-index: 2;
+  flex-direction: column;
 }
 
+.description {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--inverted-fg);
+  text-overflow: ellipsis;
+  opacity: 0.9;
+}
 .nameRow {
   display: flex;
   align-items: center;
@@ -124,7 +144,8 @@
 .name {
   font-size: 17px;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--inverted-fg);
+
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -152,6 +173,8 @@
 .buttons {
   display: flex;
   gap: $space-sm;
+  position: relative;
+  z-index: 2;
   width: 100%;
 }
 
@@ -161,19 +184,22 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  flex: 1;
-  height: 44px;
+  height: 50px;
   border-radius: $radius-pill;
   font-size: 14px;
   font-weight: 600;
 }
 
 .btnLight {
-  background: var(--bg-surface-secondary);
-  color: var(--text-primary);
+  background: #8b8b8c94;
+  color: var(--inverted-fg);
+
+  backdrop-filter: blur(4px);
+  width: 150px;
 }
 
 .btnDark {
   background: var(--inverted);
   color: var(--inverted-fg);
+  flex: 1;
 }

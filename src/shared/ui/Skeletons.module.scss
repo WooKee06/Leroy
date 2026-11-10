@@ -305,8 +305,11 @@
 .orderDetailItem {
   display: flex;
   align-items: center;
-  gap: $space-md;
-  padding: $space-md 0;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid $color-border;
+  border-radius: $radius-lg;
+  background: var(--bg-surface);
 }
 
 .orderDetailItemInfo {
