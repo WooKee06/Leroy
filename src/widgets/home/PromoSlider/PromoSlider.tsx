@@ -46,13 +46,6 @@ function PromoSlider() {
         className={styles.deck}
       >
         {slides.map((store, i) => {
-          const storeProducts = catalogStore.products.filter(
-            (p) => p.seller?.id === store.id,
-          );
-          const minPrice = storeProducts.length
-            ? Math.min(...storeProducts.map((p) => p.price))
-            : null;
-
           return (
             <SwiperSlide key={store.id} className={styles.slide}>
               <div
