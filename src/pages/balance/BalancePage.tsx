@@ -17,7 +17,8 @@ const BalancePage = observer(function BalancePage() {
 
   const parseCustom = Number(custom.trim());
   const selected =
-    amount ?? (custom.trim() && !Number.isNaN(parseCustom) ? parseCustom : null);
+    amount ??
+    (custom.trim() && !Number.isNaN(parseCustom) ? parseCustom : null);
 
   const confirm = () => {
     if (!selected) return;
@@ -42,7 +43,6 @@ const BalancePage = observer(function BalancePage() {
               <span className={styles.balanceIconChar}>₽</span>
             </span>
             <span className={styles.balanceInfo}>
-              <span className={styles.balanceLabel}>Текущий баланс</span>
               <span className={styles.balanceValue}>
                 {accountStore.balance.toLocaleString("ru-RU")} ₽
               </span>

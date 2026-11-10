@@ -63,3 +63,12 @@
   background: var(--inverted);
   color: var(--inverted-fg);
 }
+
+.filterChipSoon {
+  opacity: 0.55;
+  cursor: default;
+
+  &:active {
+    transform: none;
+  }
+}

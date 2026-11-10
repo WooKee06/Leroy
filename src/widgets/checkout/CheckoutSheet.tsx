@@ -43,6 +43,12 @@ const DELIVERY_METHODS = [
   },
 ];
 
+const PAYMENT_METHODS = [
+  { id: "mock", label: "Официальный баланс", available: true },
+  { id: "stars", label: "Telegram Stars", available: false },
+  { id: "ton", label: "TON (Telegram Wallet)", available: false },
+];
+
 function formatExpiry(iso: string): string {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return "";
@@ -315,9 +321,9 @@ function CheckoutSheet() {
                               : styles.chip
                           }
                           onClick={() => {
-                            method.disabled
-                              ? (checkoutStore.deliveryMethod = method.title)
-                              : null;
+                            if (method.disabled) {
+                              checkoutStore.deliveryMethod = method.title;
+                            }
                           }}
                         >
                           {method.title}
@@ -330,28 +336,23 @@ function CheckoutSheet() {
                 <label className={styles.field}>
                   <span className={styles.fieldLabel}>Оплата</span>
                   <div className={styles.chips}>
-                    {[
-                      { id: "mock", label: "Мок-оплата", disabled: true },
-                      { id: "stars", label: "Telegram Stars", disabled: false },
-                      {
-                        id: "ton",
-                        label: "TON (Telegram Wallet)",
-                        disabled: true,
-                      },
-                    ].map((p) => (
+                    {PAYMENT_METHODS.map((p) => (
                       <div key={p.id} className={styles.chipWrap}>
-                        {!p.disabled && (
+                        {!p.available && (
                           <span className={styles.soon}>скоро</span>
                         )}
                         <button
-                          disabled={!p.disabled}
+                          type="button"
+                          disabled={!p.available}
                           className={
-                            checkoutStore.paymentMethod === p.id && p.disabled
+                            checkoutStore.paymentMethod === p.id && p.available
                               ? styles.chipActive
                               : styles.chip
                           }
                           onClick={() => {
-                            p.disabled && (checkoutStore.paymentMethod = p.id);
+                            if (p.available) {
+                              checkoutStore.paymentMethod = p.id;
+                            }
                           }}
                         >
                           {p.label}

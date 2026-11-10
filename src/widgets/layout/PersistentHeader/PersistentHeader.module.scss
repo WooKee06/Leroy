@@ -7,19 +7,35 @@
   right: 0;
   z-index: 60;
   padding: calc(var(--safe-top) + 10px) $padding-page 20px;
+  background: transparent;
+
   /*
-   * Раньше здесь был backdrop-filter: blur(18..30px). Он пересчитывал blur
-   * всего контента под шапкой на каждом кадре скролла и анимации перехода,
-   * из-за чего на мобильных страница заметно «висла». Плотный градиент даёт
-   * такой же визуальный эффект, но не трогает композитор.
+   * Шапка без цветной заливки: только блюр фона.
+   * Маска плавно ослабляет его к нижней границе, чтобы не было резкой полосы.
    */
-  background: linear-gradient(
-    180deg,
-    var(--bg-primary) 0%,
-    color-mix(in srgb, var(--bg-primary) 92%, transparent) 62%,
-    color-mix(in srgb, var(--bg-primary) 55%, transparent) 84%,
-    transparent 100%
-  );
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    -webkit-mask-image: linear-gradient(
+      180deg,
+      #000 0%,
+      #000 58%,
+      rgba(0, 0, 0, 0.55) 82%,
+      transparent 100%
+    );
+    mask-image: linear-gradient(
+      180deg,
+      #000 0%,
+      #000 58%,
+      rgba(0, 0, 0, 0.55) 82%,
+      transparent 100%
+    );
+  }
 }
 
 .row {

@@ -20,12 +20,18 @@
   color: $text-primary;
   transition: transform 0.15s ease;
 
-  &:active {
+  &:active:not(:disabled) {
     transform: scale(0.9);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: default;
   }
 }
 
 .quickActionIcon {
+  position: relative;
   width: 100%;
   aspect-ratio: 1/0.7;
   border-radius: 17px;
@@ -35,6 +41,13 @@
   align-items: center;
   justify-content: center;
   color: var(--text-primary);
+}
+
+.quickActionSoon {
+  position: absolute;
+  top: -5px;
+  right: -4px;
+  background: var(--bg-surface);
 }
 
 .quickActionLabel {

@@ -23,11 +23,10 @@
   border: 1px solid $color-border;
   border-radius: $radius-xl;
   box-shadow: $shadow-card;
-  transition: transform 0.14s ease;
+}
 
-  &:active {
-    transform: scale(0.99);
-  }
+.rowSoon {
+  opacity: 0.7;
 }
 
 .rowIcon {
@@ -39,11 +38,18 @@
   place-items: center;
 }
 
+.ruble {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 1;
+}
+
 .rowMain {
   display: flex;
   flex-direction: column;
   gap: 2px;
   min-width: 0;
+  flex: 1;
 }
 
 .rowLabel {
@@ -57,8 +63,22 @@
   color: $text-secondary;
 }
 
+.activeMark {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  padding: 4px 9px;
+  border-radius: $radius-pill;
+  background: var(--tint-green);
+  color: #34c759;
+  font-size: 12px;
+  font-weight: 600;
+}
+
 .addBtn {
   width: 100%;
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -71,9 +91,21 @@
   font-weight: 600;
   transition: transform 0.14s ease;
 
-  &:active {
+  &:disabled {
+    opacity: 0.55;
+    cursor: default;
+  }
+
+  &:active:not(:disabled) {
     transform: scale(0.98);
   }
+}
+
+.addSoon {
+  position: absolute;
+  top: -8px;
+  right: 14px;
+  background: var(--bg-surface);
 }
 
 .note {

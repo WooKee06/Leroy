@@ -10,7 +10,6 @@
    *
    * fill-mode намеренно не задан, чтобы transform не создавал containing block
    * для position: fixed элементов внутри страниц во время и после анимации.
-   * Без backdrop-filter в шапке эта анимация теперь не даёт просадок.
    */
   animation: page-in 0.24s cubic-bezier(0.22, 1, 0.36, 1);
 }

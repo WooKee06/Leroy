@@ -1,9 +1,31 @@
-import { FiCreditCard, FiStar, FiGlobe, FiPlus } from "react-icons/fi";
+import { observer } from "mobx-react-lite";
+import { FiCheck, FiCreditCard, FiGlobe, FiPlus, FiStar } from "react-icons/fi";
+import { accountStore } from "@shared/stores/accountStore";
 import PageContainer from "@shared/ui/PageContainer";
 import PageHeader from "@shared/ui/PageHeader";
+import SoonBadge from "@shared/ui/SoonBadge";
 import styles from "./PaymentMethodsPage.module.scss";
 
-const methods = [
+interface PaymentMethod {
+  id: string;
+  icon: React.ReactNode;
+  label: string;
+  desc: string;
+  tint: string;
+  color: string;
+  available?: boolean;
+}
+
+const methods: PaymentMethod[] = [
+  {
+    id: "balance",
+    icon: <span className={styles.ruble}>₽</span>,
+    label: "Официальный баланс",
+    desc: "Оплата с внутреннего счёта Leroy",
+    tint: "var(--tint-green)",
+    color: "#34c759",
+    available: true,
+  },
   {
     id: "cards",
     icon: <FiCreditCard size={20} />,
@@ -30,19 +52,23 @@ const methods = [
   },
 ];
 
-export default function PaymentMethodsPage() {
+const PaymentMethodsPage = observer(function PaymentMethodsPage() {
   return (
     <div className="page-wrapper">
       <PageContainer>
         <PageHeader title="Способы оплаты" />
 
         <p className={styles.hint}>
-          Выберите способ, которым хотите оплачивать покупки.
+          Сейчас доступен только официальный баланс — оплачивайте покупки с
+          внутреннего счёта без привязки карт и кошельков.
         </p>
 
         <div className={styles.list}>
           {methods.map((m) => (
-            <div key={m.id} className={styles.row}>
+            <div
+              key={m.id}
+              className={`${styles.row} ${m.available ? "" : styles.rowSoon}`}
+            >
               <span
                 className={styles.rowIcon}
                 style={{ background: m.tint, color: m.color }}
@@ -51,22 +77,36 @@ export default function PaymentMethodsPage() {
               </span>
               <span className={styles.rowMain}>
                 <span className={styles.rowLabel}>{m.label}</span>
-                <span className={styles.rowDesc}>{m.desc}</span>
+                <span className={styles.rowDesc}>
+                  {m.id === "balance"
+                    ? `Доступно ${accountStore.balance.toLocaleString("ru-RU")} ₽`
+                    : m.desc}
+                </span>
               </span>
+              {m.available ? (
+                <span className={styles.activeMark}>
+                  <FiCheck size={13} />
+                  Доступен
+                </span>
+              ) : (
+                <SoonBadge />
+              )}
             </div>
           ))}
         </div>
 
-        <button type="button" className={styles.addBtn}>
+        <button type="button" className={styles.addBtn} disabled>
           <FiPlus size={18} />
           Добавить способ оплаты
+          <SoonBadge className={styles.addSoon} />
         </button>
 
         <p className={styles.note}>
-          Добавление карт и привязка кошельков появится в одном из ближайших
-          обновлений.
+          Привязка карт и кошельков появится в одном из ближайших обновлений.
         </p>
       </PageContainer>
     </div>
   );
-}
+});
+
+export default PaymentMethodsPage;

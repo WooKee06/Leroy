@@ -142,7 +142,12 @@ function SettingsPage() {
               }
               onClick={() => navigate("/addresses")}
             />
-            <Row icon={<FiCreditCard size={20} />} label="Способы оплаты" desc="Telegram Stars, TON" />
+            <Row
+              icon={<FiCreditCard size={20} />}
+              label="Способы оплаты"
+              desc="Официальный баланс"
+              onClick={() => navigate("/payment-methods")}
+            />
             <Row icon={<FiGlobe size={20} />} label="Язык" desc="Русский" />
             <Row icon={<FiHeadphones size={20} />} label="Поддержка" desc="Онлайн-чат" />
           </div>

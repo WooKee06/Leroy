@@ -52,6 +52,7 @@ class CheckoutStore {
     this.step = "closed";
     this.order = null;
     this.error = "";
+    this.paymentMethod = "mock";
     this.tonSession = null;
     this.tonConfirming = false;
     this.tonWaiting = false;

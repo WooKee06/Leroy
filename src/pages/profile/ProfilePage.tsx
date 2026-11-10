@@ -158,7 +158,7 @@ function ProfilePage() {
       iconBg: "var(--tint-green)",
       iconColor: "#34c759",
       label: "Способы оплаты",
-      desc: "Карты, Stars",
+      desc: "Официальный баланс",
       path: "/payment-methods",
     },
     {

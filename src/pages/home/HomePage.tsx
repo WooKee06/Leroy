@@ -6,6 +6,7 @@ import type { Product } from "@shared/api/models";
 import { catalogStore } from "@shared/stores/catalogStore";
 import SearchBar from "@shared/ui/SearchBar";
 import PageContainer from "@shared/ui/PageContainer";
+import SoonBadge from "@shared/ui/SoonBadge";
 import { ProductGridSkeleton } from "@shared/ui/Skeletons";
 import HeroSection from "@widgets/home/HeroSection/HeroSection";
 
@@ -16,12 +17,12 @@ import styles from "./HomePage.module.scss";
 
 type FilterId = "all" | "hot" | "new" | "deals" | "stars";
 
-const filters: { id: FilterId; label: string }[] = [
+const filters: { id: FilterId; label: string; soon?: boolean }[] = [
   { id: "all", label: "Все" },
   { id: "hot", label: "Hot" },
   { id: "new", label: "New" },
   { id: "deals", label: "Deals" },
-  { id: "stars", label: "За Stars" },
+  { id: "stars", label: "За Stars", soon: true },
 ];
 
 function matchesFilter(product: Product, filter: FilterId): boolean {
@@ -104,14 +105,21 @@ function HomePage() {
               key={f.id}
               role="tab"
               aria-selected={activeFilter === f.id}
+              aria-disabled={f.soon}
+              disabled={f.soon}
               className={
                 activeFilter === f.id
                   ? `${styles.filterChip} ${styles.filterChipActive}`
-                  : styles.filterChip
+                  : f.soon
+                    ? `${styles.filterChip} ${styles.filterChipSoon}`
+                    : styles.filterChip
               }
-              onClick={() => setActiveFilter(f.id)}
+              onClick={() => {
+                if (!f.soon) setActiveFilter(f.id);
+              }}
             >
               {f.label}
+              {f.soon && <SoonBadge />}
             </button>
           ))}
         </div>
