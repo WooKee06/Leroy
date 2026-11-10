@@ -76,7 +76,11 @@ function PromoSlider() {
                       </span>
                     )}
                   </div>
-                  <p className={styles.description}>{store.description}</p>
+                  <p className={styles.description}>
+                    {store.description.length >= 75
+                      ? `${store.description.slice(0, 75)}...`
+                      : store.description}
+                  </p>
                 </div>
 
                 <div className={styles.buttons}>
