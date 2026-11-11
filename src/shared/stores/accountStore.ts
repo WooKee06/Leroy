@@ -40,7 +40,19 @@ class AccountStore {
   initialized = false;
   authLoading = false;
   stars = 1920;
+
+  /**
+   * Wallet state mirrors `GET /api/wallet`. The balance is never changed
+   * locally — top-ups and purchases go through the server ledger and the
+   * fresh balance is re-read from there.
+   */
   balance = 0;
+  hold = 0;
+  currency = 'RUB';
+  walletLoaded = false;
+  walletLoading = false;
+  walletError = '';
+  private walletRequest: Promise<void> | null = null;
 
   constructor() {
     makeAutoObservable(this);
@@ -65,6 +77,7 @@ class AccountStore {
         const profile = await leroyApi.me();
         this.applyProfile(profile);
         this.isAuthenticated = true;
+        void this.loadWallet(true);
         return;
       } catch {
         setAuthToken(null);
@@ -91,6 +104,7 @@ class AccountStore {
     setAuthToken(token);
     this.applyProfile(user);
     this.isAuthenticated = true;
+    void this.loadWallet(true);
   }
 
   async loginWithTelegramWidget(user: TelegramLoginUser) {
@@ -117,6 +131,7 @@ class AccountStore {
       setAuthToken(token);
       this.applyProfile(user);
       this.isAuthenticated = true;
+      void this.loadWallet(true);
     } finally {
       this.authLoading = false;
     }
@@ -165,8 +180,49 @@ class AccountStore {
     this.role = role;
   }
 
-  topUp(amount: number) {
-    this.balance += amount;
+  /**
+   * Re-reads the wallet balance from the server. Safe to call often: it
+   * deduplicates concurrent calls and only skips the request when a fresh
+   * value is already cached (pass `force` after money movements).
+   */
+  async loadWallet(force = false): Promise<void> {
+    if (!getAuthToken()) return;
+
+    // Join an in-flight request instead of starting a parallel one: callers
+    // (checkout pre-check, post-payment refresh) must observe the fresh value,
+    // not the old balance.
+    if (this.walletRequest) {
+      await this.walletRequest;
+      if (!force) return;
+    }
+    if (this.walletLoaded && !force) return;
+
+    const request = this.fetchWallet();
+    this.walletRequest = request;
+    try {
+      await request;
+    } finally {
+      if (this.walletRequest === request) this.walletRequest = null;
+    }
+  }
+
+  private async fetchWallet(): Promise<void> {
+    this.walletLoading = true;
+    this.walletError = '';
+    try {
+      const wallet = await leroyApi.wallet();
+      // The user may have logged out while the request was in flight.
+      if (!getAuthToken()) return;
+      this.balance = Number(wallet.available ?? 0);
+      this.hold = Number(wallet.hold ?? 0);
+      this.currency = wallet.currency || 'RUB';
+      this.walletLoaded = true;
+    } catch (e) {
+      this.walletError =
+        e instanceof Error ? e.message : 'Не удалось загрузить баланс';
+    } finally {
+      this.walletLoading = false;
+    }
   }
 
   async updateRole(role: UserRole): Promise<void> {
@@ -183,6 +239,11 @@ class AccountStore {
     this.avatarUrl = undefined;
     this.displayName = 'Гость';
     this.role = 'buyer';
+    this.balance = 0;
+    this.hold = 0;
+    this.currency = 'RUB';
+    this.walletLoaded = false;
+    this.walletError = '';
   }
 
   get avatar(): string {

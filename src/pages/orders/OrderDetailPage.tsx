@@ -20,8 +20,7 @@ import styles from "./OrdersPage.module.scss";
 const REVIEWABLE_STATUSES = ["delivered", "completed"];
 const STARS = [1, 2, 3, 4, 5];
 
-const formatMoney = (value: number) =>
-  `${value.toLocaleString("ru-RU")} ₽`;
+const formatMoney = (value: number) => `${value.toLocaleString("ru-RU")} ₽`;
 
 export default function OrderDetailPage() {
   const { id } = useParams<{ id: string }>();
@@ -49,7 +48,6 @@ export default function OrderDetailPage() {
     let alive = true;
     const stateOrder = navigationState?.order;
 
-    // Заказ уже пришёл из списка — рисуем его сразу, а данные тихо обновляем.
     if (stateOrder?.id === id) {
       setOrder(stateOrder);
       setLoading(false);
@@ -70,7 +68,6 @@ export default function OrderDetailPage() {
         if (reviewsResult.status === "fulfilled") {
           const map: Record<string, number> = {};
           for (const review of reviewsResult.value) {
-            // Свежие отзывы приходят первыми — оставляем последнюю оценку.
             if (!(review.productId in map)) {
               map[review.productId] = review.rating;
             }
@@ -92,9 +89,7 @@ export default function OrderDetailPage() {
     [order],
   );
 
-  const canReview = order
-    ? REVIEWABLE_STATUSES.includes(order.status)
-    : false;
+  const canReview = order ? REVIEWABLE_STATUSES.includes(order.status) : false;
 
   const unreviewedCount = order
     ? order.items.filter(
@@ -126,7 +121,6 @@ export default function OrderDetailPage() {
   return (
     <div className="page-wrapper">
       <PageContainer>
-        {/* Заголовок рисуем сразу, ещё до загрузки данных: он не зависит от API. */}
         <PageHeader title={title} />
 
         {loading ? (

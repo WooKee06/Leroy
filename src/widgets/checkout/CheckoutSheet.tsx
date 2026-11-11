@@ -6,6 +6,7 @@ import { beginCell } from "@ton/core";
 import { FiArrowRight, FiCheck, FiX, FiMapPin, FiCopy } from "react-icons/fi";
 import { checkoutStore } from "@shared/stores/checkoutStore";
 import { cartStore } from "@shared/stores/cartStore";
+import { accountStore } from "@shared/stores/accountStore";
 import { tonWalletStore } from "@shared/stores/tonWalletStore";
 import { nanoToTon, shortenAddress, copyText } from "@shared/lib/ton";
 import styles from "./CheckoutSheet.module.scss";
@@ -44,7 +45,7 @@ const DELIVERY_METHODS = [
 ];
 
 const PAYMENT_METHODS = [
-  { id: "mock", label: "Официальный баланс", available: true },
+  { id: "balance", label: "Официальный баланс", available: true },
   { id: "stars", label: "Telegram Stars", available: false },
   { id: "ton", label: "TON (Telegram Wallet)", available: false },
 ];
@@ -360,6 +361,12 @@ function CheckoutSheet() {
                       </div>
                     ))}
                   </div>
+                  {checkoutStore.paymentMethod === "balance" && (
+                    <p className={styles.payHint}>
+                      Доступно на балансе:{" "}
+                      {accountStore.balance.toLocaleString("ru-RU")} ₽
+                    </p>
+                  )}
                   {checkoutStore.paymentMethod === "ton" &&
                     !tonWalletStore.isConnected && (
                       <p className={styles.payWarn}>

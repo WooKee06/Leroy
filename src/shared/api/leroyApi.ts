@@ -16,7 +16,11 @@ import type {
   TonPaymentInitResult,
   TonProof,
   TonWalletBound,
+  TopUpConfirmDto,
+  TopUpDto,
   UserDto,
+  WalletBalanceDto,
+  WalletTransactionsPageDto,
 } from "./models";
 import { mapOrder, mapSeller, type RawOrder } from "./models";
 
@@ -250,12 +254,36 @@ export const leroyApi = {
 
   pay(
     order: OrderView,
-    provider = "mock",
+    provider: "balance" | "mock" | "ton" | "stars" = "balance",
   ): Promise<{ id: string; status: string }> {
     return http.post<{ id: string; status: string }>("/payments", {
       orderId: order.id,
       provider,
     });
+  },
+
+  // ── Wallet / balance ───────────────────────────────────────────────────
+
+  wallet(): Promise<WalletBalanceDto> {
+    return http.get<WalletBalanceDto>("/wallet");
+  },
+
+  walletTransactions(params: {
+    limit?: number;
+    cursor?: string;
+  } = {}): Promise<WalletTransactionsPageDto> {
+    return http.get<WalletTransactionsPageDto>("/wallet/transactions", params);
+  },
+
+  createTopUp(amount: number): Promise<TopUpDto> {
+    return http.post<TopUpDto>("/wallet/topup", {
+      amount,
+      provider: "manual",
+    });
+  },
+
+  confirmTopUp(id: string): Promise<TopUpConfirmDto> {
+    return http.post<TopUpConfirmDto>(`/wallet/topup/${id}/confirm`);
   },
 
   // ── TON / Telegram Wallet ──────────────────────────────────────────────

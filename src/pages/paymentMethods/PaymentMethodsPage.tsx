@@ -1,6 +1,9 @@
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { observer } from "mobx-react-lite";
 import { FiCheck, FiCreditCard, FiGlobe, FiPlus, FiStar } from "react-icons/fi";
 import { accountStore } from "@shared/stores/accountStore";
+import { formatWalletAmount } from "@shared/lib/wallet";
 import PageContainer from "@shared/ui/PageContainer";
 import PageHeader from "@shared/ui/PageHeader";
 import SoonBadge from "@shared/ui/SoonBadge";
@@ -53,6 +56,15 @@ const methods: PaymentMethod[] = [
 ];
 
 const PaymentMethodsPage = observer(function PaymentMethodsPage() {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    void accountStore.loadWallet();
+  }, []);
+
+  const balanceLoading =
+    accountStore.walletLoading && !accountStore.walletLoaded;
+
   return (
     <div className="page-wrapper">
       <PageContainer>
@@ -68,6 +80,11 @@ const PaymentMethodsPage = observer(function PaymentMethodsPage() {
             <div
               key={m.id}
               className={`${styles.row} ${m.available ? "" : styles.rowSoon}`}
+              onClick={
+                m.available ? () => navigate("/balance") : undefined
+              }
+              role={m.available ? "button" : undefined}
+              tabIndex={m.available ? 0 : undefined}
             >
               <span
                 className={styles.rowIcon}
@@ -79,7 +96,12 @@ const PaymentMethodsPage = observer(function PaymentMethodsPage() {
                 <span className={styles.rowLabel}>{m.label}</span>
                 <span className={styles.rowDesc}>
                   {m.id === "balance"
-                    ? `Доступно ${accountStore.balance.toLocaleString("ru-RU")} ₽`
+                    ? balanceLoading
+                      ? "Загружаем баланс…"
+                      : `Доступно ${formatWalletAmount(
+                          accountStore.balance,
+                          accountStore.currency,
+                        )}`
                     : m.desc}
                 </span>
               </span>

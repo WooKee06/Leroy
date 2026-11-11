@@ -1,6 +1,7 @@
 import { makeAutoObservable } from "mobx";
 import { leroyApi } from "@shared/api/leroyApi";
 import { cartStore } from "@shared/stores/cartStore";
+import { accountStore } from "@shared/stores/accountStore";
 import type { Order, TonPaymentQuote } from "@shared/api/models";
 import { waitForPayment } from "@shared/lib/ton";
 import { addressStore } from "./addressStore";
@@ -23,7 +24,7 @@ class CheckoutStore {
   step: Step = "closed";
   address = "";
   deliveryMethod = "СДЭК";
-  paymentMethod = "mock";
+  paymentMethod = "balance";
   order: Order | null = null;
   error = "";
   tonSession: TonPaymentSession | null = null;
@@ -39,6 +40,7 @@ class CheckoutStore {
     this.open = true;
     this.step = "form";
     this.error = "";
+    void accountStore.loadWallet();
   }
 
   close() {
@@ -52,7 +54,7 @@ class CheckoutStore {
     this.step = "closed";
     this.order = null;
     this.error = "";
-    this.paymentMethod = "mock";
+    this.paymentMethod = "balance";
     this.tonSession = null;
     this.tonConfirming = false;
     this.tonWaiting = false;
@@ -70,13 +72,32 @@ class CheckoutStore {
     this.step = "processing";
     this.error = "";
     try {
-      const order = await leroyApi.createOrder({
-        deliveryAddress: address,
-        deliveryMethod: this.deliveryMethod,
-        paymentMethod: this.paymentMethod,
-      });
-      this.order = order;
-      await cartStore.clear();
+      // Balance is checked before creating the order: otherwise an
+      // insufficient-funds error would leave a pending order and an emptied
+      // cart with nothing to retry.
+      if (this.paymentMethod === "balance" && !this.order) {
+        await accountStore.loadWallet();
+        if (accountStore.balance < cartStore.total) {
+          this.error = `Недостаточно средств на балансе. Не хватает ${(
+            cartStore.total - accountStore.balance
+          ).toLocaleString("ru-RU")} ₽.`;
+          this.step = "form";
+          return;
+        }
+      }
+
+      // A pending order created by a previous attempt is reused: retrying the
+      // payment must not create a second order.
+      let order = this.order;
+      if (!order) {
+        order = await leroyApi.createOrder({
+          deliveryAddress: address,
+          deliveryMethod: this.deliveryMethod,
+          paymentMethod: this.paymentMethod,
+        });
+        this.order = order;
+        await cartStore.clear();
+      }
 
       if (this.paymentMethod === "ton") {
         const { payment, quote } = await leroyApi.tonPaymentInit(order.id);
@@ -85,9 +106,8 @@ class CheckoutStore {
         return;
       }
 
-      const provider =
-        this.paymentMethod === "stars" ? "telegram_stars" : "mock";
-      await leroyApi.pay(order, provider);
+      await leroyApi.pay(order, "balance");
+      await accountStore.loadWallet(true);
       this.step = "success";
     } catch (e) {
       this.step = "form";

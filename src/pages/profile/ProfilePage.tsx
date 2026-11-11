@@ -25,6 +25,7 @@ import { ProductRowSkeleton } from "@shared/ui/Skeletons";
 import BalanceCard from "@widgets/home/BalanceCard/BalanceCard";
 import ProductCard from "@widgets/product/ProductCard";
 import styles from "./ProfilePage.module.scss";
+import { addressStore } from "@/shared/stores/addressStore";
 
 function ProfilePage() {
   const navigate = useNavigate();
@@ -150,7 +151,7 @@ function ProfilePage() {
       iconBg: "var(--tint-blue)",
       iconColor: "#007aff",
       label: "Адреса доставки",
-      desc: "2 адреса",
+      desc: `${addressStore.count} адреса`,
       path: "/addresses",
     },
     {

@@ -26,14 +26,14 @@
 
 Моки, которые надо заменить (подробно — в `docs/client-audit.md`):
 
-| Мок | Где | Чем заменить |
-|---|---|---|
-| Баланс и пополнение | `accountStore.balance`, `topUp()` | кошелёк + ledger (фаза 1) |
-| «Официальный баланс» | `provider: "mock"`, автоподтверждение за 1–2 сек | списание с кошелька (фаза 1) |
-| Стоимость доставки 350 ₽ / 0 от 5000 ₽ | клиент + сервер | тарифы СДЭК (фаза 3) |
-| Выбор ПВЗ не уходит в заказ | `CheckoutSheet` | snapshot ПВЗ в заказе (фаза 3) |
-| Аналитика продавца | `MyStorePage` считает из `salesCount` | события + `/seller/analytics` (фаза 4) |
-| «2 адреса», язык, поддержка, подарки | профиль/настройки | мелкие правки (фаза 6) |
+| Мок                                    | Где                                              | Чем заменить                           |
+| -------------------------------------- | ------------------------------------------------ | -------------------------------------- |
+| Баланс и пополнение                    | `accountStore.balance`, `topUp()`                | кошелёк + ledger (фаза 1)              |
+| «Официальный баланс»                   | `provider: "mock"`, автоподтверждение за 1–2 сек | списание с кошелька (фаза 1)           |
+| Стоимость доставки 350 ₽ / 0 от 5000 ₽ | клиент + сервер                                  | тарифы СДЭК (фаза 3)                   |
+| Выбор ПВЗ не уходит в заказ            | `CheckoutSheet`                                  | snapshot ПВЗ в заказе (фаза 3)         |
+| Аналитика продавца                     | `MyStorePage` считает из `salesCount`            | события + `/seller/analytics` (фаза 4) |
+| «2 адреса», язык, поддержка, подарки   | профиль/настройки                                | мелкие правки (фаза 6)                 |
 
 ---
 
@@ -45,11 +45,11 @@
 
 Сейчас в `LeroyServer/src/app.module.ts` стоит `synchronize = DATABASE_SYNCHRONIZE !== 'false'` (по умолчанию `true`), а `src/config/data-source.ts`, на который ссылается `package.json`, отсутствует. Для новых таблиц кошелька это опасный режим.
 
-- [ ] Создать `src/config/data-source.ts` (Postgres, те же env, `entities`, `migrations: ['src/migrations/*.ts']`, `synchronize: false`).
-- [ ] Сгенерировать baseline-миграцию по текущей схеме: `npm run migration:generate -- src/migrations/Initial`.
-- [ ] Прогнать `npm run migration:run` на локальной БД, убедиться, что схема не меняется.
-- [ ] В `app.module.ts` по умолчанию поставить `synchronize: false`.
-- [ ] В Render добавить `DATABASE_SYNCHRONIZE=false`, миграции запускать перед стартом приложения (release command или `npm run migration:run && node dist/main`).
+- [x] Создать `src/config/data-source.ts` (Postgres, те же env, `entities`, `migrations: ['src/migrations/*.ts']`, `synchronize: false`).
+- [x] Сгенерировать baseline-миграцию по текущей схеме: `npm run migration:generate -- src/migrations/Initial`.
+- [x] Прогнать `npm run migration:run` на локальной БД, убедиться, что схема не меняется.
+- [x] В `app.module.ts` по умолчанию поставить `synchronize: false`.
+- [x] В Render добавить `DATABASE_SYNCHRONIZE=false`, миграции запускать перед стартом приложения (release command или `npm run migration:run && node dist/main`).
 
 ### 0.2. Выключить мок-оплату в проде
 
@@ -59,11 +59,11 @@
 
 ### 0.3. Мелкие, но важные баги (по 5–20 минут каждый)
 
-- [ ] Клиент: в `src/shared/lib/orders.ts` заменить `"canceled"` на `"cancelled"` (сервер отдаёт `cancelled`).
-- [ ] Сервер: в `orders.service.ts` присвоить `savedOrder.deliveryPrice = deliveryPrice` перед сохранением (сейчас в БД 0, а в `total` доставка уже входит).
+- [x] Клиент: в `src/shared/lib/orders.ts` заменить `"canceled"` на `"cancelled"` (сервер отдаёт `cancelled`).
+- [x] Сервер: в `orders.service.ts` присвоить `savedOrder.deliveryPrice = deliveryPrice` перед сохранением (сейчас в БД 0, а в `total` доставка уже входит).
 - [ ] Сервер: согласовать провайдера Stars — клиент отправляет `"telegram_stars"`, enum `"stars"`. Принимать оба или исправить клиент.
 - [ ] Клиент: `OrderDetailPage` использовать `GET /orders/:id` вместо загрузки всех заказов и поиска в массиве.
-- [ ] Клиент: «2 адреса» в `ProfilePage` заменить на `addressStore.count`.
+- [x] Клиент: «2 адреса» в `ProfilePage` заменить на `addressStore.count`.
 - [ ] Сервер: проверять при создании отзыва, что товар куплен и заказ в `delivered/completed` (сейчас проверяется только дубликат).
 - [ ] Сервер: вызывать `BotService.notifyNewOrder` / `notifyOrderStatusChanged` / `notifyNewReview` (методы уже написаны, но не используются).
 
@@ -132,13 +132,13 @@ TopUp
 
 ### 3.3. Эндпоинты
 
-| Метод | Путь | Назначение |
-|---|---|---|
-| GET | `/api/wallet` | баланс и холд |
-| GET | `/api/wallet/transactions?limit=&cursor=` | история операций |
-| POST | `/api/wallet/topup` | создать пополнение (пока `manual`/тестовое) |
-| POST | `/api/wallet/topup/:id/confirm` | подтвердить пополнение (для dev/админа; позже — вебхук провайдера) |
-| POST | `/api/payments` | добавить `provider = balance`: атомарно списать и пометить заказ оплаченным |
+| Метод | Путь                                      | Назначение                                                                  |
+| ----- | ----------------------------------------- | --------------------------------------------------------------------------- |
+| GET   | `/api/wallet`                             | баланс и холд                                                               |
+| GET   | `/api/wallet/transactions?limit=&cursor=` | история операций                                                            |
+| POST  | `/api/wallet/topup`                       | создать пополнение (пока `manual`/тестовое)                                 |
+| POST  | `/api/wallet/topup/:id/confirm`           | подтвердить пополнение (для dev/админа; позже — вебхук провайдера)          |
+| POST  | `/api/payments`                           | добавить `provider = balance`: атомарно списать и пометить заказ оплаченным |
 
 Порядок оплаты балансом:
 
@@ -154,19 +154,21 @@ TopUp
 
 ### 3.4. Клиент (параллельно, после появления эндпоинтов)
 
-- [ ] `accountStore`: убрать локальный `balance`/`topUp`, тянуть `GET /wallet`.
-- [ ] `BalancePage`: `topUp` → `POST /wallet/topup`, показывать историю операций.
-- [ ] `checkoutStore`: при `paymentMethod = "balance"` вызывать `POST /payments` с `provider: "balance"`.
-- [ ] `PaymentMethodsPage`: «Официальный баланс» — реальный, остальное «скоро».
+- [x] `accountStore`: убрать локальный `balance`/`topUp`, тянуть `GET /wallet`.
+- [x] `BalancePage`: `topUp` → `POST /wallet/topup`, показывать историю операций.
+- [x] `checkoutStore`: при `paymentMethod = "balance"` вызывать `POST /payments` с `provider: "balance"`.
+- [x] `PaymentMethodsPage`: «Официальный баланс» — реальный, остальное «скоро».
 
 ### 3.5. Критерии готовности
 
-- [ ] Пополнение на 1000 ₽ → баланс 1000, одна запись в ledger.
-- [ ] Оплата заказа на 800 ₽ → баланс 200, заказ `paid`, запись `−800`.
-- [ ] Повторный запрос с тем же `idempotencyKey` не списывает второй раз.
-- [ ] Два параллельных платежа на 800 при балансе 1000 → проходит один, второй получает 400.
-- [ ] Недостаточно средств → 400, баланс и заказ не меняются.
-- [ ] Пополнение и оплата покрыты e2e-тестом.
+- [x] Пополнение на 1000 ₽ → баланс 1000, одна запись в ledger.
+- [x] Оплата заказа на 800 ₽ → баланс 200, заказ `paid`, запись `−800`.
+- [x] Повторный запрос с тем же `idempotencyKey` не списывает второй раз.
+- [x] Два параллельных платежа на 800 при балансе 1000 → проходит один, второй получает 400.
+- [x] Недостаточно средств → 400, баланс и заказ не меняются.
+- [x] Пополнение и оплата покрыты e2e-тестом.
+
+E2E: `cd LeroyServer && npm run e2e:wallet` (нужен запущенный сервер и `ALLOW_DEV_AUTH=true`).
 
 ---
 
@@ -267,29 +269,18 @@ TopUp
 ## 10. Первый спринт по шагам (что делать на этой неделе)
 
 **День 1 — фундамент**
+
 1. `data-source.ts`, baseline-миграция, `synchronize=false`.
 2. Флаг `PAYMENTS_MOCK_ENABLED`.
 3. Закрыть быстрые баги из 0.3 (статус `cancelled`, `deliveryPrice`, `telegram_stars`, `GET /orders/:id`, «2 адреса»).
 
-**День 2 — схема кошелька**
-4. `Wallet`, `WalletTransaction`, `TopUp` + миграция.
-5. `WalletService` с `credit`/`debit` в транзакции и `FOR UPDATE`.
-6. Unit-тесты на списание/пополнение/idempotency.
+**День 2 — схема кошелька** 4. `Wallet`, `WalletTransaction`, `TopUp` + миграция. 5. `WalletService` с `credit`/`debit` в транзакции и `FOR UPDATE`. 6. Unit-тесты на списание/пополнение/idempotency.
 
-**День 3 — эндпоинты кошелька**
-7. `GET /wallet`, `GET /wallet/transactions`.
-8. `POST /wallet/topup`, `POST /wallet/topup/:id/confirm` (пока manual).
-9. e2e: пополнить → увидеть баланс и историю.
+**День 3 — эндпоинты кошелька** 7. `GET /wallet`, `GET /wallet/transactions`. 8. `POST /wallet/topup`, `POST /wallet/topup/:id/confirm` (пока manual). 9. e2e: пополнить → увидеть баланс и историю.
 
-**День 4 — оплата балансом**
-10. `provider=balance` в `createPayment` + транзакция.
-11. Связать с заказом: `paid`, `paidAt`, ledger.
-12. e2e: оплатить заказ, проверить баланс и заказ.
+**День 4 — оплата балансом** 10. `provider=balance` в `createPayment` + транзакция. 11. Связать с заказом: `paid`, `paidAt`, ledger. 12. e2e: оплатить заказ, проверить баланс и заказ.
 
-**День 5 — клиент**
-13. `accountStore` и `BalancePage` на API.
-14. `checkoutStore`: оплата балансом.
-15. Ручной прогон в Telegram + dev, проверка ошибок «недостаточно средств».
+**День 5 — клиент** 13. `accountStore` и `BalancePage` на API. 14. `checkoutStore`: оплата балансом. 15. Ручной прогон в Telegram + dev, проверка ошибок «недостаточно средств».
 
 ---
 
@@ -306,14 +297,14 @@ TopUp
 
 ## 12. Риски
 
-| Риск | Что делать |
-|---|---|
-| `synchronize=true` в проде | Фаза 0, не начинать без неё |
-| Деньги без ledger | Любые изменения баланса только через `WalletTransaction` |
-| Oversell и двойные заказы | Транзакции + `FOR UPDATE` + `Idempotency-Key` (фаза 2) |
-| СДЭК недоступен | Fallback-тариф из env, но не хардкод в коде |
-| Потеря загрузок при редеплое | S3 до запуска отзывов с фото в проде |
-| Мок-оплата осталась включённой | Флаг по умолчанию `false`, проверка в health/старте |
+| Риск                           | Что делать                                               |
+| ------------------------------ | -------------------------------------------------------- |
+| `synchronize=true` в проде     | Фаза 0, не начинать без неё                              |
+| Деньги без ledger              | Любые изменения баланса только через `WalletTransaction` |
+| Oversell и двойные заказы      | Транзакции + `FOR UPDATE` + `Idempotency-Key` (фаза 2)   |
+| СДЭК недоступен                | Fallback-тариф из env, но не хардкод в коде              |
+| Потеря загрузок при редеплое   | S3 до запуска отзывов с фото в проде                     |
+| Мок-оплата осталась включённой | Флаг по умолчанию `false`, проверка в health/старте      |
 
 ---
 

@@ -462,7 +462,7 @@ export type PaymentStatus =
 export interface PaymentView {
   id: string;
   orderId: string;
-  provider: "mock" | "ton" | "stars";
+  provider: "mock" | "ton" | "stars" | "balance";
   amount: number;
   currency: string;
   status: PaymentStatus;
@@ -488,4 +488,74 @@ export interface TonPaymentQuote {
 export interface TonPaymentInitResult {
   payment: PaymentView;
   quote: TonPaymentQuote;
+}
+
+// ── Wallet ────────────────────────────────────────────────────────────────
+
+export interface WalletBalanceDto {
+  available: number;
+  hold: number;
+  currency: string;
+}
+
+export type WalletTransactionType =
+  | "topup"
+  | "purchase"
+  | "refund"
+  | "payout"
+  | "commission"
+  | "bonus"
+  | "adjustment";
+
+export type WalletTransactionStatus =
+  | "pending"
+  | "completed"
+  | "failed"
+  | "reversed";
+
+export type WalletReferenceType =
+  | "order"
+  | "payment"
+  | "topup"
+  | "refund"
+  | "payout"
+  | null;
+
+export interface WalletTransactionDto {
+  id: string;
+  type: WalletTransactionType;
+  /** Signed amount: positive = money in, negative = money out. */
+  amount: number;
+  balanceAfter: number;
+  status: WalletTransactionStatus;
+  referenceType?: WalletReferenceType;
+  referenceId?: string | null;
+  meta?: Record<string, unknown> | null;
+  createdAt: string;
+}
+
+export interface WalletTransactionsPageDto {
+  items: WalletTransactionDto[];
+  nextCursor: string | null;
+  hasMore: boolean;
+}
+
+export type TopUpProvider = "manual" | "ton" | "stars" | "card";
+export type TopUpStatus = "pending" | "completed" | "failed" | "expired";
+
+export interface TopUpDto {
+  id: string;
+  userId: string;
+  amount: number;
+  provider: TopUpProvider;
+  status: TopUpStatus;
+  externalId?: string | null;
+  expiresAt?: string | null;
+  createdAt: string;
+  completedAt?: string | null;
+}
+
+export interface TopUpConfirmDto {
+  topUp: TopUpDto;
+  transaction: WalletTransactionDto;
 }
