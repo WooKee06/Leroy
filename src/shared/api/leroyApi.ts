@@ -23,6 +23,7 @@ import type {
   SellerAnalyticsDto,
   SellerBalanceDto,
   SellerDashboardDto,
+  SellerOverviewDto,
   RawSellerOrder,
   StoreDto,
   TonBalanceView,
@@ -176,6 +177,11 @@ export const leroyApi = {
 
   sellerDashboard(): Promise<SellerDashboardDto> {
     return http.get<SellerDashboardDto>("/seller/dashboard");
+  },
+
+  /** One-shot seller landing: store, dashboard stats and products in a single request. */
+  sellerOverview(): Promise<SellerOverviewDto> {
+    return http.get<SellerOverviewDto>("/seller/overview");
   },
 
   sellerBalance(): Promise<SellerBalanceDto> {

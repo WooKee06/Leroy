@@ -621,6 +621,12 @@ export interface SellerDashboardDto {
   recentOrders: RawSellerOrder[];
 }
 
+export interface SellerOverviewDto {
+  store: StoreDto;
+  dashboard: SellerDashboardDto;
+  products: Paginated<ProductDto>;
+}
+
 export interface SellerBalanceDto {
   available: number | string;
   pending: number | string;
