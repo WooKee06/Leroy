@@ -37,6 +37,7 @@ export function fileUrlFromApi(pathOrUrl: string): string {
 interface RequestOptions {
   method: "GET" | "POST" | "PATCH" | "DELETE";
   body?: string | FormData;
+  headers?: Record<string, string>;
 }
 
 async function request<T>(path: string, options: RequestOptions): Promise<T> {
@@ -50,6 +51,7 @@ async function request<T>(path: string, options: RequestOptions): Promise<T> {
   if (token) {
     headers.Authorization = `Bearer ${token}`;
   }
+  Object.assign(headers, options.headers ?? {});
 
   let res: Response;
   try {
@@ -105,10 +107,15 @@ export const http = {
       method: "GET",
     });
   },
-  post<T>(path: string, body?: unknown): Promise<T> {
+  post<T>(
+    path: string,
+    body?: unknown,
+    headers?: Record<string, string>,
+  ): Promise<T> {
     return request<T>(path, {
       method: "POST",
       body: body === undefined ? undefined : JSON.stringify(body),
+      headers,
     });
   },
   postForm<T>(path: string, form: FormData): Promise<T> {

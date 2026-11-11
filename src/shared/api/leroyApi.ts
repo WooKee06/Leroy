@@ -4,8 +4,12 @@ import type {
   CartDto,
   CategoryDto,
   CreateAddressInput,
+  DeliveryQuoteDto,
+  DeliveryQuoteRequestDto,
+  DeliveryTrackingDto,
   FavoriteDto,
   Order as OrderView,
+  OrderEventDto,
   Paginated,
   PaymentView,
   ProductDto,
@@ -238,18 +242,65 @@ export const leroyApi = {
     });
   },
 
-  createOrder(dto: {
-    deliveryAddress: string;
-    deliveryMethod: string;
-    paymentMethod?: string;
-  }): Promise<OrderView> {
-    return http.post<RawOrder>("/orders", dto).then((order) => mapOrder(order));
+  createOrder(
+    dto: {
+      deliveryAddress: string;
+      deliveryMethod: string;
+      paymentMethod?: string;
+      deliveryProvider?: string;
+      deliveryTariff?: string;
+      deliveryPrice?: number;
+      pickupCode?: string;
+      pickupAddress?: string;
+    },
+    idempotencyKey?: string,
+  ): Promise<OrderView> {
+    return http
+      .post<RawOrder>(
+        "/orders",
+        dto,
+        idempotencyKey ? { "Idempotency-Key": idempotencyKey } : undefined,
+      )
+      .then((order) => mapOrder(order));
   },
 
   myOrders(): Promise<OrderView[]> {
     return http
       .get<RawOrder[]>("/orders")
       .then((orders) => orders.map((order) => mapOrder(order)));
+  },
+
+  order(id: string): Promise<OrderView> {
+    return http
+      .get<RawOrder>(`/orders/${id}`)
+      .then((order) => mapOrder(order));
+  },
+
+  /** Append-only order timeline (created → paid → … → delivered/cancelled). */
+  orderEvents(id: string): Promise<OrderEventDto[]> {
+    return http.get<OrderEventDto[]>(`/orders/${id}/events`);
+  },
+
+  /** Buyer cancels before shipment: server refunds the wallet and restocks. */
+  cancelOrder(id: string, reason?: string): Promise<OrderView> {
+    return http
+      .post<RawOrder>(`/orders/${id}/cancel`, reason ? { reason } : {})
+      .then((order) => mapOrder(order));
+  },
+
+  // ── Delivery ───────────────────────────────────────────────────────────
+
+  /**
+   * Server-side CDEK quote. The server knows product weights/dimensions and
+   * returns ready-to-render options; the client only supplies the city and
+   * the cart composition.
+   */
+  deliveryQuote(dto: DeliveryQuoteRequestDto): Promise<DeliveryQuoteDto> {
+    return http.post<DeliveryQuoteDto>("/delivery/quote", dto);
+  },
+
+  deliveryTrack(orderId: string): Promise<DeliveryTrackingDto> {
+    return http.get<DeliveryTrackingDto>(`/delivery/track/${orderId}`);
   },
 
   pay(

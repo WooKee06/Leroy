@@ -69,6 +69,20 @@ export interface Order {
   total: number;
   deliveryAddress?: string;
   deliveryMethod?: string;
+  /** Delivery cost charged for this order (server-computed). */
+  deliveryPrice?: number;
+  deliveryProvider?: string;
+  deliveryTariff?: string;
+  /** Snapshot of the selected CDEK pickup point. */
+  pickupCode?: string;
+  pickupAddress?: string;
+  trackingNumber?: string;
+  deliveryStatus?: string;
+  paymentMethod?: string;
+  paidAt?: string;
+  shippedAt?: string;
+  deliveredAt?: string;
+  cancelReason?: string;
   createdAt: string;
   items: OrderItemView[];
   stores: string[];
@@ -81,6 +95,18 @@ export interface RawOrder {
   total: number | string;
   deliveryAddress?: string;
   deliveryMethod?: string;
+  deliveryPrice?: number | string;
+  deliveryProvider?: string;
+  deliveryTariff?: string;
+  pickupCode?: string;
+  pickupAddress?: string;
+  trackingNumber?: string;
+  deliveryStatus?: string;
+  paymentMethod?: string;
+  paidAt?: string;
+  shippedAt?: string;
+  deliveredAt?: string;
+  cancelReason?: string;
   createdAt?: string;
   sellerOrders?: {
     store?: StoreDto;
@@ -390,6 +416,21 @@ export function mapOrder(order: RawOrder): Order {
     total: Number(order.total),
     deliveryAddress: order.deliveryAddress,
     deliveryMethod: order.deliveryMethod,
+    deliveryPrice:
+      order.deliveryPrice === undefined
+        ? undefined
+        : Number(order.deliveryPrice),
+    deliveryProvider: order.deliveryProvider,
+    deliveryTariff: order.deliveryTariff,
+    pickupCode: order.pickupCode,
+    pickupAddress: order.pickupAddress,
+    trackingNumber: order.trackingNumber,
+    deliveryStatus: order.deliveryStatus,
+    paymentMethod: order.paymentMethod,
+    paidAt: order.paidAt,
+    shippedAt: order.shippedAt,
+    deliveredAt: order.deliveredAt,
+    cancelReason: order.cancelReason,
     createdAt: order.createdAt ?? "",
     items,
     stores: sellerOrders.map((so) => so.store?.name ?? "Магазин"),
@@ -559,3 +600,91 @@ export interface TopUpConfirmDto {
   topUp: TopUpDto;
   transaction: WalletTransactionDto;
 }
+
+// ── Delivery ──────────────────────────────────────────────────────────────
+
+export type DeliveryKindDto = "pickup_point" | "postamat" | "courier";
+
+export interface DeliveryQuoteItemDto {
+  productId: string;
+  quantity: number;
+}
+
+/**
+ * Request for POST /api/delivery/quote. `cityCode` is a CDEK location code;
+ * `city` is the human-readable fallback. The server resolves weight and
+ * dimensions from the products, so the client never sends them.
+ */
+export interface DeliveryQuoteRequestDto {
+  city?: string;
+  cityCode?: number;
+  subtotal: number;
+  items: DeliveryQuoteItemDto[];
+}
+
+export interface DeliveryQuoteOptionDto {
+  id: string;
+  provider: string;
+  kind: DeliveryKindDto;
+  /** CDEK tariff code (136 — PVZ, 138 — postamat, 137 — courier, …). */
+  tariffCode?: number;
+  tariffName?: string;
+  title?: string;
+  price: number;
+  currency?: string;
+  minDays?: number;
+  maxDays?: number;
+  eta?: string;
+  /** True when the option is an estimate because CDEK is unavailable. */
+  fallback?: boolean;
+}
+
+export interface DeliveryQuoteDto {
+  options: DeliveryQuoteOptionDto[];
+  city?: string;
+  cityCode?: number;
+  /** True when the server had to fall back to a flat estimate. */
+  fallback?: boolean;
+  expiresAt?: string;
+}
+
+export type OrderEventType =
+  | "created"
+  | "paid"
+  | "accepted"
+  | "preparing"
+  | "ready_for_delivery"
+  | "shipped"
+  | "delivered"
+  | "completed"
+  | "cancelled";
+
+export interface OrderEventDto {
+  id: string;
+  orderId: string;
+  type: OrderEventType;
+  actorId?: string | null;
+  actorRole?: string | null;
+  data?: Record<string, unknown> | null;
+  createdAt: string;
+}
+
+export interface DeliveryTrackEventDto {
+  code?: string;
+  name: string;
+  status?: string;
+  date: string;
+  city?: string;
+}
+
+export interface DeliveryTrackingDto {
+  orderId: string;
+  provider: string;
+  trackingNumber?: string;
+  status?: string;
+  statusLabel?: string;
+  pickupCode?: string;
+  pickupAddress?: string;
+  events: DeliveryTrackEventDto[];
+}
+

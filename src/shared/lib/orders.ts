@@ -31,3 +31,35 @@ const DEFAULT: StatusInfo = {
 export function statusInfo(status: string): StatusInfo {
   return STATUS_MAP[status] ?? DEFAULT;
 }
+
+const EVENT_MAP: Record<string, string> = {
+  created: "Заказ создан",
+  paid: "Оплачен",
+  accepted: "Принят продавцом",
+  preparing: "Готовится к отправке",
+  ready_for_delivery: "Готов к отправке",
+  shipped: "Передан в доставку",
+  delivered: "Доставлен",
+  completed: "Завершён",
+  cancelled: "Отменён",
+};
+
+export function orderEventLabel(type: string): string {
+  return EVENT_MAP[type] ?? "Событие заказа";
+}
+
+/**
+ * Buyer may cancel until the parcel is handed to the carrier. Mirrors the
+ * server's CANCELLABLE_STATUSES; the server validates again.
+ */
+const BUYER_CANCELLABLE = [
+  "pending",
+  "paid",
+  "accepted",
+  "preparing",
+  "ready_for_delivery",
+];
+
+export function canBuyerCancelOrder(status: string): boolean {
+  return BUYER_CANCELLABLE.includes(status);
+}

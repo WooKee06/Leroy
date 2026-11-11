@@ -232,16 +232,8 @@ function CartPage() {
                 <span className={styles["cartPage-summary-row-label"]}>
                   Доставка
                 </span>
-                <span
-                  className={`${styles["cartPage-summary-row-value"]} ${
-                    cartStore.delivery === 0
-                      ? styles["cartPage-summary-row-free"]
-                      : ""
-                  }`}
-                >
-                  {cartStore.delivery === 0
-                    ? "Бесплатно"
-                    : `${cartStore.delivery.toLocaleString("ru-RU")} ₽`}
+                <span className={styles["cartPage-summary-row-value"]}>
+                  Рассчитаем при оформлении
                 </span>
               </div>
               <div
@@ -251,7 +243,7 @@ function CartPage() {
                   Итого
                 </span>
                 <span className={styles["cartPage-summary-row-value"]}>
-                  {cartStore.total.toLocaleString("ru-RU")} ₽
+                  {cartStore.subtotal.toLocaleString("ru-RU")} ₽
                 </span>
               </div>
             </div>

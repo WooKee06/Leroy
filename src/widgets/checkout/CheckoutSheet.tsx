@@ -7,42 +7,17 @@ import { FiArrowRight, FiCheck, FiX, FiMapPin, FiCopy } from "react-icons/fi";
 import { checkoutStore } from "@shared/stores/checkoutStore";
 import { cartStore } from "@shared/stores/cartStore";
 import { accountStore } from "@shared/stores/accountStore";
+import { deliveryStore } from "@shared/stores/deliveryStore";
 import { tonWalletStore } from "@shared/stores/tonWalletStore";
+import {
+  DELIVERY_KIND_LABELS,
+  formatDeliveryAmount,
+  formatDeliveryEta,
+} from "@shared/lib/delivery";
 import { nanoToTon, shortenAddress, copyText } from "@shared/lib/ton";
 import styles from "./CheckoutSheet.module.scss";
-import { useCallback, useState } from "react";
-import { CdekPickup } from "../CdekPickup/CdekPickup";
-
-const DELIVERY_METHODS = [
-  {
-    id: 1,
-    title: "СДЭК",
-    description: "Доставка курьером или в пункт выдачи",
-    price: 300,
-    disabled: true,
-  },
-  {
-    id: 2,
-    title: "Почта России",
-    description: "Доставка в почтовое отделение",
-    price: 200,
-    disabled: false,
-  },
-  {
-    id: 3,
-    title: "Курьер",
-    description: "Доставка курьером до двери",
-    price: 400,
-    disabled: false,
-  },
-  {
-    id: 4,
-    title: "Самовывоз",
-    description: "Забрать заказ самостоятельно",
-    price: 0,
-    disabled: false,
-  },
-];
+import { useCallback } from "react";
+import { CdekPickup, type PickupPoint } from "../CdekPickup/CdekPickup";
 
 const PAYMENT_METHODS = [
   { id: "balance", label: "Официальный баланс", available: true },
@@ -63,15 +38,24 @@ function CheckoutSheet() {
   const navigate = useNavigate();
   const [tonConnectUI] = useTonConnectUI();
   const session = checkoutStore.tonSession;
-  const [pickup, setPickup] = useState<{
-    code?: string;
-    address?: string;
-    name?: string;
-  } | null>(null);
 
-  const handleSelect = useCallback((point: typeof pickup) => {
-    setPickup(point);
+  const handleSelect = useCallback((point: PickupPoint) => {
+    deliveryStore.selectPoint({
+      code: point.code,
+      name: point.name,
+      address: point.address,
+      city: point.city,
+      cityCode: point.cityCode,
+      type: point.type,
+    });
   }, []);
+
+  const handleCityChange = useCallback(
+    (city: { code: number; city: string }) => {
+      deliveryStore.setCity(city.city, city.code);
+    },
+    [],
+  );
 
   const close = () => checkoutStore.close();
 
@@ -289,48 +273,94 @@ function CheckoutSheet() {
               <div className={styles.form}>
                 <h2 className={styles.title}>Оформление заказа</h2>
 
+                <div className={styles.field}>
+                  <span className={styles.fieldLabel}>Способ доставки</span>
+                  <div className={styles.deliveryOptions}>
+                    {deliveryStore.options.map((option) => {
+                      const active = option.kind === deliveryStore.selectedKind;
+                      return (
+                        <button
+                          key={option.id}
+                          type="button"
+                          className={
+                            active
+                              ? styles.deliveryOptionActive
+                              : styles.deliveryOption
+                          }
+                          onClick={() => deliveryStore.selectKind(option.kind)}
+                        >
+                          <span className={styles.deliveryOptionMain}>
+                            <span className={styles.deliveryOptionTitle}>
+                              {option.title ??
+                                DELIVERY_KIND_LABELS[option.kind]}
+                            </span>
+                            <span className={styles.deliveryOptionEta}>
+                              {formatDeliveryEta(option)}
+                            </span>
+                          </span>
+                          <span className={styles.deliveryOptionPrice}>
+                            {option.price === 0
+                              ? "Бесплатно"
+                              : formatDeliveryAmount(
+                                  option.price,
+                                  option.currency,
+                                )}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {deliveryStore.loading && (
+                    <p className={styles.deliveryHint}>
+                      Рассчитываем доставку…
+                    </p>
+                  )}
+                  {!deliveryStore.loading && deliveryStore.isFallback && (
+                    <p className={styles.deliveryWarn}>
+                      СДЭК недоступен — стоимость предварительная.
+                    </p>
+                  )}
+                </div>
+
+                {deliveryStore.needsPoint && (
+                  <div className={styles.field}>
+                    <span className={styles.fieldLabel}>
+                      {deliveryStore.selectedKind === "postamat"
+                        ? "Постамат"
+                        : "Пункт выдачи"}
+                    </span>
+                    <CdekPickup
+                      onSelect={handleSelect}
+                      onCityChange={handleCityChange}
+                    />
+                  </div>
+                )}
+
                 <label className={styles.field}>
-                  <span className={styles.fieldLabel}>Адрес доставки</span>
-                  <CdekPickup onSelect={handleSelect} />
+                  <span className={styles.fieldLabel}>
+                    {deliveryStore.needsPoint
+                      ? "Адрес пункта"
+                      : "Адрес доставки"}
+                  </span>
                   <div className={styles.inputWrap}>
                     <FiMapPin size={16} className={styles.inputIcon} />
                     <input
                       className={styles.input}
-                      placeholder="ул. Ленина, 10, кв. 5"
-                      value={checkoutStore.address}
+                      placeholder={
+                        deliveryStore.needsPoint
+                          ? "Выберите пункт выдачи выше"
+                          : "ул. Ленина, 10, кв. 5"
+                      }
+                      value={
+                        deliveryStore.needsPoint
+                          ? deliveryStore.pointAddress
+                          : checkoutStore.address
+                      }
+                      readOnly={deliveryStore.needsPoint}
                       onChange={(e) => {
                         checkoutStore.address = e.target.value;
                       }}
                     />
-                  </div>
-                </label>
-
-                <label className={styles.field}>
-                  <span className={styles.fieldLabel}>Способ доставки</span>
-                  <div className={styles.chips}>
-                    {DELIVERY_METHODS.map((method) => (
-                      <div key={method.id} className={styles.chipWrap}>
-                        {!method.disabled && (
-                          <span className={styles.soon}>скоро</span>
-                        )}
-                        <button
-                          disabled={method.title === "СДЭК" && !pickup}
-                          className={
-                            checkoutStore.deliveryMethod === method.title &&
-                            method.disabled
-                              ? styles.chipActive
-                              : styles.chip
-                          }
-                          onClick={() => {
-                            if (method.disabled) {
-                              checkoutStore.deliveryMethod = method.title;
-                            }
-                          }}
-                        >
-                          {method.title}
-                        </button>
-                      </div>
-                    ))}
                   </div>
                 </label>
 
@@ -383,16 +413,22 @@ function CheckoutSheet() {
                   <div className={styles.summaryRow}>
                     <span>Доставка</span>
                     <span>
-                      {cartStore.delivery === 0
+                      {checkoutStore.deliveryPrice === 0
                         ? "Бесплатно"
-                        : `${cartStore.delivery.toLocaleString("ru-RU")} ₽`}
+                        : formatDeliveryAmount(checkoutStore.deliveryPrice)}
+                      {deliveryStore.isFallback && !checkoutStore.order && (
+                        <span className={styles.summaryEstimate}>
+                          {" "}
+                          · предварительно
+                        </span>
+                      )}
                     </span>
                   </div>
                   <div
                     className={`${styles.summaryRow} ${styles.summaryTotal}`}
                   >
                     <span>Итого</span>
-                    <span>{cartStore.total.toLocaleString("ru-RU")} ₽</span>
+                    <span>{checkoutStore.total.toLocaleString("ru-RU")} ₽</span>
                   </div>
                 </div>
 

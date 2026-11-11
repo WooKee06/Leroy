@@ -141,12 +141,13 @@ class CartStore {
     );
   }
 
-  get delivery(): number {
-    return this.subtotal > 5000 ? 0 : 350;
-  }
-
+  /**
+   * Delivery is priced by the server quote in checkout, not here: the cart
+   * has no destination yet. `total` therefore means "goods total"; checkout
+   * adds `deliveryStore.price` on top.
+   */
   get total(): number {
-    return this.subtotal + this.delivery;
+    return this.subtotal;
   }
 
   get itemsBySeller(): Map<string, CartItem[]> {

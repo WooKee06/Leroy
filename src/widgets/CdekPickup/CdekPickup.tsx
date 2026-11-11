@@ -16,11 +16,15 @@ export interface PickupPoint {
   name: string;
   address?: string;
   city?: string;
+  /** CDEK location code — needed for server-side delivery quotes. */
+  cityCode?: number;
   type?: "PVZ" | "POSTAMAT";
 }
 
 interface Props {
   onSelect: (point: PickupPoint) => void;
+  /** Fires as soon as a city is chosen, even before a pickup point. */
+  onCityChange?: (city: CdekCity) => void;
   /** Показывать карточку выбранного пункта под кнопкой. */
   showSelected?: boolean;
 }
@@ -31,7 +35,11 @@ const DELIVERY_TYPES = [
   { id: "POSTAMAT" as const, label: "Постаматы" },
 ];
 
-export function CdekPickup({ onSelect, showSelected = true }: Props) {
+export function CdekPickup({
+  onSelect,
+  onCityChange,
+  showSelected = true,
+}: Props) {
   const [open, setOpen] = useState(false);
   const [selectedPoint, setSelectedPoint] = useState<PickupPoint | null>(null);
 
@@ -71,6 +79,7 @@ export function CdekPickup({ onSelect, showSelected = true }: Props) {
             <CdekPicker
               onClose={() => setOpen(false)}
               onSelect={handleSelect}
+              onCityChange={onCityChange}
             />
           )}
         </AnimatePresence>,
@@ -83,9 +92,10 @@ export function CdekPickup({ onSelect, showSelected = true }: Props) {
 interface PickerProps {
   onClose: () => void;
   onSelect: (point: PickupPoint) => void;
+  onCityChange?: (city: CdekCity) => void;
 }
 
-function CdekPicker({ onClose, onSelect }: PickerProps) {
+function CdekPicker({ onClose, onSelect, onCityChange }: PickerProps) {
   const [query, setQuery] = useState("");
   const [cities, setCities] = useState<CdekCity[]>([]);
   const [selectedCity, setSelectedCity] = useState<CdekCity | null>(null);
@@ -220,7 +230,10 @@ function CdekPicker({ onClose, onSelect }: PickerProps) {
             loading={loading}
             error={error}
             onRetry={retry}
-            onSelectCity={setSelectedCity}
+            onSelectCity={(city) => {
+              onCityChange?.(city);
+              setSelectedCity(city);
+            }}
           />
         ) : (
           <OfficeList
@@ -367,6 +380,7 @@ function OfficeList({
                 name: office.name,
                 address: office.address,
                 city: office.city,
+                cityCode: office.city_code,
                 type: office.type,
               })
             }
@@ -379,6 +393,7 @@ function OfficeList({
                   name: office.name,
                   address: office.address,
                   city: office.city,
+                  cityCode: office.city_code,
                   type: office.type,
                 });
               }
