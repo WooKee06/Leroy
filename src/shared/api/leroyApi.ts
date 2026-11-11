@@ -1,6 +1,7 @@
 import { http } from "./client";
 import type {
   AddressDto,
+  AnalyticsEventInput,
   CartDto,
   CategoryDto,
   CreateAddressInput,
@@ -12,9 +13,14 @@ import type {
   OrderEventDto,
   Paginated,
   PaymentView,
+  PayoutDto,
   ProductDto,
   ReviewDto,
   SearchResultDto,
+  SellerAnalyticsDto,
+  SellerBalanceDto,
+  SellerDashboardDto,
+  RawSellerOrder,
   StoreDto,
   TonBalanceView,
   TonPaymentInitResult,
@@ -163,6 +169,51 @@ export const leroyApi = {
     return http.post<StoreDto>("/stores", dto);
   },
 
+  // ── Seller ───────────────────────────────────────────────────────────────
+
+  sellerDashboard(): Promise<SellerDashboardDto> {
+    return http.get<SellerDashboardDto>("/seller/dashboard");
+  },
+
+  sellerBalance(): Promise<SellerBalanceDto> {
+    return http.get<SellerBalanceDto>("/seller/balance");
+  },
+
+  sellerAnalytics(
+    period: "day" | "week" | "month" = "month",
+  ): Promise<SellerAnalyticsDto> {
+    return http.get<SellerAnalyticsDto>("/seller/analytics", { period });
+  },
+
+  sellerOrders(): Promise<RawSellerOrder[]> {
+    return http.get<RawSellerOrder[]>("/seller/orders");
+  },
+
+  sellerOrder(id: string): Promise<RawSellerOrder> {
+    return http.get<RawSellerOrder>(`/seller/orders/${id}`);
+  },
+
+  updateSellerOrderStatus(
+    id: string,
+    status: string,
+  ): Promise<RawSellerOrder> {
+    return http.patch<RawSellerOrder>(`/seller/orders/${id}/status`, {
+      status,
+    });
+  },
+
+  requestPayout(amount: number): Promise<PayoutDto> {
+    return http.post<PayoutDto>("/seller/payout", { amount });
+  },
+
+  sellerPayouts(): Promise<PayoutDto[]> {
+    return http.get<PayoutDto[]>("/seller/payouts");
+  },
+
+  trackAnalytics(events: AnalyticsEventInput[]): Promise<{ success: boolean }> {
+    return http.post<{ success: boolean }>("/analytics/events", { events });
+  },
+
   upload(file: File): Promise<{
     url: string;
     originalName: string;
@@ -185,8 +236,53 @@ export const leroyApi = {
     description?: string;
     categoryId?: string;
     images?: string[];
+    stock?: number;
+    oldPrice?: number;
+    tags?: string[];
+    variants?: Array<{
+      type: "size" | "color";
+      value: string;
+      hex?: string;
+      stock?: number;
+      price?: number;
+    }>;
+    weightG?: number;
+    lengthCm?: number;
+    widthCm?: number;
+    heightCm?: number;
   }): Promise<ProductDto> {
     return http.post<ProductDto>("/products", dto);
+  },
+
+  updateProduct(
+    id: string,
+    dto: Partial<{
+      name: string;
+      price: number;
+      description?: string;
+      categoryId?: string;
+      images?: string[];
+      stock?: number;
+      oldPrice?: number;
+      tags?: string[];
+      variants?: Array<{
+        type: "size" | "color";
+        value: string;
+        hex?: string;
+        stock?: number;
+        price?: number;
+      }>;
+      weightG?: number;
+      lengthCm?: number;
+      widthCm?: number;
+      heightCm?: number;
+    }>,
+  ): Promise<ProductDto> {
+    return http.patch<ProductDto>(`/products/${id}`, dto);
+  },
+
+  deleteProduct(id: string): Promise<{ success: boolean }> {
+    return http.delete<{ success: boolean }>(`/products/${id}`);
   },
 
   search(query: string, page = 1, limit = 20): Promise<SearchResultDto> {

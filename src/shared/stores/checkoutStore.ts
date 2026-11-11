@@ -5,6 +5,10 @@ import { accountStore } from "@shared/stores/accountStore";
 import { deliveryStore } from "@shared/stores/deliveryStore";
 import type { Order, TonPaymentQuote } from "@shared/api/models";
 import { DELIVERY_KIND_LABELS } from "@shared/lib/delivery";
+import {
+  trackCheckoutStarted,
+  trackPurchase,
+} from "@shared/lib/analytics";
 import { waitForPayment } from "@shared/lib/ton";
 import { addressStore } from "./addressStore";
 
@@ -60,6 +64,7 @@ class CheckoutStore {
     void cartStore.load();
     void accountStore.loadWallet();
     void this.prepareDelivery();
+    trackCheckoutStarted();
   }
 
   /**
@@ -199,6 +204,7 @@ class CheckoutStore {
       await leroyApi.pay(order, "balance");
       await accountStore.loadWallet(true);
       this.step = "success";
+      trackPurchase(order.id, order.total);
     } catch (e) {
       this.step = "form";
       this.error = e instanceof Error ? e.message : "Не удалось оформить заказ";
@@ -226,6 +232,7 @@ class CheckoutStore {
     this.tonWaiting = false;
     if (result === "completed") {
       this.step = "success";
+      if (this.order) trackPurchase(this.order.id, this.order.total);
     } else if (result === "expired") {
       this.error = "Платёж просрочен. Создайте новый с актуальным курсом.";
       this.step = "ton-confirm";

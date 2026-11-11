@@ -186,6 +186,11 @@ export interface ProductDto {
   salesCount?: number;
   tags?: string[];
   variants?: ProductVariantDto[];
+  /** Weight and dimensions used by delivery quotes. */
+  weightG?: number;
+  lengthCm?: number;
+  widthCm?: number;
+  heightCm?: number;
   createdAt?: string;
 }
 
@@ -599,6 +604,89 @@ export interface TopUpDto {
 export interface TopUpConfirmDto {
   topUp: TopUpDto;
   transaction: WalletTransactionDto;
+}
+
+// ── Seller dashboard / analytics / orders ─────────────────────────────────
+
+export interface SellerDashboardDto {
+  totalSales: number | string;
+  totalOrders: number;
+  totalProducts: number;
+  rating: number | string;
+  totalEarned: number | string;
+  totalPayouts: number | string;
+  balance: number | string;
+  productViews: number;
+  recentOrders: RawSellerOrder[];
+}
+
+export interface SellerBalanceDto {
+  available: number | string;
+  pending: number | string;
+  totalEarned: number | string;
+  totalCommission: number | string;
+  recentTransactions: RawSellerOrder[];
+  recentPayouts: PayoutDto[];
+}
+
+export interface PayoutDto {
+  id: string;
+  storeId: string;
+  amount: number | string;
+  status: "pending" | "processing" | "completed" | "failed";
+  createdAt: string;
+}
+
+export interface TopProductDto {
+  name: string;
+  sales: number;
+  revenue: number | string;
+}
+
+export interface SellerAnalyticsDto {
+  views: number;
+  productViews: number;
+  addToCart: number;
+  orders: number;
+  conversion: number;
+  revenue: number | string;
+  topProducts: TopProductDto[];
+}
+
+export interface RawSellerOrder {
+  id: string;
+  orderId: string;
+  status: string;
+  subtotal: number | string;
+  commission: number | string;
+  sellerEarnings: number | string;
+  createdAt: string;
+  order?: RawOrder;
+  store?: StoreDto;
+  items?: SellerOrderItemDto[];
+}
+
+export interface SellerOrderItemDto {
+  id: string;
+  productId?: string;
+  name: string;
+  imageUrl?: string;
+  price: number | string;
+  quantity: number;
+  selectedSize?: string;
+  selectedColor?: string;
+}
+
+export interface AnalyticsEventInput {
+  type:
+    | "product_view"
+    | "add_to_cart"
+    | "checkout_started"
+    | "purchase";
+  productId?: string;
+  orderId?: string;
+  amount?: number;
+  metadata?: Record<string, unknown>;
 }
 
 // ── Delivery ──────────────────────────────────────────────────────────────

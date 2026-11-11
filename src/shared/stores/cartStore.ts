@@ -3,6 +3,7 @@ import type { Product } from '@shared/api/models';
 import { leroyApi } from '@shared/api/leroyApi';
 import { mapCartItem } from '@shared/api/models';
 import { getAuthToken } from '@shared/api/client';
+import { trackAddToCart } from '@shared/lib/analytics';
 
 export interface CartItem {
   cartItemId: string;
@@ -80,6 +81,7 @@ class CartStore {
 
   async addItem(product: Product, size?: string, color?: string, quantity = 1) {
     this.upsertLocal(product, size, color, quantity);
+    trackAddToCart(product.id, quantity);
     if (!this.shopId) return;
     void leroyApi
       .addToCart({

@@ -7,6 +7,7 @@ import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { catalogStore } from "@shared/stores/catalogStore";
 import { leroyApi } from "@shared/api/leroyApi";
 import { fileUrlFromApi } from "@shared/api/client";
+import type { ProductDto } from "@shared/api/models";
 import ImageCropModal from "@shared/ui/ImageCropModal";
 import styles from "./CreateSheets.module.scss";
 import "swiper/css";
@@ -19,32 +20,41 @@ interface SheetProps {
 }
 
 function GalleryField({
-  files,
-  onChange,
+  existingImages,
+  removedImages,
+  onRemoveExisting,
+  newFiles,
+  onChangeNewFiles,
 }: {
-  files: File[];
-  onChange: (files: File[]) => void;
+  existingImages: string[];
+  removedImages: Set<string>;
+  onRemoveExisting: (url: string) => void;
+  newFiles: File[];
+  onChangeNewFiles: (files: File[]) => void;
 }) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const previews = useMemo(
-    () => files.map((f) => URL.createObjectURL(f)),
-    [files],
+  const visibleExisting = existingImages.filter((u) => !removedImages.has(u));
+  const newPreviews = useMemo(
+    () => newFiles.map((f) => URL.createObjectURL(f)),
+    [newFiles],
   );
 
   const addFiles = (e: ChangeEvent<HTMLInputElement>) => {
     const picked = Array.from(e.target.files ?? []);
-    if (picked.length) onChange([...files, ...picked]);
+    if (picked.length) onChangeNewFiles([...newFiles, ...picked]);
     e.target.value = "";
   };
 
-  const removeFile = (i: number) =>
-    onChange(files.filter((_, idx) => idx !== i));
+  const removeNewFile = (i: number) =>
+    onChangeNewFiles(newFiles.filter((_, idx) => idx !== i));
+
+  const total = visibleExisting.length + newFiles.length;
 
   return (
     <div className={styles.galleryWrap}>
       <span className={styles.fieldLabel}>Фотографии</span>
 
-      {files.length === 0 ? (
+      {total === 0 ? (
         <button
           type="button"
           className={styles.galleryEmpty}
@@ -62,25 +72,47 @@ function GalleryField({
               grabCursor
               className={styles.gallerySwiper}
             >
-              {previews.map((src, i) => (
-                <SwiperSlide key={`${i}-${src}`}>
+              {visibleExisting.map((src, i) => (
+                <SwiperSlide key={`existing-${i}-${src}`}>
+                  <img src={src} className={styles.galleryImage} alt="" />
+                </SwiperSlide>
+              ))}
+              {newPreviews.map((src, i) => (
+                <SwiperSlide key={`new-${i}-${src}`}>
                   <img src={src} className={styles.galleryImage} alt="" />
                 </SwiperSlide>
               ))}
             </Swiper>
             <span className={styles.galleryCount}>
-              {files.length} {files.length === 1 ? "фото" : "фото"}
+              {total} {total === 1 ? "фото" : "фото"}
             </span>
           </div>
 
           <div className={styles.galleryThumbs}>
-            {files.map((file, i) => (
-              <div key={`${i}-${file.name}`} className={styles.thumb}>
-                <img src={previews[i]} className={styles.thumbImage} alt="" />
+            {visibleExisting.map((url, i) => (
+              <div key={`existing-${i}-${url}`} className={styles.thumb}>
+                <img src={url} className={styles.thumbImage} alt="" />
                 <button
                   type="button"
                   className={styles.thumbRemove}
-                  onClick={() => removeFile(i)}
+                  onClick={() => onRemoveExisting(url)}
+                  aria-label="Удалить фото"
+                >
+                  <FiX size={12} />
+                </button>
+              </div>
+            ))}
+            {newFiles.map((file, i) => (
+              <div key={`new-${i}-${file.name}`} className={styles.thumb}>
+                <img
+                  src={newPreviews[i]}
+                  className={styles.thumbImage}
+                  alt=""
+                />
+                <button
+                  type="button"
+                  className={styles.thumbRemove}
+                  onClick={() => removeNewFile(i)}
                   aria-label="Удалить фото"
                 >
                   <FiX size={12} />
@@ -337,32 +369,126 @@ export const StoreCreateSheet = observer(function StoreCreateSheet({
   );
 });
 
+interface ProductSheetProps extends SheetProps {
+  mode?: "create" | "edit";
+  initialProduct?: ProductDto;
+}
+
 export const ProductFormSheet = observer(function ProductFormSheet({
   open,
   onClose,
   onDone,
-}: SheetProps) {
+  mode = "create",
+  initialProduct,
+}: ProductSheetProps) {
   const [name, setName] = useState("");
   const [price, setPrice] = useState("");
+  const [oldPrice, setOldPrice] = useState("");
   const [categoryId, setCategoryId] = useState<string>("");
   const [description, setDescription] = useState("");
-  const [imageFiles, setImageFiles] = useState<File[]>([]);
+  const [stock, setStock] = useState("");
+  const [tags, setTags] = useState("");
+  const [weightG, setWeightG] = useState("");
+  const [lengthCm, setLengthCm] = useState("");
+  const [widthCm, setWidthCm] = useState("");
+  const [heightCm, setHeightCm] = useState("");
+  const [variants, setVariants] = useState<
+    Array<{
+      type: "size" | "color";
+      value: string;
+      hex?: string;
+      stock?: number;
+      price?: number;
+    }>
+  >([]);
+  const [existingImages, setExistingImages] = useState<string[]>([]);
+  const [removedImages, setRemovedImages] = useState<Set<string>>(new Set());
+  const [newFiles, setNewFiles] = useState<File[]>([]);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const categories = catalogStore.categories.filter((c) => c.id !== "all");
 
+  const reset = () => {
+    setName("");
+    setPrice("");
+    setOldPrice("");
+    setCategoryId("");
+    setDescription("");
+    setStock("");
+    setTags("");
+    setWeightG("");
+    setLengthCm("");
+    setWidthCm("");
+    setHeightCm("");
+    setVariants([]);
+    setExistingImages([]);
+    setRemovedImages(new Set());
+    setNewFiles([]);
+    setError(null);
+  };
+
   useEffect(() => {
-    if (open) {
-      setName("");
-      setPrice("");
-      setCategoryId("");
-      setDescription("");
-      setImageFiles([]);
+    if (!open) return;
+    void catalogStore.load();
+    if (mode === "edit" && initialProduct) {
+      setName(initialProduct.name ?? "");
+      setPrice(String(initialProduct.price ?? ""));
+      setOldPrice(
+        initialProduct.oldPrice != null ? String(initialProduct.oldPrice) : "",
+      );
+      setCategoryId(initialProduct.categoryId ?? "");
+      setDescription(initialProduct.description ?? "");
+      setStock(String(initialProduct.stock ?? ""));
+      setTags((initialProduct.tags ?? []).join(", "));
+      setWeightG(String(initialProduct.weightG ?? ""));
+      setLengthCm(String(initialProduct.lengthCm ?? ""));
+      setWidthCm(String(initialProduct.widthCm ?? ""));
+      setHeightCm(String(initialProduct.heightCm ?? ""));
+      setVariants(
+        (initialProduct.variants ?? []).map((v) => ({
+          type: v.type,
+          value: v.value,
+          hex: v.hex,
+          stock: v.stock,
+          price: v.price != null ? Number(v.price) : undefined,
+        })),
+      );
+      setExistingImages(initialProduct.images ?? []);
+      setRemovedImages(new Set());
+      setNewFiles([]);
       setError(null);
-      void catalogStore.load();
+    } else {
+      reset();
     }
-  }, [open]);
+  }, [open, mode, initialProduct]);
+
+  const addVariant = (type: "size" | "color") => {
+    setVariants((prev) => [...prev, { type, value: "", stock: 0 }]);
+  };
+
+  const updateVariant = (
+    index: number,
+    patch: Partial<(typeof variants)[number]>,
+  ) => {
+    setVariants((prev) =>
+      prev.map((v, i) => (i === index ? { ...v, ...patch } : v)),
+    );
+  };
+
+  const removeVariant = (index: number) => {
+    setVariants((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const parseIntOrUndefined = (value: string): number | undefined => {
+    const n = parseInt(value.trim(), 10);
+    return Number.isFinite(n) && n >= 0 ? n : undefined;
+  };
+
+  const parseNumberOrUndefined = (value: string): number | undefined => {
+    const n = Number(value.trim());
+    return Number.isFinite(n) && n > 0 ? n : undefined;
+  };
 
   const submit = async () => {
     const parsedPrice = Number(price);
@@ -381,21 +507,55 @@ export const ProductFormSheet = observer(function ProductFormSheet({
     setSaving(true);
     setError(null);
     try {
-      const imageUrls = await Promise.all(
-        imageFiles.map((f) =>
+      const newUrls = await Promise.all(
+        newFiles.map((f) =>
           leroyApi.upload(f).then((r) => fileUrlFromApi(r.url)),
         ),
       );
-      await leroyApi.createProduct({
+      const images = [
+        ...existingImages.filter((url) => !removedImages.has(url)),
+        ...newUrls,
+      ];
+      const payload = {
         name: name.trim(),
         price: parsedPrice,
         categoryId,
         description: description.trim() || undefined,
-        images: imageUrls.length ? imageUrls : undefined,
-      });
+        images: images.length ? images : undefined,
+        stock: parseIntOrUndefined(stock),
+        oldPrice: parseNumberOrUndefined(oldPrice),
+        tags: tags
+          .split(",")
+          .map((t) => t.trim())
+          .filter(Boolean),
+        variants: variants.length
+          ? variants
+              .filter((v) => v.value.trim())
+              .map((v) => ({
+                type: v.type,
+                value: v.value.trim(),
+                hex: v.type === "color" ? v.hex?.trim() || undefined : undefined,
+                stock: v.stock,
+                price: v.price,
+              }))
+          : undefined,
+        weightG: parseIntOrUndefined(weightG),
+        lengthCm: parseIntOrUndefined(lengthCm),
+        widthCm: parseIntOrUndefined(widthCm),
+        heightCm: parseIntOrUndefined(heightCm),
+      };
+      if (mode === "edit" && initialProduct) {
+        await leroyApi.updateProduct(initialProduct.id, payload);
+      } else {
+        await leroyApi.createProduct(payload);
+      }
       onDone();
     } catch {
-      setError("Не удалось создать товар. Попробуйте ещё раз");
+      setError(
+        mode === "edit"
+          ? "Не удалось обновить товар. Попробуйте ещё раз"
+          : "Не удалось создать товар. Попробуйте ещё раз",
+      );
     } finally {
       setSaving(false);
     }
@@ -432,9 +592,13 @@ export const ProductFormSheet = observer(function ProductFormSheet({
               <FiX size={18} />
             </button>
 
-            <h2 className={styles.sheetTitle}>Добавить товар</h2>
+            <h2 className={styles.sheetTitle}>
+              {mode === "edit" ? "Редактировать товар" : "Добавить товар"}
+            </h2>
             <p className={styles.sheetSubtitle}>
-              Укажите параметры нового товара
+              {mode === "edit"
+                ? "Обновите параметры товара"
+                : "Укажите параметры нового товара"}
             </p>
 
             <label className={styles.field}>
@@ -447,18 +611,33 @@ export const ProductFormSheet = observer(function ProductFormSheet({
               />
             </label>
 
-            <label className={styles.field}>
-              <span className={styles.fieldLabel}>Цена</span>
-              <input
-                className={styles.input}
-                inputMode="numeric"
-                value={price}
-                onChange={(e) =>
-                  setPrice(e.target.value.replace(/[^\d.]/g, ""))
-                }
-                placeholder="1 250"
-              />
-            </label>
+            <div className={styles.twoCol}>
+              <label className={styles.field}>
+                <span className={styles.fieldLabel}>Цена</span>
+                <input
+                  className={styles.input}
+                  inputMode="numeric"
+                  value={price}
+                  onChange={(e) =>
+                    setPrice(e.target.value.replace(/[^\d.]/g, ""))
+                  }
+                  placeholder="1 250"
+                />
+              </label>
+
+              <label className={styles.field}>
+                <span className={styles.fieldLabel}>Старая цена</span>
+                <input
+                  className={styles.input}
+                  inputMode="numeric"
+                  value={oldPrice}
+                  onChange={(e) =>
+                    setOldPrice(e.target.value.replace(/[^\d.]/g, ""))
+                  }
+                  placeholder="2 000"
+                />
+              </label>
+            </div>
 
             <label className={styles.field}>
               <span className={styles.fieldLabel}>Категория</span>
@@ -488,7 +667,182 @@ export const ProductFormSheet = observer(function ProductFormSheet({
               />
             </label>
 
-            <GalleryField files={imageFiles} onChange={setImageFiles} />
+            <div className={styles.twoCol}>
+              <label className={styles.field}>
+                <span className={styles.fieldLabel}>Остаток</span>
+                <input
+                  className={styles.input}
+                  inputMode="numeric"
+                  value={stock}
+                  onChange={(e) =>
+                    setStock(e.target.value.replace(/[^\d]/g, ""))
+                  }
+                  placeholder="10"
+                />
+              </label>
+
+              <label className={styles.field}>
+                <span className={styles.fieldLabel}>Теги (через запятую)</span>
+                <input
+                  className={styles.input}
+                  value={tags}
+                  onChange={(e) => setTags(e.target.value)}
+                  placeholder="new, sale"
+                />
+              </label>
+            </div>
+
+            <div className={styles.field}>
+              <span className={styles.fieldLabel}>Варианты</span>
+              <div className={styles.variants}>
+                {variants.map((variant, index) => (
+                  <div key={index} className={styles.variantRow}>
+                    <select
+                      className={styles.input}
+                      value={variant.type}
+                      onChange={(e) =>
+                        updateVariant(index, {
+                          type: e.target.value as "size" | "color",
+                        })
+                      }
+                    >
+                      <option value="size">Размер</option>
+                      <option value="color">Цвет</option>
+                    </select>
+                    <input
+                      className={styles.input}
+                      value={variant.value}
+                      onChange={(e) =>
+                        updateVariant(index, { value: e.target.value })
+                      }
+                      placeholder={
+                        variant.type === "color" ? "Красный" : "XL"
+                      }
+                    />
+                    {variant.type === "color" && (
+                      <input
+                        className={styles.input}
+                        value={variant.hex ?? ""}
+                        onChange={(e) =>
+                          updateVariant(index, { hex: e.target.value })
+                        }
+                        placeholder="#FF0000"
+                      />
+                    )}
+                    <input
+                      className={styles.input}
+                      inputMode="numeric"
+                      value={variant.stock ?? ""}
+                      onChange={(e) =>
+                        updateVariant(index, {
+                          stock: parseIntOrUndefined(e.target.value),
+                        })
+                      }
+                      placeholder="Остаток"
+                    />
+                    <input
+                      className={styles.input}
+                      inputMode="numeric"
+                      value={variant.price ?? ""}
+                      onChange={(e) =>
+                        updateVariant(index, {
+                          price: parseNumberOrUndefined(e.target.value),
+                        })
+                      }
+                      placeholder="Цена (не обязательно)"
+                    />
+                    <button
+                      type="button"
+                      className={styles.variantRemove}
+                      onClick={() => removeVariant(index)}
+                      aria-label="Удалить вариант"
+                    >
+                      <FiX size={16} />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <div className={styles.variantActions}>
+                <button
+                  type="button"
+                  className={styles.variantAdd}
+                  onClick={() => addVariant("size")}
+                >
+                  <FiPlus size={14} /> Размер
+                </button>
+                <button
+                  type="button"
+                  className={styles.variantAdd}
+                  onClick={() => addVariant("color")}
+                >
+                  <FiPlus size={14} /> Цвет
+                </button>
+              </div>
+            </div>
+
+            <div className={styles.field}>
+              <span className={styles.fieldLabel}>Вес и габариты</span>
+              <div className={styles.dimsRow}>
+                <label className={styles.dimField}>
+                  <span>Вес, г</span>
+                  <input
+                    className={styles.input}
+                    inputMode="numeric"
+                    value={weightG}
+                    onChange={(e) =>
+                      setWeightG(e.target.value.replace(/[^\d]/g, ""))
+                    }
+                    placeholder="500"
+                  />
+                </label>
+                <label className={styles.dimField}>
+                  <span>Длина, см</span>
+                  <input
+                    className={styles.input}
+                    inputMode="numeric"
+                    value={lengthCm}
+                    onChange={(e) =>
+                      setLengthCm(e.target.value.replace(/[^\d]/g, ""))
+                    }
+                    placeholder="20"
+                  />
+                </label>
+                <label className={styles.dimField}>
+                  <span>Ширина, см</span>
+                  <input
+                    className={styles.input}
+                    inputMode="numeric"
+                    value={widthCm}
+                    onChange={(e) =>
+                      setWidthCm(e.target.value.replace(/[^\d]/g, ""))
+                    }
+                    placeholder="15"
+                  />
+                </label>
+                <label className={styles.dimField}>
+                  <span>Высота, см</span>
+                  <input
+                    className={styles.input}
+                    inputMode="numeric"
+                    value={heightCm}
+                    onChange={(e) =>
+                      setHeightCm(e.target.value.replace(/[^\d]/g, ""))
+                    }
+                    placeholder="10"
+                  />
+                </label>
+              </div>
+            </div>
+
+            <GalleryField
+              existingImages={existingImages}
+              removedImages={removedImages}
+              onRemoveExisting={(url) =>
+                setRemovedImages((prev) => new Set(prev).add(url))
+              }
+              newFiles={newFiles}
+              onChangeNewFiles={setNewFiles}
+            />
 
             {error && <p className={styles.error}>{error}</p>}
 
@@ -497,7 +851,13 @@ export const ProductFormSheet = observer(function ProductFormSheet({
               onClick={() => void submit()}
               disabled={saving}
             >
-              {saving ? "Добавляем…" : "Добавить товар"}
+              {saving
+                ? mode === "edit"
+                  ? "Сохраняем…"
+                  : "Добавляем…"
+                : mode === "edit"
+                  ? "Сохранить изменения"
+                  : "Добавить товар"}
             </button>
           </motion.div>
         </>

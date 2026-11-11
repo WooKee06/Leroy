@@ -17,6 +17,7 @@ import type { Product, Review } from "@shared/api/models";
 import { mapProduct, mapReview } from "@shared/api/models";
 import { ApiError } from "@shared/api/client";
 import { leroyApi } from "@shared/api/leroyApi";
+import { trackProductView } from "@shared/lib/analytics";
 import { productBarStore } from "@shared/stores/productBarStore";
 import PageContainer from "@shared/ui/PageContainer";
 import { ProductPageSkeleton } from "@shared/ui/Skeletons";
@@ -94,6 +95,7 @@ function ProductPage() {
         const mapped = mapProduct(dto);
         writeProductCache(id, { product: mapped });
         setProduct(mapped);
+        trackProductView(mapped.id);
       })
       .catch(() => {
         // Если данные уже были в кэше, оставляем их на экране.

@@ -8,6 +8,7 @@ vi.mock("@shared/api/leroyApi", () => ({
     updateCartItem: vi.fn(),
     removeCartItem: vi.fn(),
     clearCart: vi.fn(),
+    trackAnalytics: vi.fn(),
   },
 }));
 
@@ -30,6 +31,7 @@ describe("cartStore", () => {
 
     vi.mocked(leroyApi.addToCart).mockResolvedValue({} as CartDto);
     vi.mocked(leroyApi.removeCartItem).mockResolvedValue(undefined);
+    vi.mocked(leroyApi.trackAnalytics).mockResolvedValue({ success: true });
   });
 
   it("adds a product to the cart", async () => {
