@@ -7,6 +7,24 @@ import type { ServerResponse } from 'node:http'
 import path from 'path'
 
 /**
+ * Absolute public origin of the Mini App, used inside tonconnect-manifest.json.
+ *
+ * Prefers an explicit VITE_PUBLIC_URL, falls back to the deployment URL that
+ * Vercel injects into the build (VERCEL_PROJECT_PRODUCTION_URL / VERCEL_URL),
+ * so a deploy never ships the `https://<set-your-frontend-domain>` placeholder.
+ */
+function publicOrigin(): string {
+  const explicit = process.env.VITE_PUBLIC_URL?.trim();
+  if (explicit && /^https?:\/\//i.test(explicit) && !explicit.includes('<')) {
+    return explicit.replace(/\/+$/, '');
+  }
+  const vercel =
+    process.env.VERCEL_PROJECT_PRODUCTION_URL || process.env.VERCEL_URL;
+  if (vercel) return `https://${vercel.replace(/^https?:\/\//, '')}`;
+  return 'http://localhost:5174';
+}
+
+/**
  * Serves /tonconnect-manifest.json with the correct dApp origin embedded.
  * TON wallets fetch this file and read `url` / `iconUrl` from it, so it must be
  * reachable and match the origin the Mini App runs on. Registered in both dev
@@ -45,9 +63,7 @@ function tonConnectManifest(): Plugin {
       this.emitFile({
         type: 'asset',
         fileName: 'tonconnect-manifest.json',
-        source: manifestBody(
-          process.env.VITE_PUBLIC_URL || 'https://<set-VITE_PUBLIC_URL>',
-        ),
+        source: manifestBody(publicOrigin()),
       })
     },
   }
