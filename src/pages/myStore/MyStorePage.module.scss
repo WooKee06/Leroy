@@ -242,23 +242,34 @@
 }
 
 .orderCard {
+  width: 100%;
   padding: 14px;
   border: 1px solid var(--color-border);
   border-radius: $radius-lg;
   background: var(--bg-surface);
+  text-align: left;
+  cursor: pointer;
 }
 
 .orderHead {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 8px;
-  margin-bottom: 4px;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.orderMain {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
 }
 
 .orderNumber {
   font-size: 15px;
   font-weight: 700;
+  color: $text-primary;
 }
 
 .orderStatus {
@@ -266,67 +277,48 @@
   border-radius: $radius-pill;
   font-size: 12px;
   font-weight: 600;
+  flex-shrink: 0;
 }
 
 .orderDate {
   font-size: 12px;
   color: $text-tertiary;
-  margin-bottom: 10px;
 }
 
-.orderItems {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-  margin-bottom: 10px;
-}
-
-.orderItem {
+.orderPreview {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
 }
 
-.orderItemImage {
-  width: 44px;
-  height: 44px;
+.orderPreviewImage {
+  width: 48px;
+  height: 48px;
   border-radius: $radius-md;
   object-fit: cover;
   background: var(--bg-surface-secondary);
+  flex-shrink: 0;
 }
 
-.orderItemName {
-  font-size: 13.5px;
+.orderPreviewInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.orderPreviewName {
+  font-size: 14px;
   font-weight: 500;
   color: $text-primary;
+  margin: 0 0 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.orderItemMeta {
-  font-size: 12px;
-  color: $text-secondary;
-}
-
-.orderTotal {
+.orderPreviewMeta {
   font-size: 13px;
   color: $text-secondary;
-  margin-bottom: 10px;
-}
-
-.orderActions {
-  display: flex;
-  gap: 8px;
-}
-
-.orderActionBtn {
-  flex: 1;
-  padding: 10px;
-  border-radius: $radius-md;
-  border: none;
-  background: var(--inverted);
-  color: var(--inverted-fg);
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
+  margin: 0;
 }
 
 .analyticsGrid {

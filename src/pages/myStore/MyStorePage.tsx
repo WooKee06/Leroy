@@ -24,6 +24,7 @@ import { statusInfo } from "@shared/lib/orders";
 import PageContainer from "@shared/ui/PageContainer";
 import { StorePageSkeleton } from "@shared/ui/Skeletons";
 import ProductCard from "@widgets/product/ProductCard";
+import SellerOrderSheet from "@widgets/seller/SellerOrderSheet";
 import {
   ProductFormSheet,
   StoreCreateSheet,
@@ -42,16 +43,6 @@ const formatDate = (value?: string) => {
   if (!value) return "";
   const d = new Date(value);
   return Number.isNaN(d.getTime()) ? "" : d.toLocaleDateString("ru-RU");
-};
-
-const SELLER_ACTIONS: Record<string, { next: string; label: string }[]> = {
-  pending: [{ next: "accepted", label: "Принять" }],
-  paid: [{ next: "accepted", label: "Принять" }],
-  accepted: [{ next: "preparing", label: "Готовить" }],
-  preparing: [{ next: "ready_for_delivery", label: "Готов к отправке" }],
-  ready_for_delivery: [{ next: "shipped", label: "Отправить" }],
-  shipped: [{ next: "delivered", label: "Доставлено" }],
-  delivered: [{ next: "completed", label: "Завершить" }],
 };
 
 export default function MyStorePage() {
@@ -75,6 +66,10 @@ export default function MyStorePage() {
   );
   const [payoutAmount, setPayoutAmount] = useState("");
   const [payoutLoading, setPayoutLoading] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<RawSellerOrder | null>(
+    null,
+  );
+  const [statusLoading, setStatusLoading] = useState(false);
 
   const reload = () => setTick((t) => t + 1);
 
@@ -136,11 +131,19 @@ export default function MyStorePage() {
   };
 
   const handleUpdateStatus = async (orderId: string, status: string) => {
+    setStatusLoading(true);
     try {
-      await leroyApi.updateSellerOrderStatus(orderId, status);
-      reload();
+      const updated = await leroyApi.updateSellerOrderStatus(orderId, status);
+      setOrders((prev) =>
+        prev.map((order) => (order.id === orderId ? updated : order)),
+      );
+      setSelectedOrder((current) =>
+        current?.id === orderId ? updated : current,
+      );
     } catch {
       // ignore
+    } finally {
+      setStatusLoading(false);
     }
   };
 
@@ -328,13 +331,24 @@ export default function MyStorePage() {
                   <p className={styles.emptyTab}>Пока нет заказов</p>
                 ) : (
                   orders.map((order) => {
-                    const actions = SELLER_ACTIONS[order.status] ?? [];
+                    const firstItem = order.items?.[0];
+                    const itemCount = order.items?.length ?? 0;
                     return (
-                      <div key={order.id} className={styles.orderCard}>
+                      <button
+                        key={order.id}
+                        type="button"
+                        className={styles.orderCard}
+                        onClick={() => setSelectedOrder(order)}
+                      >
                         <div className={styles.orderHead}>
-                          <span className={styles.orderNumber}>
-                            Заказ №{order.order?.orderNumber ?? "—"}
-                          </span>
+                          <div className={styles.orderMain}>
+                            <span className={styles.orderNumber}>
+                              Заказ №{order.order?.orderNumber ?? "—"}
+                            </span>
+                            <span className={styles.orderDate}>
+                              {formatDate(order.createdAt)}
+                            </span>
+                          </div>
                           <span
                             className={styles.orderStatus}
                             style={{
@@ -345,52 +359,25 @@ export default function MyStorePage() {
                             {statusInfo(order.status).label}
                           </span>
                         </div>
-                        <p className={styles.orderDate}>
-                          {formatDate(order.createdAt)}
-                        </p>
-                        <div className={styles.orderItems}>
-                          {(order.items ?? []).map((item) => (
-                            <div key={item.id} className={styles.orderItem}>
-                              {item.imageUrl && (
-                                <img
-                                  src={item.imageUrl}
-                                  alt={item.name}
-                                  className={styles.orderItemImage}
-                                />
-                              )}
-                              <div>
-                                <p className={styles.orderItemName}>
-                                  {item.name}
-                                </p>
-                                <p className={styles.orderItemMeta}>
-                                  {item.quantity} ×{" "}
-                                  {formatMoney(item.price)}
-                                </p>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                        <div className={styles.orderTotal}>
-                          Сумма: {formatMoney(order.subtotal)} · Заработок:{" "}
-                          {formatMoney(order.sellerEarnings)}
-                        </div>
-                        {actions.length > 0 && (
-                          <div className={styles.orderActions}>
-                            {actions.map((action) => (
-                              <button
-                                key={action.next}
-                                type="button"
-                                className={styles.orderActionBtn}
-                                onClick={() =>
-                                  void handleUpdateStatus(order.id, action.next)
-                                }
-                              >
-                                {action.label}
-                              </button>
-                            ))}
+                        <div className={styles.orderPreview}>
+                          {firstItem?.imageUrl && (
+                            <img
+                              src={firstItem.imageUrl}
+                              alt={firstItem.name}
+                              className={styles.orderPreviewImage}
+                            />
+                          )}
+                          <div className={styles.orderPreviewInfo}>
+                            <p className={styles.orderPreviewName}>
+                              {firstItem?.name ?? "Товар"}
+                            </p>
+                            <p className={styles.orderPreviewMeta}>
+                              {itemCount} {itemCount === 1 ? "товар" : "товара"} ·{" "}
+                              {formatMoney(order.subtotal)}
+                            </p>
                           </div>
-                        )}
-                      </div>
+                        </div>
+                      </button>
                     );
                   })
                 )}
@@ -497,6 +484,13 @@ export default function MyStorePage() {
             )}
           </div>
       </PageContainer>
+
+      <SellerOrderSheet
+        order={selectedOrder}
+        onClose={() => setSelectedOrder(null)}
+        onStatusChange={handleUpdateStatus}
+        loading={statusLoading}
+      />
 
       <ProductFormSheet
         open={productOpen}

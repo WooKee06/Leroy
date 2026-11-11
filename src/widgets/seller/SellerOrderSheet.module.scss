@@ -1,0 +1,240 @@
+@use "../../app/styles/variables" as *;
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 101;
+  background: var(--bg-surface);
+  border-radius: 24px 24px 0 0;
+  padding: 12px 20px calc(24px + var(--safe-bottom));
+  max-height: 92vh;
+  overflow-y: auto;
+  box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.18);
+}
+
+.handle {
+  width: 40px;
+  height: 4px;
+  border-radius: 4px;
+  background: var(--bg-surface-secondary);
+  margin: 0 auto 12px;
+}
+
+.closeBtn {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--bg-surface-secondary);
+  color: $text-secondary;
+  display: grid;
+  place-items: center;
+  border: none;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 4px;
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 700;
+  color: $text-primary;
+}
+
+.status {
+  padding: 5px 12px;
+  border-radius: $radius-pill;
+  font-size: 13px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.date {
+  font-size: 13px;
+  color: $text-tertiary;
+  margin-bottom: 18px;
+}
+
+.section {
+  margin-bottom: 18px;
+}
+
+.sectionTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: $text-secondary;
+  margin: 0 0 8px;
+}
+
+.infoCard {
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: $radius-lg;
+  background: var(--bg-surface-secondary);
+}
+
+.infoValue {
+  font-size: 15px;
+  font-weight: 600;
+  color: $text-primary;
+  margin: 0;
+}
+
+.infoSub {
+  font-size: 13px;
+  color: $text-tertiary;
+  margin: 4px 0 0;
+}
+
+.infoRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: $text-primary;
+
+  &:not(:last-child) {
+    margin-bottom: 8px;
+  }
+
+  svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+    color: $text-secondary;
+  }
+}
+
+.items {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px;
+  border: 1px solid var(--color-border);
+  border-radius: $radius-lg;
+  background: var(--bg-surface-secondary);
+}
+
+.itemImage {
+  width: 56px;
+  height: 56px;
+  border-radius: $radius-md;
+  object-fit: cover;
+  background: var(--bg-surface);
+  flex-shrink: 0;
+}
+
+.itemImagePlaceholder {
+  width: 56px;
+  height: 56px;
+  border-radius: $radius-md;
+  background: var(--bg-surface);
+  color: $text-secondary;
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.itemBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.itemName {
+  font-size: 14px;
+  font-weight: 600;
+  color: $text-primary;
+  margin: 0 0 3px;
+}
+
+.itemMeta {
+  font-size: 13px;
+  color: $text-secondary;
+  margin: 0 0 2px;
+}
+
+.itemVariant {
+  font-size: 12px;
+  color: $text-tertiary;
+  margin: 0;
+}
+
+.itemTotal {
+  font-size: 14px;
+  font-weight: 700;
+  color: $text-primary;
+  flex-shrink: 0;
+}
+
+.totals {
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: $radius-lg;
+  background: var(--bg-surface-secondary);
+}
+
+.totalRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: $text-secondary;
+  padding: 5px 0;
+}
+
+.totalRowBold {
+  font-size: 15px;
+  font-weight: 700;
+  color: $text-primary;
+  border-top: 1px solid var(--color-border);
+  margin-top: 4px;
+  padding-top: 10px;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.actionBtn {
+  width: 100%;
+  padding: 14px;
+  border-radius: $radius-md;
+  border: none;
+  background: var(--inverted);
+  color: var(--inverted-fg);
+  font-size: 15px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.5;
+  }
+}
