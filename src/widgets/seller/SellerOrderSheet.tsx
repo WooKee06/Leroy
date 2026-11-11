@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { FiCheck, FiMapPin, FiPackage, FiTruck, FiX } from "react-icons/fi";
+import { FiCheck, FiLoader, FiMapPin, FiPackage, FiTruck, FiX } from "react-icons/fi";
 import type { RawSellerOrder } from "@shared/api/models";
 import { statusInfo } from "@shared/lib/orders";
 import styles from "./SellerOrderSheet.module.scss";
@@ -204,8 +204,17 @@ export default function SellerOrderSheet({
                     disabled={loading}
                     onClick={() => onStatusChange(order.id, action.next)}
                   >
-                    <FiCheck size={16} />
-                    {action.label}
+                    {loading ? (
+                      <>
+                        <FiLoader size={16} className={styles.spinner} />
+                        Обновляем статус…
+                      </>
+                    ) : (
+                      <>
+                        <FiCheck size={16} />
+                        {action.label}
+                      </>
+                    )}
                   </button>
                 ))}
               </div>

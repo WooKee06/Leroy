@@ -1,8 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
+import { observer } from "mobx-react-lite";
 import { FiChevronRight, FiPackage } from "react-icons/fi";
-import type { Order } from "@shared/api/models";
-import { leroyApi } from "@shared/api/leroyApi";
+import { ordersStore } from "@shared/stores/ordersStore";
 import PageContainer from "@shared/ui/PageContainer";
 import PageHeader from "@shared/ui/PageHeader";
 import { OrderListSkeleton } from "@shared/ui/Skeletons";
@@ -18,37 +18,22 @@ const TABS: { id: Tab; label: string }[] = [
   { id: "received", label: "Получены" },
 ];
 
-export default function OrdersPage() {
+const OrdersPage = observer(function OrdersPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const rawTab = (searchParams.get("tab") as Tab) || "all";
   const tab = TABS.some((t) => t.id === rawTab) ? rawTab : "all";
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let alive = true;
-    setLoading(true);
-    leroyApi
-      .myOrders()
-      .then((items) => {
-        if (alive) setOrders(items);
-      })
-      .catch(() => {
-        if (alive) setOrders([]);
-      })
-      .finally(() => {
-        if (alive) setLoading(false);
-      });
-    return () => {
-      alive = false;
-    };
+    void ordersStore.ensureLoaded();
   }, []);
 
+  const loading = ordersStore.loading && !ordersStore.loaded;
+
   const filtered = useMemo(() => {
-    if (tab === "all") return orders;
-    return orders.filter((o) => statusInfo(o.status).group === tab);
-  }, [orders, tab]);
+    if (tab === "all") return ordersStore.orders;
+    return ordersStore.orders.filter((o) => statusInfo(o.status).group === tab);
+  }, [tab]);
 
   const itemCount = useMemo(
     () => filtered.reduce((sum, o) => sum + o.items.reduce((s, i) => s + i.quantity, 0), 0),
@@ -139,4 +124,6 @@ export default function OrdersPage() {
       </PageContainer>
     </div>
   );
-}
+});
+
+export default OrdersPage;

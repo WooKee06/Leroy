@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { observer } from "mobx-react-lite";
 import {
@@ -15,11 +15,10 @@ import {
   FiShoppingBag,
   FiTruck,
 } from "react-icons/fi";
-import type { Order } from "@shared/api/models";
-import { leroyApi } from "@shared/api/leroyApi";
 import { accountStore } from "@shared/stores/accountStore";
 import { favoritesStore } from "@shared/stores/favoritesStore";
 import { catalogStore } from "@shared/stores/catalogStore";
+import { ordersStore } from "@shared/stores/ordersStore";
 import PageContainer from "@shared/ui/PageContainer";
 import Skeleton from "@shared/ui/Skeleton";
 import { ProductRowSkeleton } from "@shared/ui/Skeletons";
@@ -28,66 +27,44 @@ import ProductCard from "@widgets/product/ProductCard";
 import styles from "./ProfilePage.module.scss";
 import { addressStore } from "@/shared/stores/addressStore";
 
-function ProfilePage() {
+const ProfilePage = observer(function ProfilePage() {
   const navigate = useNavigate();
-  const [orders, setOrders] = useState<Order[]>([]);
-  const [ordersLoading, setOrdersLoading] = useState(true);
 
   useEffect(() => {
-    let alive = true;
     void favoritesStore.ensureLoaded();
     void catalogStore.load();
-    leroyApi
-      .myOrders()
-      .then((items) => {
-        if (alive) setOrders(items);
-      })
-      .catch(() => {
-        if (alive) setOrders([]);
-      })
-      .finally(() => {
-        if (alive) setOrdersLoading(false);
-      });
-    return () => {
-      alive = false;
-    };
+    void ordersStore.ensureLoaded();
   }, []);
 
   const favoriteItems = favoritesStore.products;
   const dataLoading =
-    ordersLoading ||
+    (ordersStore.loading && !ordersStore.loaded) ||
     (favoritesStore.loading && !favoritesStore.loaded) ||
     (catalogStore.loading && !catalogStore.loaded);
 
   const recommended = catalogStore.products.slice(0, 5);
 
   const orderStats = useMemo(() => {
-    const bought = orders.reduce(
+    const bought = ordersStore.orders.reduce(
       (sum, o) => sum + o.items.reduce((s, i) => s + i.quantity, 0),
       0,
     );
     return [
-      { value: orders.length, label: "Заказы" },
+      { value: ordersStore.orders.length, label: "Заказы" },
       { value: favoriteItems.length, label: "Избранное" },
       { value: bought, label: "Товаров" },
     ];
-  }, [orders, favoriteItems.length]);
+  }, [favoriteItems.length]);
 
   const orderTiles = useMemo(() => {
-    const awaiting = orders.filter((o) =>
-      ["pending", "accepted", "paid"].includes(o.status),
-    ).length;
-    const shipping = orders.filter((o) =>
-      ["preparing", "ready_for_delivery", "shipped"].includes(o.status),
-    ).length;
-    const received = orders.filter((o) =>
-      ["delivered", "completed"].includes(o.status),
-    ).length;
+    const awaiting = ordersStore.awaitingCount;
+    const shipping = ordersStore.shippingCount;
+    const received = ordersStore.receivedCount;
     return [
       {
         icon: <FiPackage size={20} />,
         label: "Заказы",
-        value: orders.length,
+        value: ordersStore.orders.length,
         tint: "#111111",
         tab: "all",
       },
@@ -113,7 +90,7 @@ function ProfilePage() {
         tab: "received",
       },
     ];
-  }, [orders]);
+  }, [ordersStore.orders.length]);
 
   const menu: {
     icon: React.ReactNode;
@@ -315,6 +292,6 @@ function ProfilePage() {
       </PageContainer>
     </div>
   );
-}
+});
 
-export default observer(ProfilePage);
+export default ProfilePage;

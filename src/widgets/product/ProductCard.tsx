@@ -12,13 +12,6 @@ interface Props {
   showSeller?: boolean;
 }
 
-/**
- * Карточка товара намеренно НЕ содержит Swiper: раньше каждая карточка
- * создавала отдельный экземпляр слайдера, и на экране с 20 товарами это
- * означало 20 Swiper'ов, 20 наборов event-слушателей и тяжёлый первый кадр.
- * Галерея с несколькими фото доступна в быстром просмотре и на странице
- * товара — там достаточно одного экземпляра.
- */
 function ProductCard({ product, variant, showSeller = false }: Props) {
   const filledStars = Math.round(product.rating);
   const isFav = favoritesStore.isFavorite(product.id);
@@ -50,9 +43,7 @@ function ProductCard({ product, variant, showSeller = false }: Props) {
             <span className={styles.ratingStars}>
               <span
                 className={
-                  filledStars > 0
-                    ? styles.ratingStarOn
-                    : styles.ratingStarOff
+                  filledStars > 0 ? styles.ratingStarOn : styles.ratingStarOff
                 }
               >
                 ★

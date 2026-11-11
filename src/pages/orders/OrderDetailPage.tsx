@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
+import { observer } from "mobx-react-lite";
 import {
   FiCheck,
   FiChevronRight,
@@ -12,6 +13,7 @@ import {
 import type { Order, OrderEventDto, OrderItemView } from "@shared/api/models";
 import { leroyApi } from "@shared/api/leroyApi";
 import { accountStore } from "@shared/stores/accountStore";
+import { ordersStore } from "@shared/stores/ordersStore";
 import { canBuyerCancelOrder, statusInfo } from "@shared/lib/orders";
 import {
   formatDeliveryAmount,
@@ -30,7 +32,7 @@ const STARS = [1, 2, 3, 4, 5];
 
 const formatMoney = (value: number) => `${value.toLocaleString("ru-RU")} ₽`;
 
-export default function OrderDetailPage() {
+const OrderDetailPage = observer(function OrderDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const location = useLocation();
@@ -67,37 +69,48 @@ export default function OrderDetailPage() {
       setLoading(true);
     }
 
-    Promise.allSettled([
-      leroyApi.myOrders(),
-      leroyApi.orderEvents(id),
-      leroyApi.myReviews(),
-    ])
-      .then(([ordersResult, eventsResult, reviewsResult]) => {
-        if (!alive) return;
+    async function load() {
+      if (!id) return;
+      await ordersStore.ensureLoaded();
+      if (!alive) return;
 
-        if (ordersResult.status === "fulfilled") {
-          setOrder(ordersResult.value.find((item) => item.id === id));
-        } else if (stateOrder?.id !== id) {
-          setOrder(undefined);
+      const cached = ordersStore.orders.find((item) => item.id === id);
+      if (cached) {
+        setOrder(cached);
+      } else if (ordersStore.loaded) {
+        try {
+          const fresh = await leroyApi.order(id);
+          if (alive) setOrder(fresh);
+        } catch {
+          if (alive && stateOrder?.id !== id) setOrder(undefined);
         }
+      }
 
-        if (eventsResult.status === "fulfilled") {
-          setEvents(eventsResult.value);
-        }
+      const [eventsResult, reviewsResult] = await Promise.allSettled([
+        leroyApi.orderEvents(id),
+        leroyApi.myReviews(),
+      ]);
 
-        if (reviewsResult.status === "fulfilled") {
-          const map: Record<string, number> = {};
-          for (const review of reviewsResult.value) {
-            if (!(review.productId in map)) {
-              map[review.productId] = review.rating;
-            }
+      if (!alive) return;
+
+      if (eventsResult.status === "fulfilled") {
+        setEvents(eventsResult.value);
+      }
+
+      if (reviewsResult.status === "fulfilled") {
+        const map: Record<string, number> = {};
+        for (const review of reviewsResult.value) {
+          if (!(review.productId in map)) {
+            map[review.productId] = review.rating;
           }
-          setReviewed(map);
         }
-      })
-      .finally(() => {
-        if (alive) setLoading(false);
-      });
+        setReviewed(map);
+      }
+
+      if (alive) setLoading(false);
+    }
+
+    void load();
 
     return () => {
       alive = false;
@@ -141,6 +154,7 @@ export default function OrderDetailPage() {
     try {
       const updated = await leroyApi.cancelOrder(order.id);
       setOrder(updated);
+      ordersStore.updateOrder(updated);
       setCancelArmed(false);
 
       const [freshEvents] = await Promise.allSettled([
@@ -506,4 +520,6 @@ export default function OrderDetailPage() {
       />
     </div>
   );
-}
+});
+
+export default OrderDetailPage;
