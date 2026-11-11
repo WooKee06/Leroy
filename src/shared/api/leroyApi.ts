@@ -1,6 +1,9 @@
 import { http } from "./client";
 import type {
   AddressDto,
+  AdminDashboardDto,
+  AdminOrderListDto,
+  AdminSellerDto,
   AnalyticsEventInput,
   CartDto,
   CategoryDto,
@@ -212,6 +215,42 @@ export const leroyApi = {
 
   trackAnalytics(events: AnalyticsEventInput[]): Promise<{ success: boolean }> {
     return http.post<{ success: boolean }>("/analytics/events", { events });
+  },
+
+  // ── Admin ────────────────────────────────────────────────────────────────
+
+  adminDashboard(): Promise<AdminDashboardDto> {
+    return http.get<AdminDashboardDto>("/admin/dashboard");
+  },
+
+  adminOrders(
+    page = 1,
+    limit = 20,
+    status?: string,
+  ): Promise<AdminOrderListDto> {
+    return http.get<AdminOrderListDto>("/admin/orders", {
+      page,
+      limit,
+      status,
+    });
+  },
+
+  adminOrder(id: string): Promise<OrderView> {
+    return http.get<RawOrder>(`/admin/orders/${id}`).then((o) => mapOrder(o));
+  },
+
+  adminSellers(page = 1, limit = 20): Promise<Paginated<AdminSellerDto>> {
+    return http.get<Paginated<AdminSellerDto>>("/admin/sellers", {
+      page,
+      limit,
+    });
+  },
+
+  adminUpdateSeller(
+    id: string,
+    action: "block" | "approve" | "verify",
+  ): Promise<AdminSellerDto> {
+    return http.patch<AdminSellerDto>(`/admin/sellers/${id}`, { action });
   },
 
   upload(file: File): Promise<{

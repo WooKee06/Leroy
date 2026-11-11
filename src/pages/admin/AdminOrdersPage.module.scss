@@ -1,0 +1,199 @@
+@use "../../app/styles/variables" as *;
+
+.page {
+  min-height: 100dvh;
+  padding-bottom: var(--bottom-nav-space);
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin: 8px 0 16px;
+}
+
+.statCard {
+  padding: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: $radius-lg;
+  background: var(--bg-surface);
+}
+
+.statValue {
+  font-size: 20px;
+  font-weight: 700;
+  color: $text-primary;
+  margin-bottom: 2px;
+}
+
+.statLabel {
+  font-size: 12px;
+  color: $text-secondary;
+}
+
+.filters {
+  margin-bottom: 16px;
+}
+
+.search {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: $radius-pill;
+  background: var(--bg-surface-secondary);
+  margin-bottom: 10px;
+  color: $text-secondary;
+
+  input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-size: 14px;
+    color: $text-primary;
+    outline: none;
+  }
+}
+
+.statusChips {
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.chip,
+.chipActive {
+  padding: 8px 14px;
+  border-radius: $radius-pill;
+  border: 1px solid var(--color-border);
+  background: var(--bg-surface-secondary);
+  color: $text-secondary;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.chipActive {
+  background: var(--inverted);
+  border-color: var(--inverted);
+  color: var(--inverted-fg);
+}
+
+.loading,
+.empty {
+  text-align: center;
+  padding: 40px 0;
+  color: $text-secondary;
+  font-size: 15px;
+}
+
+.ordersList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.orderCard {
+  border: 1px solid var(--color-border);
+  border-radius: $radius-lg;
+  background: var(--bg-surface);
+  overflow: hidden;
+}
+
+.orderHead {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px;
+  border: none;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.orderMain {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.orderNumber {
+  font-size: 16px;
+  font-weight: 700;
+  color: $text-primary;
+}
+
+.orderDate {
+  font-size: 12px;
+  color: $text-tertiary;
+}
+
+.orderMeta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.orderStatus {
+  padding: 4px 10px;
+  border-radius: $radius-pill;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.orderTotal {
+  font-size: 15px;
+  font-weight: 700;
+  color: $text-primary;
+}
+
+.orderBody {
+  padding: 0 14px 14px;
+  border-top: 1px solid var(--color-border);
+}
+
+.orderBuyer,
+.orderDelivery {
+  font-size: 13px;
+  color: $text-secondary;
+  margin: 10px 0 0;
+}
+
+.orderItems {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.orderItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.orderItemImage {
+  width: 44px;
+  height: 44px;
+  border-radius: $radius-md;
+  object-fit: cover;
+  background: var(--bg-surface-secondary);
+}
+
+.orderItemName {
+  font-size: 13.5px;
+  font-weight: 500;
+  color: $text-primary;
+}
+
+.orderItemMeta {
+  font-size: 12px;
+  color: $text-secondary;
+}

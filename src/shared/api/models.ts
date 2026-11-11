@@ -108,6 +108,7 @@ export interface RawOrder {
   deliveredAt?: string;
   cancelReason?: string;
   createdAt?: string;
+  user?: UserDto;
   sellerOrders?: {
     store?: StoreDto;
     items?: {
@@ -687,6 +688,36 @@ export interface AnalyticsEventInput {
   orderId?: string;
   amount?: number;
   metadata?: Record<string, unknown>;
+}
+
+// ── Admin ─────────────────────────────────────────────────────────────────
+
+export interface AdminDashboardDto {
+  totalUsers: number;
+  totalSellers: number;
+  totalProducts: number;
+  totalOrders: number;
+  totalRevenue: number | string;
+  recentOrders: RawOrder[];
+}
+
+export interface AdminSellerDto {
+  id: string;
+  name: string;
+  slug: string;
+  isActive: boolean;
+  isVerified: boolean;
+  ownerId: string;
+  owner?: UserDto;
+  createdAt: string;
+}
+
+export interface AdminOrderListDto {
+  data: RawOrder[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
 }
 
 // ── Delivery ──────────────────────────────────────────────────────────────

@@ -34,6 +34,7 @@ const pageLoaders = {
   balance: () => import('@pages/balance/BalancePage'),
   gifts: () => import('@pages/gifts/GiftsPage'),
   paymentMethods: () => import('@pages/paymentMethods/PaymentMethodsPage'),
+  adminOrders: () => import('@pages/admin/AdminOrdersPage'),
 };
 
 const ProductPage = lazy(pageLoaders.product);
@@ -53,6 +54,7 @@ const DiscoverPage = lazy(pageLoaders.discover);
 const BalancePage = lazy(pageLoaders.balance);
 const GiftsPage = lazy(pageLoaders.gifts);
 const PaymentMethodsPage = lazy(pageLoaders.paymentMethods);
+const AdminOrdersPage = lazy(pageLoaders.adminOrders);
 
 const PREFETCH_AFTER_IDLE = [
   pageLoaders.product,
@@ -71,6 +73,7 @@ const PREFETCH_AFTER_IDLE = [
   pageLoaders.balance,
   pageLoaders.gifts,
   pageLoaders.paymentMethods,
+  pageLoaders.adminOrders,
 ];
 
 export default function App() {
@@ -107,6 +110,7 @@ export default function App() {
             <Route path="/payment-methods" element={<PaymentMethodsPage />} />
             <Route path="/favorites" element={<FavoritesPage />} />
             <Route path="/my-store" element={<MyStorePage />} />
+            <Route path="/admin/orders" element={<AdminOrdersPage />} />
             <Route path="/my-store/edit" element={<StoreEditPage />} />
             <Route path="/orders" element={<OrdersPage />} />
             <Route path="/orders/:id" element={<OrderDetailPage />} />

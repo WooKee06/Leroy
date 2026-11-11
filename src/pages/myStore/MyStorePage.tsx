@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   FiCheck,
   FiDollarSign,
@@ -27,16 +28,9 @@ import {
   ProductFormSheet,
   StoreCreateSheet,
 } from "@widgets/store/CreateSheets";
-import storeStyles from "@pages/store/StorePage.module.scss";
 import styles from "./MyStorePage.module.scss";
 
 type Tab = "items" | "orders" | "analytics" | "balance";
-
-const wide = (url: string) =>
-  url.replace(/w=\d+&h=\d+&fit=crop/, "w=1200&h=700&fit=crop");
-
-const avatarFit = (url: string) =>
-  url.replace(/w=\d+&h=\d+&fit=crop/, "w=200&h=200&fit=crop");
 
 const formatCompact = (n: number) =>
   n >= 1000 ? `${(n / 1000).toFixed(1)}K` : String(n);
@@ -61,6 +55,7 @@ const SELLER_ACTIONS: Record<string, { next: string; label: string }[]> = {
 };
 
 export default function MyStorePage() {
+  const navigate = useNavigate();
   const [tab, setTab] = useState<Tab>("items");
   const [seller, setSeller] = useState<Seller | undefined>(undefined);
   const [sellerDto, setSellerDto] = useState<ProductDto["store"] | undefined>(
@@ -166,7 +161,7 @@ export default function MyStorePage() {
 
   if (loading) {
     return (
-      <div className={storeStyles.page}>
+      <div className={styles.page}>
         <StorePageSkeleton />
       </div>
     );
@@ -210,83 +205,74 @@ export default function MyStorePage() {
     { value: dashboard?.totalProducts ?? 0, label: "Товаров" },
     { value: Number(dashboard?.rating ?? 0).toFixed(1), label: "Рейтинг" },
     { value: formatCompact(dashboard?.productViews ?? 0), label: "Просмотров" },
+    { value: formatMoney(dashboard?.balance ?? 0), label: "Баланс" },
   ];
 
   return (
-    <div className={storeStyles.page}>
-      <div className={storeStyles.cover}>
-        <img
-          className={storeStyles.coverImage}
-          src={wide(seller.cover ?? "")}
-          alt=""
-        />
-      </div>
-
+    <div className={styles.page}>
       <PageContainer>
-        <div className={storeStyles.header}>
+        <div className={styles.sellerHeader}>
           <img
-            className={storeStyles.avatar}
-            src={avatarFit(seller.avatar)}
+            className={styles.sellerAvatar}
+            src={seller.avatar}
             alt={seller.name}
           />
-
-          <div className={storeStyles.identity}>
-            <div className={storeStyles.nameRow}>
-              <h1 className={storeStyles.name}>{seller.name}</h1>
+          <div className={styles.sellerInfo}>
+            <div className={styles.sellerNameRow}>
+              <h1 className={styles.sellerName}>{seller.name}</h1>
               {seller.verified && (
-                <span className={storeStyles.verified}>
-                  <FiCheck size={16} />
+                <span className={styles.verifiedBadge}>
+                  <FiCheck size={14} />
                 </span>
               )}
             </div>
-            <p className={storeStyles.desc}>{seller.description}</p>
+            <p className={styles.sellerDesc}>{seller.description}</p>
           </div>
+          <button
+            className={styles.editStoreBtn}
+            onClick={() => navigate("/my-store/edit")}
+          >
+            <FiEdit2 size={16} /> Редактировать
+          </button>
         </div>
 
-        <div className={storeStyles.stats}>
+        <div className={styles.statsGrid}>
           {stats.map((s) => (
-            <div className={storeStyles.stat} key={s.label}>
-              <div className={storeStyles.statValue}>{s.value}</div>
-              <div className={storeStyles.statLabel}>{s.label}</div>
+            <div className={styles.statCard} key={s.label}>
+              <div className={styles.statCardValue}>{s.value}</div>
+              <div className={styles.statCardLabel}>{s.label}</div>
             </div>
           ))}
         </div>
 
-        <div className={storeStyles.tabs}>
+        <div className={styles.tabs}>
           <button
-            className={tab === "items" ? storeStyles.tabActive : storeStyles.tab}
+            className={tab === "items" ? styles.tabActive : styles.tab}
             onClick={() => setTab("items")}
           >
             Товары
           </button>
           <button
-            className={
-              tab === "orders" ? storeStyles.tabActive : storeStyles.tab
-            }
+            className={tab === "orders" ? styles.tabActive : styles.tab}
             onClick={() => setTab("orders")}
           >
             Заказы
           </button>
           <button
-            className={
-              tab === "analytics" ? storeStyles.tabActive : storeStyles.tab
-            }
+            className={tab === "analytics" ? styles.tabActive : styles.tab}
             onClick={() => setTab("analytics")}
           >
             Аналитика
           </button>
           <button
-            className={
-              tab === "balance" ? storeStyles.tabActive : storeStyles.tab
-            }
+            className={tab === "balance" ? styles.tabActive : styles.tab}
             onClick={() => setTab("balance")}
           >
             Баланс
           </button>
         </div>
 
-        <div className={storeStyles.content}>
-          <div key={tab} className={storeStyles.tabContent}>
+        <div className={styles.tabContent}>
             {tab === "items" && (
               <>
                 <button
@@ -298,7 +284,7 @@ export default function MyStorePage() {
                 >
                   <FiPlus size={18} /> Добавить товар
                 </button>
-                <div className={storeStyles.grid}>
+                <div className={styles.productGrid}>
                   {mappedProducts.map((product, index) => (
                     <div key={product.id} className={styles.productWrap}>
                       <ProductCard
@@ -510,7 +496,6 @@ export default function MyStorePage() {
               </div>
             )}
           </div>
-        </div>
       </PageContainer>
 
       <ProductFormSheet

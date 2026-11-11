@@ -11,6 +11,7 @@ import {
   FiMapPin,
   FiPackage,
   FiSettings,
+  FiShield,
   FiShoppingBag,
   FiTruck,
 } from "react-icons/fi";
@@ -131,6 +132,18 @@ function ProfilePage() {
             label: "Мой магазин",
             desc: "Управление товарами",
             path: "/my-store" as string,
+          },
+        ]
+      : []),
+    ...(accountStore.role === "admin"
+      ? [
+          {
+            icon: <FiShield size={20} />,
+            iconBg: "var(--tint-red)",
+            iconColor: "#ff3b30",
+            label: "Админка",
+            desc: "Заказы и продавцы",
+            path: "/admin/orders" as string,
           },
         ]
       : []),
