@@ -1,9 +1,11 @@
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { observer } from "mobx-react-lite";
 import { FiArrowLeft, FiEdit, FiSearch, FiSettings, FiShare } from "react-icons/fi";
 import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
 import { BsCartDash } from "react-icons/bs";
 import { accountStore } from "@shared/stores/accountStore";
+import { cartStore } from "@shared/stores/cartStore";
 import { favoritesStore } from "@shared/stores/favoritesStore";
 import hStyles from "@widgets/home/HeroSection/HomeHeader.module.scss";
 import styles from "./PersistentHeader.module.scss";
@@ -52,6 +54,17 @@ function PersistentHeader() {
   const shape = resolveShape(location.pathname);
   const pageTitle = PAGE_TITLES[location.pathname];
   const favCount = favoritesStore.count;
+  const cartCount = cartStore.totalCount;
+  const [showTitle, setShowTitle] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => {
+      setShowTitle(window.scrollY > 60);
+    };
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   const productId = location.pathname.startsWith("/product/")
     ? location.pathname.slice("/product/".length)
@@ -124,6 +137,7 @@ function PersistentHeader() {
           aria-label="Корзина"
         >
           <BsCartDash size={16} />
+          {cartCount > 0 && <span className={hStyles.homeHeaderBadge}>{cartCount}</span>}
         </button>
       )}
       {shape.right.includes("favorite") && productId && (
@@ -176,7 +190,7 @@ function PersistentHeader() {
         </div>
 
         {pageTitle && (
-          <div className={styles.titleSlot}>
+          <div className={`${styles.titleSlot} ${showTitle ? styles.titleSlotVisible : ""}`}>
             <span className={styles.pageTitle}>{pageTitle}</span>
           </div>
         )}

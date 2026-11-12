@@ -9,7 +9,7 @@
   width: 100%;
   min-height: 48px;
   margin-bottom: $space-xl;
-  border-radius: $radius-pill;
+  border-radius: 20px;
   background: var(--inverted);
   color: var(--inverted-fg);
   font-size: 15px;
@@ -140,7 +140,7 @@
 .statsGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  gap: 5px;
   margin-bottom: 20px;
 }
 
@@ -173,8 +173,8 @@
 
 .tab,
 .tabActive {
-  padding: 10px 16px;
-  border-radius: $radius-pill;
+  padding: 12px 20px;
+  border-radius: 20px;
   border: 1px solid var(--color-border);
   background: var(--bg-surface-secondary);
   color: $text-secondary;
@@ -325,7 +325,7 @@
 .analyticsGrid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
+  gap: 5px;
 }
 
 .metricCard {

@@ -262,6 +262,8 @@ const OrderDetailPage = observer(function OrderDetailPage() {
                             className={styles.itemImage}
                             src={item.imageUrl}
                             alt={item.name}
+                            loading="lazy"
+                            decoding="async"
                           />
                         ) : (
                           <span className={styles.itemImageFallback}>
@@ -454,7 +456,7 @@ const OrderDetailPage = observer(function OrderDetailPage() {
                 <div className={styles.sectionHead}>
                   <h2 className={styles.sectionTitle}>История заказа</h2>
                 </div>
-                <OrderTimeline events={events} />
+                <OrderTimeline order={order} events={events} />
               </section>
             )}
 

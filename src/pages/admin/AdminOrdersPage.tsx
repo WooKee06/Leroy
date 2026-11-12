@@ -223,6 +223,8 @@ export default observer(function AdminOrdersPage() {
                                 src={item.imageUrl}
                                 alt={item.name}
                                 className={styles.orderItemImage}
+                                loading="lazy"
+                                decoding="async"
                               />
                             )}
                             <div>

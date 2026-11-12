@@ -89,7 +89,7 @@ const OrdersPage = observer(function OrdersPage() {
                 className={styles.card}
                 onClick={() =>
                   navigate(`/orders/${order.id}`, {
-                    state: { orderNumber: order.orderNumber, order },
+                    state: { orderNumber: order.orderNumber },
                   })
                 }
               >

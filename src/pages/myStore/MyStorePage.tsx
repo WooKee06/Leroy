@@ -322,6 +322,8 @@ const MyStorePage = observer(function MyStorePage() {
                             src={firstItem.imageUrl}
                             alt={firstItem.name}
                             className={styles.orderPreviewImage}
+                            loading="lazy"
+                            decoding="async"
                           />
                         )}
                         <div className={styles.orderPreviewInfo}>

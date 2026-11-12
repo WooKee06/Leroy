@@ -4,6 +4,7 @@ import { observer } from "mobx-react-lite";
 import {
   FiChevronRight,
   FiMinus,
+  FiPackage,
   FiPlus,
   FiShoppingBag,
   FiTrash2,
@@ -91,18 +92,34 @@ function CartPage() {
                     <div className={styles["cartPage-items"]}>
                         {items.map((item) => (
                           <div
-                            key={`${item.product.id}-${item.selectedSize}-${item.selectedColor}`}
+                            key={item.cartItemId}
                             className={styles["cartPage-item"]}
                           >
                             <div className={styles["cartPage-item-top"]}>
                               <div
                                 className={styles["cartPage-item-image-wrap"]}
                               >
-                                <img
-                                  className={styles["cartPage-item-image"]}
-                                  src={item.product.image}
-                                  alt={item.product.name}
-                                />
+                                {item.product.image ? (
+                                  <img
+                                    className={styles["cartPage-item-image"]}
+                                    src={item.product.image}
+                                    alt={item.product.name}
+                                    loading="lazy"
+                                    decoding="async"
+                                  />
+                                ) : (
+                                  <span
+                                    className={styles["cartPage-item-image"]}
+                                    style={{
+                                      display: "flex",
+                                      alignItems: "center",
+                                      justifyContent: "center",
+                                      color: "var(--text-tertiary)",
+                                    }}
+                                  >
+                                    <FiPackage size={22} />
+                                  </span>
+                                )}
                               </div>
 
                               <div className={styles["cartPage-item-info"]}>

@@ -180,6 +180,8 @@ export default function OrderReviewSheet({
                       className={styles.productImage}
                       src={item.imageUrl}
                       alt={item.name}
+                      loading="lazy"
+                      decoding="async"
                     />
                   ) : (
                     <span className={styles.productImageFallback}>

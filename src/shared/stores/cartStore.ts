@@ -2,7 +2,7 @@ import { makeAutoObservable, runInAction } from 'mobx';
 import type { Product } from '@shared/api/models';
 import { leroyApi } from '@shared/api/leroyApi';
 import { mapCartItem } from '@shared/api/models';
-import { getAuthToken } from '@shared/api/client';
+import { ApiError, getAuthToken } from '@shared/api/client';
 import { trackAddToCart } from '@shared/lib/analytics';
 
 export interface CartItem {
@@ -17,7 +17,6 @@ class CartStore {
   items: CartItem[] = [];
   loading = false;
   loaded = false;
-  private syncTimer: ReturnType<typeof setTimeout> | undefined;
 
   constructor() {
     makeAutoObservable(this);
@@ -25,14 +24,6 @@ class CartStore {
 
   private get shopId(): string | null {
     return getAuthToken();
-  }
-
-  private scheduleRefresh() {
-    if (this.syncTimer) clearTimeout(this.syncTimer);
-    this.syncTimer = setTimeout(() => {
-      this.syncTimer = undefined;
-      void this.refresh();
-    }, 800);
   }
 
   private upsertLocal(
@@ -80,18 +71,38 @@ class CartStore {
   }
 
   async addItem(product: Product, size?: string, color?: string, quantity = 1) {
+    const localKey = `local-${product.id}-${size ?? ""}-${color ?? ""}`;
     this.upsertLocal(product, size, color, quantity);
     trackAddToCart(product.id, quantity);
     if (!this.shopId) return;
-    void leroyApi
-      .addToCart({
+
+    try {
+      const created = await leroyApi.addToCart({
         productId: product.id,
         quantity,
         selectedSize: size,
         selectedColor: color,
-      })
-      .catch(() => {});
-    this.scheduleRefresh();
+      });
+      if (created?.id) {
+        runInAction(() => {
+          const index = this.items.findIndex((i) => i.cartItemId === localKey);
+          if (index >= 0) {
+            // Preserve the locally-known product (with cache-busted images)
+            // and only swap in the server-generated cartItemId.
+            this.items[index] = {
+              ...this.items[index],
+              cartItemId: created.id,
+            };
+          }
+        });
+      }
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error("[cartStore] addItem failed:", error);
+      runInAction(() => {
+        this.items = this.items.filter((i) => i.cartItemId !== localKey);
+      });
+    }
   }
 
   async updateQuantity(productId: string, quantity: number, size?: string, color?: string) {
@@ -101,19 +112,49 @@ class CartStore {
       await this.removeItem(productId, size, color);
       return;
     }
+    const previousQuantity = item.quantity;
     item.quantity = quantity;
     if (!this.shopId) return;
-    void leroyApi.updateCartItem(item.cartItemId, quantity).catch(() => {});
-    this.scheduleRefresh();
+
+    try {
+      await leroyApi.updateCartItem(item.cartItemId, quantity);
+    } catch (error) {
+      // 404 means the item no longer exists on the server — drop it locally.
+      if (error instanceof ApiError && error.status === 404) {
+        runInAction(() => {
+          this.items = this.items.filter((i) => i !== item);
+        });
+        return;
+      }
+      // eslint-disable-next-line no-console
+      console.error("[cartStore] updateQuantity failed:", error);
+      runInAction(() => {
+        item.quantity = previousQuantity;
+      });
+    }
   }
 
   async removeItem(productId: string, size?: string, color?: string) {
     const item = this.findItem(productId, size, color);
     if (!item) return;
+    const removedItem = item;
     this.items = this.items.filter((i) => i !== item);
     if (!this.shopId) return;
-    void leroyApi.removeCartItem(item.cartItemId).catch(() => {});
-    this.scheduleRefresh();
+
+    try {
+      await leroyApi.removeCartItem(removedItem.cartItemId);
+    } catch (error) {
+      // 404 means the item is already gone on the server — that's the desired
+      // end state, so keep it removed locally instead of restoring it.
+      if (error instanceof ApiError && error.status === 404) {
+        return;
+      }
+      // eslint-disable-next-line no-console
+      console.error("[cartStore] removeItem failed:", error);
+      runInAction(() => {
+        this.items.unshift(removedItem);
+      });
+    }
   }
 
   async clear() {

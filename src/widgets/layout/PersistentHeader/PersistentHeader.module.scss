@@ -70,6 +70,16 @@
   max-width: 45%;
   text-align: center;
   pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  filter: blur(10px);
+  transform: translate(-50%, -50%) scale(0.8);
+}
+
+.titleSlotVisible {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+  filter: blur(0);
 }
 
 .pageTitle {

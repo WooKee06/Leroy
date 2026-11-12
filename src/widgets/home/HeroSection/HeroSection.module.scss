@@ -3,21 +3,6 @@
 .heroSection {
   position: relative;
   padding-top: $space-lg;
-
-  &::before {
-    content: "";
-    position: absolute;
-    top: -64px;
-    left: 0;
-    right: 0;
-    height: 340px;
-    z-index: -1;
-    background: radial-gradient(
-      58% 100% at 50% 0%,
-      rgba(186, 213, 255, 0.3),
-      transparent 70%
-    );
-  }
 }
 
 .heroSectionTitle {

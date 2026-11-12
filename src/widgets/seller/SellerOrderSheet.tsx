@@ -149,6 +149,8 @@ export default function SellerOrderSheet({
                         src={item.imageUrl}
                         alt={item.name}
                         className={styles.itemImage}
+                        loading="lazy"
+                        decoding="async"
                       />
                     ) : (
                       <div className={styles.itemImagePlaceholder}>

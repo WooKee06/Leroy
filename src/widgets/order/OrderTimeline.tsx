@@ -7,7 +7,7 @@ import {
   FiTruck,
   FiXCircle,
 } from "react-icons/fi";
-import type { OrderEventDto } from "@shared/api/models";
+import type { Order, OrderEventDto } from "@shared/api/models";
 import { orderEventLabel } from "@shared/lib/orders";
 import styles from "./OrderTimeline.module.scss";
 
@@ -23,6 +23,30 @@ const EVENT_ICONS: Record<string, ReactNode> = {
   cancelled: <FiXCircle size={15} />,
 };
 
+const FLOW: string[] = [
+  "created",
+  "paid",
+  "accepted",
+  "preparing",
+  "ready_for_delivery",
+  "shipped",
+  "delivered",
+  "completed",
+];
+
+const STATUS_INDEX: Record<string, number> = {
+  pending: 0,
+  created: 0,
+  paid: 1,
+  accepted: 2,
+  preparing: 3,
+  ready_for_delivery: 4,
+  shipped: 5,
+  delivered: 6,
+  completed: 7,
+  cancelled: -1,
+};
+
 const dateFormatter = new Intl.DateTimeFormat("ru-RU", {
   day: "numeric",
   month: "short",
@@ -30,43 +54,75 @@ const dateFormatter = new Intl.DateTimeFormat("ru-RU", {
   minute: "2-digit",
 });
 
-function formatEventDate(iso: string): string {
+function formatEventDate(iso?: string): string {
+  if (!iso) return "";
   const date = new Date(iso);
   return Number.isNaN(date.getTime()) ? "" : dateFormatter.format(date);
 }
 
+function stageDate(
+  stage: string,
+  order: Order,
+  events: OrderEventDto[],
+): string {
+  const event = events.find((e) => e.type === stage);
+  if (event?.createdAt) return event.createdAt;
+
+  switch (stage) {
+    case "created":
+      return order.createdAt;
+    case "paid":
+      return order.paidAt ?? "";
+    case "shipped":
+      return order.shippedAt ?? "";
+    case "delivered":
+      return order.deliveredAt ?? "";
+    default:
+      return "";
+  }
+}
+
 interface Props {
+  order: Order;
   events: OrderEventDto[];
 }
 
-/** Append-only order timeline rendered from GET /orders/:id/events. */
-export default function OrderTimeline({ events }: Props) {
-  if (events.length === 0) return null;
+/** Full order timeline: all stages are visible, actual events fill in dates. */
+export default function OrderTimeline({ order, events }: Props) {
+  const currentIndex = STATUS_INDEX[order.status] ?? 0;
+  const isCancelled = order.status === "cancelled";
+
+  const stages = isCancelled
+    ? ["created", "cancelled"]
+    : FLOW.slice(0, Math.max(1, currentIndex + 1));
 
   return (
     <div className={styles.timeline}>
-      {events.map((event, index) => {
-        const cancelled = event.type === "cancelled";
+      {stages.map((stage, index) => {
+        const isLast = index === stages.length - 1;
+        const date = stageDate(stage, order, events);
         const reason =
-          typeof event.data?.reason === "string" ? event.data.reason : "";
+          stage === "cancelled" && typeof order.cancelReason === "string"
+            ? order.cancelReason
+            : "";
 
         return (
           <div
-            key={event.id}
-            className={`${styles.row} ${
-              index === events.length - 1 ? styles.last : ""
-            }`}
+            key={stage}
+            className={`${styles.row} ${isLast ? styles.last : ""}`}
           >
             <span
-              className={`${styles.dot} ${cancelled ? styles.dotCancelled : ""}`}
+              className={`${styles.dot} ${
+                stage === "cancelled" ? styles.dotCancelled : ""
+              }`}
             >
-              {EVENT_ICONS[event.type] ?? <FiClock size={15} />}
+              {EVENT_ICONS[stage] ?? <FiClock size={15} />}
             </span>
             <div className={styles.body}>
-              <span className={styles.label}>{orderEventLabel(event.type)}</span>
+              <span className={styles.label}>{orderEventLabel(stage)}</span>
               {reason && <span className={styles.note}>{reason}</span>}
             </div>
-            <span className={styles.date}>{formatEventDate(event.createdAt)}</span>
+            <span className={styles.date}>{formatEventDate(date)}</span>
           </div>
         );
       })}
