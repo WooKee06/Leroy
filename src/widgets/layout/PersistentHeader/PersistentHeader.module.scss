@@ -39,6 +39,7 @@
 }
 
 .row {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -59,6 +60,26 @@
 
 .rightSlot {
   justify-content: flex-end;
+}
+
+.titleSlot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 45%;
+  text-align: center;
+  pointer-events: none;
+}
+
+.pageTitle {
+  font-size: 17px;
+  font-weight: 700;
+  color: $text-primary;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
 }
 
 .content {

@@ -5,7 +5,7 @@ import { catalogStore } from "@shared/stores/catalogStore";
 import { leroyApi } from "@shared/api/leroyApi";
 import { mapProduct, type Product } from "@shared/api/models";
 import PageContainer from "@shared/ui/PageContainer";
-import PageHeader from "@shared/ui/PageHeader";
+
 import SearchBar from "@shared/ui/SearchBar";
 import Skeleton from "@shared/ui/Skeleton";
 import {
@@ -120,22 +120,6 @@ const DiscoverPage = observer(function DiscoverPage() {
   return (
     <div className={`page-wrapper ${styles.page}`}>
       <PageContainer>
-        <PageHeader
-          title="Каталог"
-          trailing={
-            <button
-              className={styles.filterBtn}
-              onClick={openFilters}
-              aria-label="Фильтры"
-            >
-              <FiSliders size={20} />
-              {chips.length > 0 && (
-                <span className={styles.filterBadge}>{chips.length}</span>
-              )}
-            </button>
-          }
-        />
-
         <div className={styles.searchWrap}>
           <SearchBar
             value={query}
@@ -154,6 +138,16 @@ const DiscoverPage = observer(function DiscoverPage() {
               ) : undefined
             }
           />
+          <button
+            className={styles.filterBtn}
+            onClick={openFilters}
+            aria-label="Фильтры"
+          >
+            <FiSliders size={20} />
+            {chips.length > 0 && (
+              <span className={styles.filterBadge}>{chips.length}</span>
+            )}
+          </button>
         </div>
 
         {!isSearching &&

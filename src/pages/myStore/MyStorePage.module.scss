@@ -213,18 +213,19 @@
 .productActions {
   position: absolute;
   top: 8px;
-  right: 8px;
+  left: 8px;
   display: flex;
   gap: 6px;
   z-index: 2;
 }
 
 .productAction {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  border-radius: 30%;
   border: none;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.152);
+  backdrop-filter: blur(15px);
   color: #fff;
   display: grid;
   place-items: center;

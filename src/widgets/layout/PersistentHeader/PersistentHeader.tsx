@@ -18,19 +18,39 @@ interface HeaderShape {
 
 function resolveShape(pathname: string): HeaderShape {
   if (pathname === "/") return { left: "profile", right: ["settings", "search", "favorites", "cart"] };
-  if (pathname.startsWith("/product/")) return { left: "back", right: ["favorite", "share"] };
-  if (pathname.startsWith("/store/")) return { left: "back", right: ["share"] };
+  if (pathname === "/discover" || pathname === "/stores") return { left: "back", right: ["search", "cart"] };
+  if (pathname.startsWith("/product/")) return { left: "back", right: ["favorite", "share", "cart"] };
+  if (pathname.startsWith("/store/")) return { left: "back", right: ["share", "cart"] };
   if (pathname === "/my-store") return { left: "back", right: ["edit"] };
-  if (pathname === "/profile") return { left: "back", right: ["settings"] };
-  if (pathname === "/settings" || pathname === "/role") return { left: "back", right: [] };
-  return { left: "back", right: [] };
+  if (pathname === "/profile") return { left: "back", right: ["settings", "cart"] };
+  if (pathname === "/settings" || pathname === "/role") return { left: "back", right: ["cart"] };
+  return { left: "back", right: ["cart"] };
 }
+
+const PAGE_TITLES: Record<string, string> = {
+  "/discover": "Каталог",
+  "/stores": "Магазины",
+  "/cart": "Корзина",
+  "/profile": "Профиль",
+  "/settings": "Настройки",
+  "/role": "Роль",
+  "/addresses": "Адреса",
+  "/favorites": "Избранное",
+  "/balance": "Баланс",
+  "/payment-methods": "Оплата",
+  "/my-store": "Мой магазин",
+  "/my-store/edit": "Редактирование",
+  "/admin/orders": "Админка",
+  "/orders": "Мои заказы",
+  "/gifts": "Подарки",
+};
 
 function PersistentHeader() {
   const location = useLocation();
   const navigate = useNavigate();
 
   const shape = resolveShape(location.pathname);
+  const pageTitle = PAGE_TITLES[location.pathname];
   const favCount = favoritesStore.count;
 
   const productId = location.pathname.startsWith("/product/")
@@ -154,6 +174,12 @@ function PersistentHeader() {
             {renderLeft()}
           </div>
         </div>
+
+        {pageTitle && (
+          <div className={styles.titleSlot}>
+            <span className={styles.pageTitle}>{pageTitle}</span>
+          </div>
+        )}
 
         <div className={`${styles.slot} ${styles.rightSlot}`}>
           <div

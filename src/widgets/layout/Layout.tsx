@@ -32,10 +32,12 @@ export default function Layout() {
     location.pathname,
   );
 
-  // На не-табовых страницах нижней навигации нет — убираем отступ под неё.
+  // На не-табовых страницах нижней навигации нет, но нужен отступ
+  // под iOS home indicator / Telegram safe area, иначе последние кнопки
+  // уезжают за нижний край экрана.
   const pageStyle = showBottomNav
     ? undefined
-    : ({ '--bottom-nav-space': '0px' } as CSSProperties);
+    : ({ '--bottom-nav-space': 'calc(var(--safe-bottom) + 28px)' } as CSSProperties);
 
   return (
     <div className={styles.layout}>

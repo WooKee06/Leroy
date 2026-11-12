@@ -329,8 +329,7 @@ const MyStorePage = observer(function MyStorePage() {
                             {firstItem?.name ?? "Товар"}
                           </p>
                           <p className={styles.orderPreviewMeta}>
-                            {itemCount}{" "}
-                            {itemCount === 1 ? "товар" : "товара"} ·{" "}
+                            {itemCount} {itemCount === 1 ? "товар" : "товара"} ·{" "}
                             {formatMoney(order.subtotal)}
                           </p>
                         </div>
@@ -384,7 +383,9 @@ const MyStorePage = observer(function MyStorePage() {
                       <h3 className={styles.sectionTitle}>Топ товары</h3>
                       {analytics.topProducts.map((p, i) => (
                         <div key={i} className={styles.topProductRow}>
-                          <span className={styles.topProductName}>{p.name}</span>
+                          <span className={styles.topProductName}>
+                            {p.name}
+                          </span>
                           <span className={styles.topProductSales}>
                             {p.sales} шт. · {formatMoney(p.revenue)}
                           </span>
@@ -477,7 +478,16 @@ const MyStorePage = observer(function MyStorePage() {
   );
 });
 
-function PayoutRow({ payout }: { payout: { id: string; amount: number | string; status: string; createdAt: string } }) {
+function PayoutRow({
+  payout,
+}: {
+  payout: {
+    id: string;
+    amount: number | string;
+    status: string;
+    createdAt: string;
+  };
+}) {
   const statusLabels: Record<string, string> = {
     pending: "В очереди",
     processing: "В обработке",

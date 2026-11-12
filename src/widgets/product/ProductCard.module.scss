@@ -104,15 +104,15 @@
   top: 6px;
   right: 6px;
   z-index: 10;
-  width: 34px;
-  height: 34px;
+  width: 35px;
+  height: 35px;
   border-radius: 14px;
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--text-primary);
-  background: var(--bg-overlay);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  color: #fff;
+  background: rgb(168 168 168 / 21%);
+  backdrop-filter: blur(15px);
   transition: transform 0.14s ease;
 
   &:active {
@@ -136,7 +136,9 @@
   color: $text-primary;
   font-size: 13px;
   font-weight: 600;
-  transition: background 0.2s ease, transform 0.14s ease;
+  transition:
+    background 0.2s ease,
+    transform 0.14s ease;
 
   &:active {
     background: var(--bg-surface-secondary);
