@@ -63,7 +63,7 @@ describe("mapProduct", () => {
     expect(product.name).toBe("Товар");
     expect(product.price).toBe(1200);
     expect(product.originalPrice).toBe(1500);
-    expect(product.image).toBe("img1.jpg");
+    expect(product.image.startsWith("img1.jpg?t=")).toBe(true);
     expect(product.rating).toBe(4.2);
     expect(product.reviewCount).toBe(7);
     expect(product.isNew).toBe(true);

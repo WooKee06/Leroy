@@ -292,6 +292,7 @@ export interface SearchResultDto {
   totalPages: number;
 }
 
+import { imageUrlWithCacheBust } from "@shared/api/client";
 import {
   DEFAULT_STORE_AVATAR,
   DEFAULT_STORE_COVER,
@@ -354,8 +355,8 @@ export function mapProduct(
     name: product.name,
     price,
     originalPrice,
-    image: product.images?.[0] ?? "",
-    images: product.images ?? [],
+    image: imageUrlWithCacheBust(product.images?.[0]),
+    images: (product.images ?? []).map(imageUrlWithCacheBust),
     category: mapCategory(product.category),
     seller,
     rating: Number(product.rating ?? 0),
@@ -408,7 +409,7 @@ export function mapOrder(order: RawOrder): Order {
       id: i.id,
       productId: i.productId,
       name: i.name,
-      imageUrl: i.imageUrl,
+      imageUrl: imageUrlWithCacheBust(i.imageUrl),
       price: Number(i.price),
       quantity: i.quantity,
       selectedSize: i.selectedSize,

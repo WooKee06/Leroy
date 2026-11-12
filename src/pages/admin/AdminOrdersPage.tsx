@@ -5,6 +5,7 @@ import { observer } from "mobx-react-lite";
 import type { AdminDashboardDto, RawOrder } from "@shared/api/models";
 import { leroyApi } from "@shared/api/leroyApi";
 import { accountStore } from "@shared/stores/accountStore";
+import { imageUrlWithCacheBust } from "@shared/api/client";
 import { statusInfo } from "@shared/lib/orders";
 import PageContainer from "@shared/ui/PageContainer";
 import PageHeader from "@shared/ui/PageHeader";
@@ -59,7 +60,18 @@ export default observer(function AdminOrdersPage() {
       .then(([dash, list]) => {
         if (!alive) return;
         setDashboard(dash);
-        setOrders(list.data);
+        setOrders(
+          list.data.map((order) => ({
+            ...order,
+            sellerOrders: order.sellerOrders?.map((so) => ({
+              ...so,
+              items: so.items?.map((item) => ({
+                ...item,
+                imageUrl: imageUrlWithCacheBust(item.imageUrl),
+              })),
+            })),
+          })),
+        );
       })
       .catch(() => {})
       .finally(() => {

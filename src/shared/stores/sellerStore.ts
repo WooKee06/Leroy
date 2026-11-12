@@ -10,7 +10,7 @@ import type {
 } from "@shared/api/models";
 import { mapSeller } from "@shared/api/models";
 import { leroyApi } from "@shared/api/leroyApi";
-import { getAuthToken } from "@shared/api/client";
+import { getAuthToken, imageUrlWithCacheBust } from "@shared/api/client";
 
 class SellerStore {
   seller: Seller | null = null;
@@ -137,7 +137,13 @@ class SellerStore {
     try {
       const data = await leroyApi.sellerOrders();
       runInAction(() => {
-        this.orders = data;
+        this.orders = data.map((order) => ({
+          ...order,
+          items: order.items?.map((item) => ({
+            ...item,
+            imageUrl: imageUrlWithCacheBust(item.imageUrl),
+          })),
+        }));
       });
     } catch {
       // ignore
@@ -175,11 +181,18 @@ class SellerStore {
   }
 
   updateOrder(order: RawSellerOrder) {
-    const index = this.orders.findIndex((o) => o.id === order.id);
+    const normalized = {
+      ...order,
+      items: order.items?.map((item) => ({
+        ...item,
+        imageUrl: imageUrlWithCacheBust(item.imageUrl),
+      })),
+    };
+    const index = this.orders.findIndex((o) => o.id === normalized.id);
     if (index >= 0) {
-      this.orders[index] = order;
+      this.orders[index] = normalized;
     } else {
-      this.orders.unshift(order);
+      this.orders.unshift(normalized);
     }
   }
 }

@@ -1,9 +1,11 @@
+import { useState } from "react";
 import { observer } from "mobx-react-lite";
 import { FiArrowRight } from "react-icons/fi";
 import { AiOutlineHeart, AiFillHeart } from "react-icons/ai";
 import type { Product } from "@shared/api/models";
 import { quickViewStore } from "@shared/stores/quickViewStore";
 import { favoritesStore } from "@shared/stores/favoritesStore";
+import { cartStore } from "@shared/stores/cartStore";
 import styles from "./ProductCard.module.scss";
 
 interface Props {
@@ -15,6 +17,7 @@ interface Props {
 function ProductCard({ product, variant, showSeller = false }: Props) {
   const filledStars = Math.round(product.rating);
   const isFav = favoritesStore.isFavorite(product.id);
+  const [addPressed, setAddPressed] = useState(false);
 
   const cardClass =
     variant === "large"
@@ -24,6 +27,16 @@ function ProductCard({ product, variant, showSeller = false }: Props) {
         : `${styles.card} ${styles.cardMedium}`;
 
   const open = () => quickViewStore.open(product);
+
+  const handleAddToCart = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    if (product.sizes && product.sizes.length > 0) {
+      open();
+      return;
+    }
+    const color = product.colors?.[0]?.name;
+    void cartStore.addItem(product, undefined, color);
+  };
 
   return (
     <div className={cardClass} onClick={open}>
@@ -78,17 +91,28 @@ function ProductCard({ product, variant, showSeller = false }: Props) {
           <span className={styles.seller}>{product.seller.name}</span>
         )}
 
-        <button
-          className={styles.detailsBtn}
-          onClick={(e) => {
-            e.stopPropagation();
-            open();
-          }}
-          aria-label={`Подробнее: ${product.name}`}
-        >
-          <span>Подробнее</span>
-          <FiArrowRight size={14} />
-        </button>
+        <div className={styles.actions}>
+          <button
+            className={`${styles.addToCartBtn} ${addPressed ? styles.addToCartBtnPressed : ""}`}
+            onPointerDown={() => setAddPressed(true)}
+            onPointerUp={() => setAddPressed(false)}
+            onPointerLeave={() => setAddPressed(false)}
+            onClick={handleAddToCart}
+            aria-label={`В корзину: ${product.name}`}
+          >
+            <span>В корзину</span>
+          </button>
+          <button
+            className={styles.detailsBtn}
+            onClick={(e) => {
+              e.stopPropagation();
+              open();
+            }}
+            aria-label={`Подробнее: ${product.name}`}
+          >
+            <FiArrowRight size={14} />
+          </button>
+        </div>
       </div>
     </div>
   );

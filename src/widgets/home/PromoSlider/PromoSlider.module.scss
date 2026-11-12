@@ -130,7 +130,7 @@
 .description {
   font-size: 14px;
   font-weight: 500;
-  color: var(--inverted-fg);
+  color: #fff;
   text-overflow: ellipsis;
   opacity: 0.9;
 }
@@ -144,7 +144,7 @@
 .name {
   font-size: 17px;
   font-weight: 700;
-  color: var(--inverted-fg);
+  color: #fff;
 
   white-space: nowrap;
   overflow: hidden;
@@ -192,7 +192,7 @@
 
 .btnLight {
   background: #8b8b8c94;
-  color: var(--inverted-fg);
+  color: #fff;
 
   backdrop-filter: blur(4px);
   width: 150px;

@@ -34,6 +34,17 @@ export function fileUrlFromApi(pathOrUrl: string): string {
     : `${origin}/${pathOrUrl}`;
 }
 
+/**
+ * Appends a cache-busting timestamp to image URLs.
+ * R2/Cloudflare may cache images aggressively; the timestamp forces the
+ * browser to fetch the latest version without affecting the file itself.
+ */
+export function imageUrlWithCacheBust(url?: string | null): string {
+  if (!url) return "";
+  if (url.includes("?")) return url;
+  return `${url}?t=${Date.now()}`;
+}
+
 interface RequestOptions {
   method: "GET" | "POST" | "PATCH" | "DELETE";
   body?: string | FormData;
