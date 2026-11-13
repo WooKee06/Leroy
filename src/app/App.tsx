@@ -1,14 +1,8 @@
 import { lazy, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { TonConnectUIProvider } from '@tonconnect/ui-react';
 import Layout from '@widgets/layout/Layout';
-import TonConnectBridge from '@widgets/ton/TonConnectBridge';
 import HomePage from '@pages/home/HomePage';
 import LoginGate from '@widgets/auth/LoginGate';
-
-const TON_MANIFEST_URL =
-  (import.meta.env.VITE_TON_MANIFEST_URL as string | undefined) ??
-  `${window.location.origin}/tonconnect-manifest.json`;
 
 /**
  * Route-level code splitting: главная (самый частый вход) остаётся в основном
@@ -92,36 +86,33 @@ export default function App() {
   }, []);
 
   return (
-    <TonConnectUIProvider manifestUrl={TON_MANIFEST_URL}>
-      <TonConnectBridge />
-      <BrowserRouter>
-        <LoginGate />
-        <Routes>
-          <Route element={<Layout />}>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/search" element={<Navigate to="/discover" replace />} />
-            <Route path="/discover" element={<DiscoverPage />} />
-            <Route path="/stores" element={<StoresPage />} />
-            <Route path="/product/:id" element={<ProductPage />} />
-            <Route path="/store/:id" element={<StorePage />} />
-            <Route path="/cart" element={<CartPage />} />
-            <Route path="/balance" element={<BalancePage />} />
-            <Route path="/gifts" element={<GiftsPage />} />
-            <Route path="/payment-methods" element={<PaymentMethodsPage />} />
-            <Route path="/favorites" element={<FavoritesPage />} />
-            <Route path="/my-store" element={<MyStorePage />} />
-            <Route path="/admin/orders" element={<AdminOrdersPage />} />
-            <Route path="/my-store/edit" element={<StoreEditPage />} />
-            <Route path="/orders" element={<OrdersPage />} />
-            <Route path="/orders/:id" element={<OrderDetailPage />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/settings" element={<SettingsPage />} />
-            <Route path="/addresses" element={<AddressesPage />} />
-            <Route path="/role" element={<RolePage />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Route>
-        </Routes>
-      </BrowserRouter>
-    </TonConnectUIProvider>
+    <BrowserRouter>
+      <LoginGate />
+      <Routes>
+        <Route element={<Layout />}>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/search" element={<Navigate to="/discover" replace />} />
+          <Route path="/discover" element={<DiscoverPage />} />
+          <Route path="/stores" element={<StoresPage />} />
+          <Route path="/product/:id" element={<ProductPage />} />
+          <Route path="/store/:id" element={<StorePage />} />
+          <Route path="/cart" element={<CartPage />} />
+          <Route path="/balance" element={<BalancePage />} />
+          <Route path="/gifts" element={<GiftsPage />} />
+          <Route path="/payment-methods" element={<PaymentMethodsPage />} />
+          <Route path="/favorites" element={<FavoritesPage />} />
+          <Route path="/my-store" element={<MyStorePage />} />
+          <Route path="/admin/orders" element={<AdminOrdersPage />} />
+          <Route path="/my-store/edit" element={<StoreEditPage />} />
+          <Route path="/orders" element={<OrdersPage />} />
+          <Route path="/orders/:id" element={<OrderDetailPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/addresses" element={<AddressesPage />} />
+          <Route path="/role" element={<RolePage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Route>
+      </Routes>
+    </BrowserRouter>
   );
 }

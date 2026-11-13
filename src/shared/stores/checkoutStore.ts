@@ -4,13 +4,9 @@ import { cartStore } from "@shared/stores/cartStore";
 import { accountStore } from "@shared/stores/accountStore";
 import { deliveryStore } from "@shared/stores/deliveryStore";
 import { ordersStore } from "@shared/stores/ordersStore";
-import type { Order, TonPaymentQuote } from "@shared/api/models";
+import type { Order } from "@shared/api/models";
 import { DELIVERY_KIND_LABELS } from "@shared/lib/delivery";
-import {
-  trackCheckoutStarted,
-  trackPurchase,
-} from "@shared/lib/analytics";
-import { waitForPayment } from "@shared/lib/ton";
+import { trackCheckoutStarted, trackPurchase } from "@shared/lib/analytics";
 import { addressStore } from "./addressStore";
 
 /** Secure-context UUID with a fallback for older WebViews. */
@@ -22,18 +18,7 @@ function createIdempotencyKey(): string {
   return `ord_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
-export type Step =
-  | "closed"
-  | "form"
-  | "processing"
-  | "ton-confirm"
-  | "ton-waiting"
-  | "success";
-
-interface TonPaymentSession {
-  paymentId: string;
-  quote: TonPaymentQuote;
-}
+export type Step = "closed" | "form" | "processing" | "success";
 
 class CheckoutStore {
   open = false;
@@ -42,9 +27,6 @@ class CheckoutStore {
   paymentMethod = "balance";
   order: Order | null = null;
   error = "";
-  tonSession: TonPaymentSession | null = null;
-  tonConfirming = false;
-  tonWaiting = false;
   /**
    * One key per checkout attempt: retries of `POST /orders` (double tap,
    * network timeout, re-render) reuse it, so the server returns the same
@@ -98,9 +80,6 @@ class CheckoutStore {
     this.order = null;
     this.error = "";
     this.paymentMethod = "balance";
-    this.tonSession = null;
-    this.tonConfirming = false;
-    this.tonWaiting = false;
     this.idempotencyKey = "";
     deliveryStore.reset();
   }
@@ -195,13 +174,6 @@ class CheckoutStore {
         await cartStore.clear();
       }
 
-      if (this.paymentMethod === "ton") {
-        const { payment, quote } = await leroyApi.tonPaymentInit(order.id);
-        this.tonSession = { paymentId: payment.id, quote };
-        this.step = "ton-confirm";
-        return;
-      }
-
       await leroyApi.pay(order, "balance");
       await accountStore.loadWallet(true);
       this.step = "success";
@@ -210,58 +182,10 @@ class CheckoutStore {
     } catch (e) {
       this.step = "form";
       this.error = e instanceof Error ? e.message : "Не удалось оформить заказ";
-      this.tonSession = null;
       // A price/quote mismatch means the cart changed under us — refresh the
       // quote so the next tap uses current prices.
       void deliveryStore.loadQuote(true);
     }
-  }
-
-  beginTonWaiting() {
-    this.tonConfirming = false;
-    this.tonWaiting = true;
-    this.step = "ton-waiting";
-    this.error = "";
-  }
-
-  async waitForTonResult(): Promise<void> {
-    const session = this.tonSession;
-    if (!session || !this.order) return;
-    const result = await waitForPayment(
-      () => leroyApi.paymentStatus(session.paymentId),
-      { expiresAt: session.quote.expiresAt },
-    );
-    this.tonWaiting = false;
-    if (result === "completed") {
-      this.step = "success";
-      if (this.order) {
-        trackPurchase(this.order.id, this.order.total);
-        void ordersStore.refresh();
-      }
-    } else if (result === "expired") {
-      this.error = "Платёж просрочен. Создайте новый с актуальным курсом.";
-      this.step = "ton-confirm";
-    } else if (result === "cancelled") {
-      this.error = "Платёж отменён.";
-      this.step = "ton-confirm";
-    } else if (result === "failed") {
-      this.error = "Платёж не прошёл. Попробуйте ещё раз.";
-      this.step = "ton-confirm";
-    } else {
-      this.error = "Платёж ещё не подтверждён в блокчейне.";
-      this.step = "ton-confirm";
-    }
-  }
-
-  async cancelTonPayment(): Promise<void> {
-    const session = this.tonSession;
-    this.tonConfirming = false;
-    this.tonWaiting = false;
-    if (session) {
-      await leroyApi.paymentCancel(session.paymentId).catch(() => undefined);
-    }
-    this.error = "Оплата отменена — заказ можно оформить другим способом";
-    this.step = "form";
   }
 }
 

@@ -17,7 +17,6 @@ import { addressStore } from "@shared/stores/addressStore";
 import { themeStore } from "@shared/stores/themeStore";
 import PageContainer from "@shared/ui/PageContainer";
 import Skeleton from "@shared/ui/Skeleton";
-import TonWalletCard from "@widgets/ton/TonWalletCard";
 import styles from "./SettingsPage.module.scss";
 
 interface RowProps {
@@ -120,11 +119,6 @@ function SettingsPage() {
               onClick={() => navigate("/role")}
             />
           </div>
-        </div>
-
-        <div className={styles.section}>
-          <div className={styles.sectionTitle}>Криптовалюта</div>
-          <TonWalletCard />
         </div>
 
         <div className={styles.section}>

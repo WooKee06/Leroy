@@ -26,10 +26,6 @@ import type {
   SellerOverviewDto,
   RawSellerOrder,
   StoreDto,
-  TonBalanceView,
-  TonPaymentInitResult,
-  TonProof,
-  TonWalletBound,
   TopUpConfirmDto,
   TopUpDto,
   UserDto,
@@ -446,12 +442,20 @@ export const leroyApi = {
 
   pay(
     order: OrderView,
-    provider: "balance" | "mock" | "ton" | "stars" = "balance",
+    provider: "balance" | "mock" | "stars" = "balance",
   ): Promise<{ id: string; status: string }> {
     return http.post<{ id: string; status: string }>("/payments", {
       orderId: order.id,
       provider,
     });
+  },
+
+  paymentStatus(id: string): Promise<PaymentView> {
+    return http.get<PaymentView>(`/payments/${id}/status`);
+  },
+
+  paymentCancel(id: string): Promise<PaymentView> {
+    return http.post<PaymentView>(`/payments/${id}/cancel`);
   },
 
   // ── Wallet / balance ───────────────────────────────────────────────────
@@ -476,42 +480,6 @@ export const leroyApi = {
 
   confirmTopUp(id: string): Promise<TopUpConfirmDto> {
     return http.post<TopUpConfirmDto>(`/wallet/topup/${id}/confirm`);
-  },
-
-  // ── TON / Telegram Wallet ──────────────────────────────────────────────
-
-  tonNonce(): Promise<{ payload: string }> {
-    return http.post<{ payload: string }>("/auth/ton/nonce");
-  },
-
-  tonVerify(body: {
-    address: string;
-    publicKey: string;
-    proof: TonProof;
-  }): Promise<{ verified: boolean; wallet: TonWalletBound }> {
-    return http.post<{ verified: boolean; wallet: TonWalletBound }>(
-      "/auth/ton/verify",
-      body,
-    );
-  },
-
-  tonBalance(refresh = false): Promise<TonBalanceView> {
-    return http.get<TonBalanceView>(
-      "/ton/wallet/balance",
-      refresh ? { refresh: "1" } : undefined,
-    );
-  },
-
-  tonPaymentInit(orderId: string): Promise<TonPaymentInitResult> {
-    return http.post<TonPaymentInitResult>("/payments/ton/init", { orderId });
-  },
-
-  paymentStatus(id: string): Promise<PaymentView> {
-    return http.get<PaymentView>(`/payments/${id}/status`);
-  },
-
-  paymentCancel(id: string): Promise<PaymentView> {
-    return http.post<PaymentView>(`/payments/${id}/cancel`);
   },
 
   createReview(dto: {

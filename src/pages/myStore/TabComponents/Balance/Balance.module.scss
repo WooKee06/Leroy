@@ -1,0 +1,108 @@
+@use "../../../../app/styles/variables.scss" as *;
+
+.balanceTab {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.emptyTab {
+  text-align: center;
+  padding: 40px 0;
+  color: $text-secondary;
+  font-size: 15px;
+}
+
+.metricCard {
+  padding: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: $radius-lg;
+  background: var(--bg-surface);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.metricValue {
+  font-size: 20px;
+  font-weight: 700;
+  color: $text-primary;
+}
+
+.metricLabel {
+  font-size: 12px;
+  color: $text-secondary;
+}
+.payoutForm {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+
+  .input {
+    flex: 1;
+    padding: 12px 14px;
+    border: 1px solid var(--color-border);
+    border-radius: $radius-md;
+    background: var(--bg-surface-secondary);
+    color: $text-primary;
+    font-size: 15px;
+    outline: none;
+  }
+}
+.payoutBtn {
+  padding: 12px 16px;
+  border-radius: $radius-md;
+  border: none;
+  background: var(--inverted);
+  color: var(--inverted-fg);
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.5;
+  }
+}
+.recentList {
+  margin-top: 8px;
+}
+
+.recentRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+.sectionTitle {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 0 0 10px;
+  color: $text-primary;
+}
+
+.recentRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+.recentStatus {
+  font-size: 12px;
+  font-weight: 600;
+}
+.recentAmount {
+  font-size: 14px;
+  font-weight: 600;
+  color: $text-primary;
+}
+.recentDate {
+  font-size: 12px;
+  color: $text-tertiary;
+}

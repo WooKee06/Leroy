@@ -1,0 +1,92 @@
+@use "../../../../app/styles/variables" as *;
+
+.ordersList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.emptyTab {
+  text-align: center;
+  padding: 40px 0;
+  color: $text-secondary;
+  font-size: 15px;
+}
+.orderCard {
+  width: 100%;
+  padding: 14px;
+  border: 1px solid var(--color-border);
+  border-radius: $radius-lg;
+  background: var(--bg-surface);
+  text-align: left;
+  cursor: pointer;
+}
+
+.orderHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.orderMain {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.orderNumber {
+  font-size: 15px;
+  font-weight: 700;
+  color: $text-primary;
+}
+
+.orderStatus {
+  padding: 4px 10px;
+  border-radius: $radius-pill;
+  font-size: 12px;
+  font-weight: 600;
+  flex-shrink: 0;
+}
+
+.orderDate {
+  font-size: 12px;
+  color: $text-tertiary;
+}
+
+.orderPreview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.orderPreviewImage {
+  width: 48px;
+  height: 48px;
+  border-radius: $radius-md;
+  object-fit: cover;
+  background: var(--bg-surface-secondary);
+  flex-shrink: 0;
+}
+
+.orderPreviewInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.orderPreviewName {
+  font-size: 14px;
+  font-weight: 500;
+  color: $text-primary;
+  margin: 0 0 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.orderPreviewMeta {
+  font-size: 13px;
+  color: $text-secondary;
+  margin: 0;
+}

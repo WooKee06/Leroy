@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { observer } from "mobx-react-lite";
-import { FiCheck, FiCreditCard, FiGlobe, FiPlus, FiStar } from "react-icons/fi";
+import { FiCheck, FiCreditCard, FiPlus, FiStar } from "react-icons/fi";
 import { accountStore } from "@shared/stores/accountStore";
 import { formatWalletAmount } from "@shared/lib/wallet";
 import PageContainer from "@shared/ui/PageContainer";
@@ -44,14 +44,6 @@ const methods: PaymentMethod[] = [
     desc: "Оплата звёздами внутри Telegram",
     tint: "var(--tint-orange)",
     color: "#f5a623",
-  },
-  {
-    id: "ton",
-    icon: <FiGlobe size={20} />,
-    label: "TON-кошелёк",
-    desc: "Переводы в криптовалюте TON",
-    tint: "var(--tint-blue)",
-    color: "#007aff",
   },
 ];
 

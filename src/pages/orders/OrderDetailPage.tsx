@@ -19,7 +19,7 @@ import {
   formatDeliveryAmount,
   orderDeliveryLabel,
 } from "@shared/lib/delivery";
-import { copyText } from "@shared/lib/ton";
+import { copyText } from "@shared/lib/clipboard";
 import PageContainer from "@shared/ui/PageContainer";
 import PageHeader from "@shared/ui/PageHeader";
 import { OrderDetailSkeleton } from "@shared/ui/Skeletons";
