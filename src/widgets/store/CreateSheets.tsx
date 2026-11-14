@@ -7,7 +7,7 @@ import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { catalogStore } from "@shared/stores/catalogStore";
 import { leroyApi } from "@shared/api/leroyApi";
 import { fileUrlFromApi } from "@shared/api/client";
-import type { ProductDto } from "@shared/api/models";
+import type { ProductDto, StoreDto } from "@shared/api/models";
 import ImageCropModal from "@shared/ui/ImageCropModal";
 import styles from "./CreateSheets.module.scss";
 import "swiper/css";
@@ -16,7 +16,7 @@ import "swiper/css/pagination";
 interface SheetProps {
   open: boolean;
   onClose: () => void;
-  onDone: () => void;
+  onDone: (store?: StoreDto) => void;
 }
 
 function GalleryField({
@@ -216,13 +216,13 @@ export const StoreCreateSheet = observer(function StoreCreateSheet({
           ? leroyApi.upload(coverFile).then((r) => fileUrlFromApi(r.url))
           : Promise.resolve(undefined),
       ]);
-      await leroyApi.createStore({
+      const store = await leroyApi.createStore({
         name: sellerName,
         description: description.trim() || undefined,
         logoUrl,
         coverUrl,
       });
-      onDone();
+      onDone(store);
     } catch {
       setError("Не удалось создать магазин. Попробуйте ещё раз");
     } finally {

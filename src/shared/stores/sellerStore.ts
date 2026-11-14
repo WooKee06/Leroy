@@ -82,6 +82,24 @@ class SellerStore {
     await this.ensureLoaded(true);
   }
 
+  setStore(store: StoreDto) {
+    this.sellerDto = store;
+    this.seller = mapSeller(store);
+    this.dashboard = {
+      totalSales: 0,
+      totalOrders: 0,
+      totalProducts: 0,
+      rating: 0,
+      totalEarned: 0,
+      totalPayouts: 0,
+      balance: 0,
+      productViews: 0,
+      recentOrders: [],
+    };
+    this.products = [];
+    this.loaded = true;
+  }
+
   async refreshProducts() {
     if (!this.sellerDto?.id) return;
     try {

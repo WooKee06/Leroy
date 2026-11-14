@@ -33,9 +33,13 @@ const EmptyStore = ({ setStoreOpen, storeOpen }: Props) => {
       <StoreCreateSheet
         open={storeOpen}
         onClose={() => setStoreOpen(false)}
-        onDone={() => {
+        onDone={(store) => {
           setStoreOpen(false);
-          void sellerStore.refresh();
+          if (store) {
+            sellerStore.setStore(store);
+          } else {
+            void sellerStore.refresh();
+          }
         }}
       />
     </div>
