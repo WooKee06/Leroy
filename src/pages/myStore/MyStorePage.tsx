@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { observer } from "mobx-react-lite";
-import { FiCheck, FiEdit2, FiPlus, FiShoppingBag } from "react-icons/fi";
+import { FiCheck, FiEdit2 } from "react-icons/fi";
 import type { ProductDto, RawSellerOrder } from "@shared/api/models";
 
 import { leroyApi } from "@shared/api/leroyApi";
@@ -10,29 +10,18 @@ import { sellerStore } from "@shared/stores/sellerStore";
 import PageContainer from "@shared/ui/PageContainer";
 import { StorePageSkeleton } from "@shared/ui/Skeletons";
 import SellerOrderSheet from "@widgets/seller/SellerOrderSheet";
-import {
-  ProductFormSheet,
-  StoreCreateSheet,
-} from "@widgets/store/CreateSheets";
+import { ProductFormSheet } from "@widgets/store/CreateSheets";
 import styles from "./MyStorePage.module.scss";
 import Items from "./TabComponents/Items/Items";
 import Orders from "./TabComponents/Orders/Orders";
 import Balance from "./TabComponents/Balance/Balance";
 import Tabs from "./TabComponents/Tabs/Tabs";
+import EmptyStore from "./TabComponents/EmptyStore/EmptyStore";
+import { FormatMoney } from "@/shared/lib/formatMoney";
+import { FormatCompact } from "@/shared/lib/formatCompact";
+import { FormatDate } from "@/shared/lib/formatDate";
 
 type Tab = "items" | "orders" | "balance";
-
-const formatCompact = (n: number) =>
-  n >= 1000 ? `${(n / 1000).toFixed(1)}K` : String(n);
-
-const formatMoney = (value: number | string) =>
-  `${Number(value || 0).toLocaleString("ru-RU")} ₽`;
-
-const formatDate = (value?: string) => {
-  if (!value) return "";
-  const d = new Date(value);
-  return Number.isNaN(d.getTime()) ? "" : d.toLocaleDateString("ru-RU");
-};
 
 const MyStorePage = observer(function MyStorePage() {
   const navigate = useNavigate();
@@ -65,7 +54,7 @@ const MyStorePage = observer(function MyStorePage() {
       await leroyApi.deleteProduct(id);
       sellerStore.removeProduct(id);
     } catch {
-      // ignore
+      console.log("Failed to delete product");
     }
   };
 
@@ -78,7 +67,7 @@ const MyStorePage = observer(function MyStorePage() {
         current?.id === orderId ? updated : current,
       );
     } catch {
-      // ignore
+      console.log("Failed to update order status");
     } finally {
       setStatusLoading(false);
     }
@@ -98,44 +87,15 @@ const MyStorePage = observer(function MyStorePage() {
   }
 
   if (!seller) {
-    return (
-      <div className={`page-wrapper ${styles.page}`}>
-        <PageContainer>
-          <div className={styles.empty}>
-            <div className={styles.emptyIcon}>
-              <FiShoppingBag size={28} />
-            </div>
-            <div>
-              <h1>Магазин ещё не создан</h1>
-              <p>Создайте магазин и добавьте первые товары</p>
-            </div>
-            <button
-              className={styles.emptyBtn}
-              onClick={() => setStoreOpen(true)}
-            >
-              <FiPlus size={18} /> Создать магазин
-            </button>
-          </div>
-        </PageContainer>
-
-        <StoreCreateSheet
-          open={storeOpen}
-          onClose={() => setStoreOpen(false)}
-          onDone={() => {
-            setStoreOpen(false);
-            void sellerStore.refresh();
-          }}
-        />
-      </div>
-    );
+    return <EmptyStore storeOpen={storeOpen} setStoreOpen={setStoreOpen} />;
   }
 
   const stats = [
-    { value: formatCompact(dashboard?.totalOrders ?? 0), label: "Заказов" },
+    { value: FormatCompact(dashboard?.totalOrders ?? 0), label: "Заказов" },
     { value: dashboard?.totalProducts ?? 0, label: "Товаров" },
     { value: Number(dashboard?.rating ?? 0).toFixed(1), label: "Рейтинг" },
-    { value: formatCompact(dashboard?.productViews ?? 0), label: "Просмотров" },
-    { value: formatMoney(dashboard?.balance ?? 0), label: "Баланс" },
+    { value: FormatCompact(dashboard?.productViews ?? 0), label: "Просмотров" },
+    { value: FormatMoney(dashboard?.balance ?? 0), label: "Баланс" },
   ];
 
   return (
@@ -188,14 +148,14 @@ const MyStorePage = observer(function MyStorePage() {
 
           {tab === "orders" && (
             <Orders
-              formatDate={formatDate}
-              formatMoney={formatMoney}
+              formatDate={FormatMoney}
+              formatMoney={FormatMoney}
               setSelectedOrder={setSelectedOrder}
             />
           )}
 
           {tab === "balance" && (
-            <Balance formatDate={formatDate} formatMoney={formatMoney} />
+            <Balance formatDate={FormatDate} formatMoney={FormatMoney} />
           )}
         </div>
       </PageContainer>

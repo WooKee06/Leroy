@@ -141,7 +141,7 @@ class SellerStore {
           ...order,
           items: order.items?.map((item) => ({
             ...item,
-            imageUrl: imageUrlWithCacheBust(item.imageUrl),
+            imageUrl: imageUrlWithCacheBust(item.imageUrl, order.createdAt),
           })),
         }));
       });
@@ -185,7 +185,7 @@ class SellerStore {
       ...order,
       items: order.items?.map((item) => ({
         ...item,
-        imageUrl: imageUrlWithCacheBust(item.imageUrl),
+        imageUrl: imageUrlWithCacheBust(item.imageUrl, order.createdAt),
       })),
     };
     const index = this.orders.findIndex((o) => o.id === normalized.id);

@@ -355,8 +355,10 @@ export function mapProduct(
     name: product.name,
     price,
     originalPrice,
-    image: imageUrlWithCacheBust(product.images?.[0]),
-    images: (product.images ?? []).map(imageUrlWithCacheBust),
+    image: imageUrlWithCacheBust(product.images?.[0], product.createdAt),
+    images: (product.images ?? []).map((img) =>
+      imageUrlWithCacheBust(img, product.createdAt),
+    ),
     category: mapCategory(product.category),
     seller,
     rating: Number(product.rating ?? 0),
@@ -409,7 +411,7 @@ export function mapOrder(order: RawOrder): Order {
       id: i.id,
       productId: i.productId,
       name: i.name,
-      imageUrl: imageUrlWithCacheBust(i.imageUrl),
+      imageUrl: imageUrlWithCacheBust(i.imageUrl, order.createdAt),
       price: Number(i.price),
       quantity: i.quantity,
       selectedSize: i.selectedSize,
@@ -620,11 +622,7 @@ export interface SellerOrderItemDto {
 }
 
 export interface AnalyticsEventInput {
-  type:
-    | "product_view"
-    | "add_to_cart"
-    | "checkout_started"
-    | "purchase";
+  type: "product_view" | "add_to_cart" | "checkout_started" | "purchase";
   productId?: string;
   orderId?: string;
   amount?: number;
@@ -747,4 +745,3 @@ export interface DeliveryTrackingDto {
   pickupAddress?: string;
   events: DeliveryTrackEventDto[];
 }
-

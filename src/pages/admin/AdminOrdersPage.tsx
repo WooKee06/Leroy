@@ -67,7 +67,7 @@ export default observer(function AdminOrdersPage() {
               ...so,
               items: so.items?.map((item) => ({
                 ...item,
-                imageUrl: imageUrlWithCacheBust(item.imageUrl),
+                imageUrl: imageUrlWithCacheBust(item.imageUrl, order.createdAt),
               })),
             })),
           })),
