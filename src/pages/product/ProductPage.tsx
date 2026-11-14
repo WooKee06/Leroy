@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
 import { Swiper, SwiperSlide } from "swiper/react";
 import type { Swiper as SwiperClass } from "swiper";
 import { Pagination } from "swiper/modules";
@@ -10,12 +9,10 @@ import {
   FiInfo,
   FiStar,
   FiTag,
-  FiX,
 } from "react-icons/fi";
 import { observer } from "mobx-react-lite";
 import type { Product, Review } from "@shared/api/models";
 import { mapProduct, mapReview } from "@shared/api/models";
-import { ApiError } from "@shared/api/client";
 import { leroyApi } from "@shared/api/leroyApi";
 import { trackProductView } from "@shared/lib/analytics";
 import { productBarStore } from "@shared/stores/productBarStore";
@@ -65,8 +62,6 @@ function ProductPage() {
   const [selectedSize, setSelectedSize] = useState<string | undefined>(undefined);
   const [colorName, setColorName] = useState<string | undefined>(undefined);
   const selectedColor = colorName ?? product?.colors?.[0]?.name;
-  const [reviewOpen, setReviewOpen] = useState(false);
-  const [reviewsTick, setReviewsTick] = useState(0);
   const [activeTab, setActiveTab] = useState<"description" | "specs" | "reviews">(
     "description",
   );
@@ -117,7 +112,7 @@ function ProductPage() {
     return () => {
       alive = false;
     };
-  }, [id, reviewsTick]);
+  }, [id]);
 
   useEffect(() => {
     if (product) {
@@ -309,23 +304,12 @@ function ProductPage() {
                   size={selectedSize}
                 />
               )}
-              {activeTab === "reviews" && (
-                <Reviews reviews={reviews} onWrite={() => setReviewOpen(true)} />
-              )}
+              {activeTab === "reviews" && <Reviews reviews={reviews} />}
             </div>
           </div>
         </div>
       </PageContainer>
 
-      <ReviewFormSheet
-        open={reviewOpen}
-        product={product}
-        onClose={() => setReviewOpen(false)}
-        onDone={() => {
-          setReviewOpen(false);
-          setReviewsTick((t) => t + 1);
-        }}
-      />
     </div>
   );
 }
@@ -408,13 +392,7 @@ function Specs({
   );
 }
 
-function Reviews({
-  reviews,
-  onWrite,
-}: {
-  reviews: Review[];
-  onWrite: () => void;
-}) {
+function Reviews({ reviews }: { reviews: Review[] }) {
   const average =
     reviews.length > 0
       ? reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length
@@ -430,10 +408,6 @@ function Reviews({
           </span>
         </div>
       )}
-
-      <button className={styles.writeReview} onClick={onWrite}>
-        {reviews.length === 0 ? "Написать первый отзыв" : "Написать отзыв"}
-      </button>
 
       {reviews.length === 0 ? (
         <p className={styles.detailsText}>Отзывов пока нет</p>
@@ -461,122 +435,6 @@ function Reviews({
         </div>
       )}
     </div>
-  );
-}
-
-function ReviewFormSheet({
-  open,
-  product,
-  onClose,
-  onDone,
-}: {
-  open: boolean;
-  product: Product;
-  onClose: () => void;
-  onDone: () => void;
-}) {
-  const [rating, setRating] = useState(5);
-  const [text, setText] = useState("");
-  const [saving, setSaving] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    if (open) {
-      setRating(5);
-      setText("");
-      setError(null);
-    }
-  }, [open]);
-
-  const submit = async () => {
-    if (!text.trim()) {
-      setError("Напишите пару слов о товаре");
-      return;
-    }
-    setSaving(true);
-    setError(null);
-    try {
-      await leroyApi.createReview({
-        productId: product.id,
-        rating,
-        text: text.trim(),
-      });
-      onDone();
-    } catch (err) {
-      setError(
-        err instanceof ApiError && err.message
-          ? err.message
-          : "Не удалось отправить отзыв. Попробуйте ещё раз",
-      );
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  return (
-    <AnimatePresence>
-      {open && (
-        <>
-          <motion.div
-            className={styles.backdrop}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={onClose}
-            aria-hidden="true"
-          />
-          <motion.div
-            className={styles.sheet}
-            role="dialog"
-            aria-modal="true"
-            aria-label="Написать отзыв"
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "100%" }}
-            transition={{ type: "spring", stiffness: 320, damping: 34 }}
-          >
-            <div className={styles.handle} />
-            <button className={styles.sheetClose} onClick={onClose} aria-label="Закрыть">
-              <FiX size={18} />
-            </button>
-
-            <h2 className={styles.sheetTitle}>Оценка товара</h2>
-            <p className={styles.sheetProduct}>{product.name}</p>
-
-            <div className={styles.ratingPicker}>
-              {[1, 2, 3, 4, 5].map((s) => (
-                <button
-                  key={s}
-                  aria-label={`Оценка ${s}`}
-                  className={s <= rating ? styles.ratingStarActive : styles.ratingStar}
-                  onClick={() => setRating(s)}
-                >
-                  <FiStar size={26} />
-                </button>
-              ))}
-            </div>
-
-            <textarea
-              className={styles.sheetTextarea}
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              placeholder="Поделитесь впечатлениями о товаре"
-              rows={4}
-            />
-
-            {error && <p className={styles.sheetError}>{error}</p>}
-
-            <button
-              className={styles.sheetSubmit}
-              onClick={() => void submit()}
-              disabled={saving}
-            >
-              {saving ? "Отправляем…" : "Опубликовать отзыв"}
-            </button>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
   );
 }
 

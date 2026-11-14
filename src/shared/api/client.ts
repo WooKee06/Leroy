@@ -40,8 +40,8 @@ export function imageUrlWithCacheBust(
 ): string {
   if (!url) return "";
   if (url.includes("?")) return url;
-  const v = version || Date.now();
-  return `${url}?v=${v}`;
+  if (!version) return url;
+  return `${url}?v=${version}`;
 }
 
 interface RequestOptions {

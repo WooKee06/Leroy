@@ -29,6 +29,8 @@ class SellerStore {
   ordersLoading = false;
 
   private loadPromise: Promise<void> | null = null;
+  private balancePromise: Promise<void> | null = null;
+  private orderPromise: Promise<void> | null = null;
 
   constructor() {
     makeAutoObservable(this);
@@ -38,10 +40,6 @@ class SellerStore {
     return !!getAuthToken();
   }
 
-  /**
-   * Loads the seller storefront, products and dashboard stats once.
-   * Subsequent calls return the cached data immediately.
-   */
   async ensureLoaded(force = false) {
     if (!this.available) return;
     if (this.loaded && !force) return;
@@ -68,7 +66,6 @@ class SellerStore {
         this.loaded = true;
       });
     } catch {
-      // If overview fails (e.g. no store yet), fall back to empty state.
       runInAction(() => {
         this.loaded = true;
       });
@@ -97,19 +94,32 @@ class SellerStore {
     }
   }
 
-  async loadBalance() {
-    if (this.balance || this.balanceLoading) return;
+  async loadBalance(force = false) {
+    if (this.balance && !force) return;
+    if (!this.available) return;
+    if (this.balanceLoading) {
+      await this.balancePromise;
+      return;
+    }
+
     this.balanceLoading = true;
+    const promise = this.loadBalanceCore();
+    this.balancePromise = promise;
+    await promise;
+  }
+
+  private async loadBalanceCore() {
     try {
       const data = await leroyApi.sellerBalance();
       runInAction(() => {
         this.balance = data;
       });
     } catch {
-      // ignore
+      // ignore — как и было, поведение не меняли
     } finally {
       runInAction(() => {
         this.balanceLoading = false;
+        this.balancePromise = null;
       });
     }
   }
@@ -131,9 +141,20 @@ class SellerStore {
     }
   }
 
-  async loadOrders() {
-    if (this.orders.length > 0 || this.ordersLoading) return;
+  async loadOrders(force = false) {
+    if (this.orders.length > 0 && !force) return;
+    if (!this.available) return;
+    if (this.ordersLoading) {
+      await this.orderPromise;
+      return;
+    }
     this.ordersLoading = true;
+    const promise = this.loadOrdersCore();
+    this.orderPromise = promise;
+    await promise;
+  }
+
+  private async loadOrdersCore() {
     try {
       const data = await leroyApi.sellerOrders();
       runInAction(() => {
@@ -150,6 +171,7 @@ class SellerStore {
     } finally {
       runInAction(() => {
         this.ordersLoading = false;
+        this.orderPromise = null;
       });
     }
   }

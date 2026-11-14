@@ -21,10 +21,11 @@ interface TelegramWebApp {
   initDataUnsafe: {
     user?: TelegramUser;
   };
+  onEvent: (event: string, callback: () => void) => void;
   ready: () => void;
   expand: () => void;
   close: () => void;
-  colorScheme?: 'light' | 'dark';
+  colorScheme?: "light" | "dark";
 }
 
 declare global {
@@ -65,7 +66,7 @@ export function buildTelegramLoginInitData(user: TelegramLoginUser): string {
   }
 
   parts.push(`hash=${user.hash}`);
-  return parts.join('&');
+  return parts.join("&");
 }
 
 export function getTgUser(): TelegramUser | undefined {
@@ -79,9 +80,15 @@ export function readyTelegramWebApp(): void {
   webApp?.expand();
 }
 
+export function setupTelegramAppEvents(handlers: { onActivated: () => void }) {
+  const tg = window.Telegram?.WebApp;
+  if (!tg) return;
+  tg.onEvent("activated", handlers.onActivated);
+}
+
 export function getTgDisplayName(user?: TelegramUser): string {
-  if (!user) return 'Гость';
+  if (!user) return "Гость";
   return user.username
     ? `@${user.username}`
-    : [user.first_name, user.last_name].filter(Boolean).join(' ').trim();
+    : [user.first_name, user.last_name].filter(Boolean).join(" ").trim();
 }

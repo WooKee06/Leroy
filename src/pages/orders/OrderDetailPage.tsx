@@ -15,10 +15,7 @@ import { leroyApi } from "@shared/api/leroyApi";
 import { accountStore } from "@shared/stores/accountStore";
 import { ordersStore } from "@shared/stores/ordersStore";
 import { canBuyerCancelOrder, statusInfo } from "@shared/lib/orders";
-import {
-  formatDeliveryAmount,
-  orderDeliveryLabel,
-} from "@shared/lib/delivery";
+import { formatDeliveryAmount, orderDeliveryLabel } from "@shared/lib/delivery";
 import { copyText } from "@shared/lib/clipboard";
 import PageContainer from "@shared/ui/PageContainer";
 import PageHeader from "@shared/ui/PageHeader";
@@ -215,12 +212,6 @@ const OrderDetailPage = observer(function OrderDetailPage() {
                   : ""}
               </span>
             </div>
-
-            {order.status === "cancelled" && order.cancelReason && (
-              <p className={styles.cancelNotice}>
-                Причина отмены: {order.cancelReason}
-              </p>
-            )}
 
             {canReview && unreviewedCount > 0 && (
               <div className={styles.reviewBanner}>

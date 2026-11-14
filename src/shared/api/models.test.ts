@@ -56,6 +56,7 @@ describe("mapProduct", () => {
       reviewCount: 7,
       tags: ["new"],
       isFeatured: true,
+      createdAt: "2026-01-01",
     };
 
     const product = mapProduct(dto);
@@ -63,7 +64,7 @@ describe("mapProduct", () => {
     expect(product.name).toBe("Товар");
     expect(product.price).toBe(1200);
     expect(product.originalPrice).toBe(1500);
-    expect(product.image.startsWith("img1.jpg?v=")).toBe(true);
+    expect(product.image).toBe("img1.jpg?v=2026-01-01");
     expect(product.rating).toBe(4.2);
     expect(product.reviewCount).toBe(7);
     expect(product.isNew).toBe(true);
