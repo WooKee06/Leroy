@@ -1,33 +1,22 @@
-import styles from "./Tabs.module.scss";
+import { FiBox, FiDollarSign, FiShoppingBag } from "react-icons/fi";
+import Tabs from "@/shared/ui/Tabs/Tabs";
+import type { TabItem } from "@/shared/ui/Tabs/Tabs";
+
+type Tab = "items" | "orders" | "balance";
 
 type Props = {
-  tab: "items" | "orders" | "balance";
-  setTab: (tab: "items" | "orders" | "balance") => void;
+  tab: Tab;
+  setTab: (tab: Tab) => void;
 };
 
-const Tabs = ({ tab, setTab }: Props) => {
-  return (
-    <div className={styles.tabs}>
-      <button
-        className={tab === "items" ? styles.tabActive : styles.tab}
-        onClick={() => setTab("items")}
-      >
-        Товары
-      </button>
-      <button
-        className={tab === "orders" ? styles.tabActive : styles.tab}
-        onClick={() => setTab("orders")}
-      >
-        Заказы
-      </button>
-      <button
-        className={tab === "balance" ? styles.tabActive : styles.tab}
-        onClick={() => setTab("balance")}
-      >
-        Баланс
-      </button>
-    </div>
-  );
+const TABS: TabItem<Tab>[] = [
+  { id: "items", label: "Товары", icon: <FiBox size={16} /> },
+  { id: "orders", label: "Заказы", icon: <FiShoppingBag size={16} /> },
+  { id: "balance", label: "Баланс", icon: <FiDollarSign size={16} /> },
+];
+
+const StoreTabs = ({ tab, setTab }: Props) => {
+  return <Tabs tabs={TABS} activeTab={tab} onChange={setTab} />;
 };
 
-export default Tabs;
+export default StoreTabs;

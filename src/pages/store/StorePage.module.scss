@@ -95,7 +95,7 @@
   align-items: center;
   justify-content: space-between;
   gap: $space-sm;
-  margin: $space-2xl 0 0;
+  margin: $space-2xl 0;
 }
 
 .stat {
@@ -118,39 +118,6 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-.tabs {
-  display: flex;
-  gap: $space-sm;
-  padding: $space-2xl 0 $space-lg;
-}
-
-.tab {
-  flex: 1;
-  padding: $space-md $space-lg;
-  border-radius: $radius-pill;
-  background: $bg-surface-secondary;
-  color: $text-primary;
-  font-size: 14px;
-  font-weight: 600;
-  text-align: center;
-  box-shadow: $shadow-card;
-  transition:
-    background-color 0.2s ease,
-    color 0.2s ease;
-}
-
-.tabActive {
-  flex: 1;
-  padding: $space-md $space-lg;
-  border-radius: $radius-pill;
-  background: var(--inverted);
-  color: var(--inverted-fg);
-  font-size: 14px;
-  font-weight: 600;
-  text-align: center;
-  box-shadow: $shadow-soft;
 }
 
 .content {

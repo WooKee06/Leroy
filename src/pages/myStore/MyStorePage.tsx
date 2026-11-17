@@ -3,13 +3,13 @@ import { useNavigate } from "react-router-dom";
 import { observer } from "mobx-react-lite";
 import { FiCheck, FiEdit2 } from "react-icons/fi";
 import type { ProductDto, RawSellerOrder } from "@shared/api/models";
+import { lazy, Suspense } from "react";
 
 import { leroyApi } from "@shared/api/leroyApi";
 import { sellerStore } from "@shared/stores/sellerStore";
 
 import PageContainer from "@shared/ui/PageContainer";
 import { StorePageSkeleton } from "@shared/ui/Skeletons";
-import SellerOrderSheet from "@widgets/seller/SellerOrderSheet";
 import { ProductFormSheet } from "@widgets/store/CreateSheets";
 import styles from "./MyStorePage.module.scss";
 import Items from "./TabComponents/Items/Items";
@@ -20,6 +20,8 @@ import EmptyStore from "./TabComponents/EmptyStore/EmptyStore";
 import { FormatMoney } from "@/shared/lib/formatMoney";
 import { FormatCompact } from "@/shared/lib/formatCompact";
 import { FormatDate } from "@/shared/lib/formatDate";
+
+const SellerOrderSheet = lazy(() => import("@widgets/seller/SellerOrderSheet"));
 
 type Tab = "items" | "orders" | "balance";
 
@@ -160,12 +162,14 @@ const MyStorePage = observer(function MyStorePage() {
         </div>
       </PageContainer>
 
-      <SellerOrderSheet
-        order={selectedOrder}
-        onClose={() => setSelectedOrder(null)}
-        onStatusChange={handleUpdateStatus}
-        loading={statusLoading}
-      />
+      <Suspense fallback={null}>
+        <SellerOrderSheet
+          order={selectedOrder}
+          onClose={() => setSelectedOrder(null)}
+          onStatusChange={handleUpdateStatus}
+          loading={statusLoading}
+        />
+      </Suspense>
 
       <ProductFormSheet
         open={productOpen}

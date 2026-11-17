@@ -6,9 +6,6 @@ import { Pagination } from "swiper/modules";
 import {
   FiChevronLeft,
   FiChevronRight,
-  FiInfo,
-  FiStar,
-  FiTag,
 } from "react-icons/fi";
 import { observer } from "mobx-react-lite";
 import type { Product, Review } from "@shared/api/models";
@@ -62,9 +59,7 @@ function ProductPage() {
   const [selectedSize, setSelectedSize] = useState<string | undefined>(undefined);
   const [colorName, setColorName] = useState<string | undefined>(undefined);
   const selectedColor = colorName ?? product?.colors?.[0]?.name;
-  const [activeTab, setActiveTab] = useState<"description" | "specs" | "reviews">(
-    "description",
-  );
+  const [activeTab, setActiveTab] = useState<"about" | "specs">("about");
   const swiperRef = useRef<SwiperClass | null>(null);
 
   useEffect(() => {
@@ -268,43 +263,46 @@ function ProductPage() {
             </div>
           )}
 
-          <div className={styles.tabs}>
-            {(
-              [
-                { id: "description", label: "Описание", icon: FiInfo },
-                { id: "specs", label: "Характеристики", icon: FiTag },
-                { id: "reviews", label: `Отзывы (${reviews.length})`, icon: FiStar },
-              ] as const
-            ).map((tab) => {
-              const active = activeTab === tab.id;
-              return (
-                <button
-                  key={tab.id}
-                  className={active ? styles.tabActive : styles.tab}
-                  onClick={() => setActiveTab(tab.id)}
-                >
-                  <span className={styles.tabIcon}>
-                    <tab.icon size={15} />
-                  </span>
-                  <span className={styles.tabLabel}>{tab.label}</span>
-                </button>
-              );
-            })}
+          <div className={styles.tabs} role="tablist">
+            <button
+              role="tab"
+              aria-selected={activeTab === "about"}
+              className={activeTab === "about" ? styles.tabActive : styles.tab}
+              onClick={() => setActiveTab("about")}
+              type="button"
+            >
+              О товаре
+            </button>
+            <button
+              role="tab"
+              aria-selected={activeTab === "specs"}
+              className={activeTab === "specs" ? styles.tabActive : styles.tab}
+              onClick={() => setActiveTab("specs")}
+              type="button"
+            >
+              Характеристики
+            </button>
+            <span
+              className={styles.activeLine}
+              style={{ transform: `translateX(${activeTab === "about" ? 0 : 100}%)` }}
+            />
           </div>
 
           <div className={styles.tabBody}>
             <div key={activeTab} className={styles.tabBodyInner}>
-              {activeTab === "description" && (
-                <p className={styles.detailsText}>{product.description}</p>
+              {activeTab === "about" ? (
+                <div className={styles.aboutBlock}>
+                  <p className={styles.detailsText}>{product.description}</p>
+                  <div className={styles.reviewsSection}>
+                    <h3 className={styles.reviewsSectionTitle}>
+                      Отзывы ({reviews.length})
+                    </h3>
+                    <Reviews reviews={reviews} />
+                  </div>
+                </div>
+              ) : (
+                <Specs product={product} color={selectedColor} size={selectedSize} />
               )}
-              {activeTab === "specs" && (
-                <Specs
-                  product={product}
-                  color={selectedColor}
-                  size={selectedSize}
-                />
-              )}
-              {activeTab === "reviews" && <Reviews reviews={reviews} />}
             </div>
           </div>
         </div>

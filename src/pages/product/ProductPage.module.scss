@@ -249,8 +249,8 @@
 .sizeBtn,
 .sizeActive {
   min-width: 44px;
-  height: 38px;
-  padding: 0 14px;
+  height: 45px;
+  padding: 0 20px;
   border-radius: $radius-pill;
   display: flex;
   align-items: center;
@@ -271,62 +271,65 @@
 }
 
 .tabs {
-  display: flex;
-  gap: $space-sm;
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
   margin-top: $space-2xl;
-  overflow-x: auto;
-  padding-bottom: 2px;
-  scrollbar-width: none;
-
-  &::-webkit-scrollbar {
-    display: none;
-  }
 }
 
 .tab,
 .tabActive {
   position: relative;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  flex-shrink: 0;
-  height: 36px;
-  padding: 0 16px;
-  border-radius: $radius-pill;
-  font-size: 14px;
-  font-weight: 600;
-  white-space: nowrap;
-  -webkit-tap-highlight-color: transparent;
-}
-
-.tab {
-  background: var(--bg-surface-secondary);
+  z-index: 1;
+  padding: 12px 8px 14px;
+  border: none;
+  background: transparent;
+  font-size: 15px;
+  font-weight: 500;
   color: $text-secondary;
+  text-align: center;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  -webkit-tap-highlight-color: transparent;
+
+  &:hover {
+    color: $text-primary;
+  }
 }
 
 .tabActive {
-  background: var(--inverted);
-  color: var(--inverted-fg);
+  color: $text-primary;
+  font-weight: 700;
 }
 
-.tabIcon,
-.tabLabel {
-  position: relative;
-  z-index: 1;
-  display: flex;
-  align-items: center;
-}
-
-.tabIcon {
-  color: inherit;
-}
-
-.tabIcon svg {
-  color: inherit;
+.activeLine {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 50%;
+  height: 2px;
+  background: var(--text-primary);
+  border-radius: 2px 2px 0 0;
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: 0;
+  pointer-events: none;
 }
 
 .tabBody {
   margin-top: $space-lg;
+}
+
+.aboutBlock {
+  display: flex;
+  flex-direction: column;
+  gap: $space-2xl;
+}
+
+.reviewsSectionTitle {
+  font-size: 17px;
+  font-weight: 700;
+  color: $text-primary;
+  margin: 0 0 $space-md;
 }
 
 .tabBodyInner {
