@@ -1,10 +1,18 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { observer } from "mobx-react-lite";
 import { useNavigate } from "react-router-dom";
-import { FiArrowRight, FiCheck, FiX, FiMapPin } from "react-icons/fi";
+import {
+  FiArrowRight,
+  FiCheck,
+  FiChevronDown,
+  FiMapPin,
+  FiPlus,
+  FiX,
+} from "react-icons/fi";
 import { checkoutStore } from "@shared/stores/checkoutStore";
 import { cartStore } from "@shared/stores/cartStore";
 import { accountStore } from "@shared/stores/accountStore";
+import { addressStore } from "@shared/stores/addressStore";
 import { deliveryStore } from "@shared/stores/deliveryStore";
 import {
   DELIVERY_KIND_LABELS,
@@ -12,8 +20,10 @@ import {
   formatDeliveryEta,
 } from "@shared/lib/delivery";
 import styles from "./CheckoutSheet.module.scss";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { CdekPickup, type PickupPoint } from "../CdekPickup/CdekPickup";
+import { formatAddress } from "@shared/lib/address";
+import type { DeliveryAddress } from "@shared/stores/addressStore";
 
 const PAYMENT_METHODS = [
   { id: "balance", label: "Официальный баланс", available: true },
@@ -168,33 +178,22 @@ function CheckoutSheet() {
                   </div>
                 )}
 
-                <label className={styles.field}>
-                  <span className={styles.fieldLabel}>
-                    {deliveryStore.needsPoint
-                      ? "Адрес пункта"
-                      : "Адрес доставки"}
-                  </span>
-                  <div className={styles.inputWrap}>
-                    <FiMapPin size={16} className={styles.inputIcon} />
-                    <input
-                      className={styles.input}
-                      placeholder={
-                        deliveryStore.needsPoint
-                          ? "Выберите пункт выдачи выше"
-                          : "ул. Ленина, 10, кв. 5"
-                      }
-                      value={
-                        deliveryStore.needsPoint
-                          ? deliveryStore.pointAddress
-                          : checkoutStore.address
-                      }
-                      readOnly={deliveryStore.needsPoint}
-                      onChange={(e) => {
-                        checkoutStore.address = e.target.value;
-                      }}
-                    />
+                {deliveryStore.needsPoint && (
+                  <div className={styles.field}>
+                    <span className={styles.fieldLabel}>Адрес пункта</span>
+                    <div className={styles.inputWrap}>
+                      <FiMapPin size={16} className={styles.inputIcon} />
+                      <input
+                        className={styles.input}
+                        placeholder="Выберите пункт выдачи выше"
+                        value={deliveryStore.pointAddress}
+                        readOnly
+                      />
+                    </div>
                   </div>
-                </label>
+                )}
+
+                <AddressSelector />
 
                 <label className={styles.field}>
                   <span className={styles.fieldLabel}>Оплата</span>
@@ -275,6 +274,103 @@ function CheckoutSheet() {
         </>
       )}
     </AnimatePresence>
+  );
+}
+
+function AddressCard({ address, active, onClick }: {
+  address: DeliveryAddress;
+  active?: boolean;
+  onClick?: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      className={active ? styles.addressOptionActive : styles.addressOption}
+      onClick={onClick}
+    >
+      <span className={styles.addressOptionRadio}>
+        {active && <span className={styles.addressOptionDot} />}
+      </span>
+      <span className={styles.addressOptionText}>{formatAddress(address)}</span>
+    </button>
+  );
+}
+
+function AddressSelector() {
+  const navigate = useNavigate();
+  const addresses = addressStore.addresses;
+  const selected = checkoutStore.selectedAddress;
+  const [expanded, setExpanded] = useState(false);
+
+  if (addresses.length === 0) {
+    return (
+      <div className={styles.field}>
+        <span className={styles.fieldLabel}>Адрес доставки</span>
+        <div className={styles.addressEmpty}>
+          <FiMapPin size={18} />
+          <span>
+            {addressStore.loading ? "Загрузка адресов…" : "Адрес не выбран"}
+          </span>
+        </div>
+        {!addressStore.loading && (
+          <button
+            type="button"
+            className={styles.ghostBtn}
+            onClick={() => {
+              navigate("/addresses");
+            }}
+          >
+            <FiPlus size={16} /> Добавить адрес
+          </button>
+        )}
+      </div>
+    );
+  }
+
+  if (addresses.length === 1) {
+    return (
+      <div className={styles.field}>
+        <span className={styles.fieldLabel}>Адрес доставки</span>
+        <AddressCard address={addresses[0]!} active />
+      </div>
+    );
+  }
+
+  return (
+    <div className={styles.field}>
+      <span className={styles.fieldLabel}>Адрес доставки</span>
+      <button
+        type="button"
+        className={styles.addressToggle}
+        onClick={() => setExpanded((v) => !v)}
+      >
+        <span className={styles.addressToggleText}>
+          {selected ? formatAddress(selected) : "Выберите адрес"}
+        </span>
+        <FiChevronDown
+          size={16}
+          className={expanded ? styles.addressToggleIconOpen : styles.addressToggleIcon}
+        />
+      </button>
+      {expanded && (
+        <div className={styles.addressOptions}>
+          {addresses.map((address) => (
+            <AddressCard
+              key={address.id}
+              address={address}
+              active={address.id === selected?.id}
+              onClick={() => {
+                checkoutStore.selectAddress(address.id);
+                setExpanded(false);
+                if (address.city) {
+                  deliveryStore.setCity(address.city);
+                }
+              }}
+            />
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 

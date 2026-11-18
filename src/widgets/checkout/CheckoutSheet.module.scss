@@ -122,9 +122,9 @@
 .chipActive {
   border: 1px solid var(--color-border);
   background: var(--bg-surface);
-  border-radius: 999px;
-  padding: 8px 14px;
-  font-size: 14px;
+  border-radius: 20px;
+  padding: 15px 20px;
+  font-size: 16px;
   cursor: pointer;
   color: var(--text-secondary);
 }
@@ -159,7 +159,9 @@
   background: var(--bg-surface);
   text-align: left;
   cursor: pointer;
-  transition: border-color 0.15s ease, background 0.15s ease;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
 }
 
 .deliveryOptionActive {
@@ -410,4 +412,108 @@
 .ghostBtn:disabled {
   opacity: 0.5;
   cursor: default;
+}
+
+.addressEmpty {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px;
+  border: 1px dashed var(--color-border);
+  border-radius: 14px;
+  color: var(--text-secondary);
+  font-size: 14px;
+  margin-bottom: 10px;
+}
+
+.addressToggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--bg-surface-secondary);
+  color: var(--text-primary);
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.addressToggleText {
+  flex: 1;
+  min-width: 0;
+  word-break: break-word;
+}
+
+.addressToggleIcon {
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+.addressToggleIconOpen {
+  flex-shrink: 0;
+  transform: rotate(180deg);
+  transition: transform 0.2s ease;
+}
+
+.addressOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.addressOption,
+.addressOptionActive {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    background 0.15s ease;
+}
+
+.addressOptionActive {
+  border-color: var(--inverted);
+  background: var(--bg-surface-secondary);
+}
+
+.addressOptionRadio {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid var(--color-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+
+.addressOptionActive .addressOptionRadio {
+  border-color: var(--inverted);
+}
+
+.addressOptionDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--inverted);
+}
+
+.addressOptionText {
+  flex: 1;
+  line-height: 1.4;
 }

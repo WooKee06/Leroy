@@ -8,6 +8,7 @@ import type { Order } from "@shared/api/models";
 import { DELIVERY_KIND_LABELS } from "@shared/lib/delivery";
 import { trackCheckoutStarted, trackPurchase } from "@shared/lib/analytics";
 import { addressStore } from "./addressStore";
+import { formatAddress } from "@shared/lib/address";
 
 /** Secure-context UUID with a fallback for older WebViews. */
 function createIdempotencyKey(): string {
@@ -23,7 +24,7 @@ export type Step = "closed" | "form" | "processing" | "success";
 class CheckoutStore {
   open = false;
   step: Step = "closed";
-  address = "";
+  selectedAddressId: string | null = null;
   paymentMethod = "balance";
   order: Order | null = null;
   error = "";
@@ -36,6 +37,23 @@ class CheckoutStore {
 
   constructor() {
     makeAutoObservable(this);
+  }
+
+  get selectedAddress() {
+    return (
+      addressStore.addresses.find((a) => a.id === this.selectedAddressId) ??
+      addressStore.defaultAddress
+    );
+  }
+
+  get addressText(): string {
+    return this.selectedAddress
+      ? formatAddress(this.selectedAddress)
+      : addressStore.defaultAddressText;
+  }
+
+  selectAddress(id: string) {
+    this.selectedAddressId = id;
   }
 
   show() {
@@ -59,11 +77,8 @@ class CheckoutStore {
     await Promise.allSettled([addressStore.load(), cartStore.load()]);
     if (!this.open) return;
 
-    if (!this.address.trim()) {
-      this.address = addressStore.defaultAddressText;
-    }
-
-    const city = deliveryStore.city || addressStore.defaultAddress?.city || "";
+    const city =
+      deliveryStore.city || this.selectedAddress?.city || addressStore.defaultAddress?.city || "";
     if (city) deliveryStore.setCity(city);
     await deliveryStore.loadQuote();
   }
@@ -80,6 +95,7 @@ class CheckoutStore {
     this.order = null;
     this.error = "";
     this.paymentMethod = "balance";
+    this.selectedAddressId = null;
     this.idempotencyKey = "";
     deliveryStore.reset();
   }
@@ -96,10 +112,6 @@ class CheckoutStore {
   }
 
   async submit() {
-    if (!this.address.trim()) {
-      await addressStore.load();
-    }
-
     const point = deliveryStore.selectedPoint;
     const needsPoint = deliveryStore.needsPoint;
 
@@ -109,14 +121,11 @@ class CheckoutStore {
       return;
     }
 
-    let address = this.address.trim();
-    if (needsPoint && point) {
-      address = deliveryStore.pointAddress;
-    } else if (!address) {
-      address = addressStore.defaultAddressText;
-    }
+    let address = needsPoint && point
+      ? deliveryStore.pointAddress
+      : this.addressText;
     if (!address) {
-      this.error = "Укажите адрес доставки";
+      this.error = "Выберите адрес доставки в профиле";
       return;
     }
 
