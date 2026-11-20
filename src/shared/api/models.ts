@@ -18,11 +18,14 @@ export interface Product {
 
 export interface Seller {
   id: string;
+  ownerId?: string;
   name: string;
   avatar: string;
   cover?: string;
   logo?: string;
   verified: boolean;
+  moderationStatus?: StoreModerationStatus;
+  moderationReason?: string | null;
   rating: number;
   productCount: number;
   orderCount: number;
@@ -140,13 +143,16 @@ export interface CategoryDto {
 
 export interface StoreDto {
   id: string;
-  ownerId: string;
+  /** Present only in owner/admin preview responses. */
+  ownerId?: string;
   name: string;
   slug: string;
   description?: string;
   logoUrl?: string;
   coverUrl?: string;
   isVerified?: boolean;
+  moderationStatus?: StoreModerationStatus;
+  moderationReason?: string | null;
   rating?: number | string;
   reviewCount?: number;
   productCount?: number;
@@ -314,11 +320,14 @@ export function mapSeller(store?: StoreDto | null): Seller {
   if (!store) return { ...EMPTY_SELLER };
   return {
     id: store.id,
+    ownerId: store.ownerId,
     name: store.name,
     avatar: store.logoUrl ?? store.coverUrl ?? DEFAULT_STORE_AVATAR,
     cover: store.coverUrl ?? DEFAULT_STORE_COVER,
     logo: store.logoUrl,
     verified: !!store.isVerified,
+    moderationStatus: store.moderationStatus,
+    moderationReason: store.moderationReason,
     rating: Number(store.rating ?? 0),
     productCount: store.productCount ?? 0,
     orderCount: Number(store.orderCount ?? 0),
@@ -631,32 +640,186 @@ export interface AnalyticsEventInput {
 
 // ── Admin ─────────────────────────────────────────────────────────────────
 
-export interface AdminDashboardDto {
-  totalUsers: number;
-  totalSellers: number;
-  totalProducts: number;
-  totalOrders: number;
-  totalRevenue: number | string;
-  recentOrders: RawOrder[];
-}
+export type ProductModerationStatus =
+  | "draft"
+  | "pending_review"
+  | "under_review"
+  | "approved"
+  | "rejected"
+  | "blocked"
+  | "archived";
 
-export interface AdminSellerDto {
-  id: string;
-  name: string;
-  slug: string;
-  isActive: boolean;
-  isVerified: boolean;
-  ownerId: string;
-  owner?: UserDto;
-  createdAt: string;
-}
+export type StoreModerationStatus =
+  | "pending"
+  | "under_review"
+  | "verified"
+  | "rejected"
+  | "blocked";
 
-export interface AdminOrderListDto {
-  data: RawOrder[];
+export type ComplaintStatus = "new" | "under_review" | "resolved" | "rejected";
+
+export type ComplaintReason =
+  | "prohibited"
+  | "fake"
+  | "scam"
+  | "mismatch"
+  | "missing_docs"
+  | "copyright"
+  | "other";
+
+export type ProductModerationAction =
+  | "approve"
+  | "reject"
+  | "block"
+  | "request_docs"
+  | "return_to_draft"
+  | "archive";
+
+export type StoreModerationAction =
+  | "verify"
+  | "reject"
+  | "block"
+  | "unblock"
+  | "request_docs"
+  | "unverify";
+
+export interface AdminList<T> {
+  items: T[];
   total: number;
   page: number;
   limit: number;
   totalPages: number;
+}
+
+export interface AdminAuditLogDto {
+  id: string;
+  actorId?: string | null;
+  actorRole?: string | null;
+  action: string;
+  entityType: string;
+  entityId?: string | null;
+  before?: Record<string, unknown> | null;
+  after?: Record<string, unknown> | null;
+  reason?: string | null;
+  data?: Record<string, unknown> | null;
+  createdAt: string;
+}
+
+export interface AdminDashboardDto {
+  totalUsers: number;
+  totalSellers: number;
+  activeSellers: number;
+  totalProducts: number;
+  pendingProducts: number;
+  blockedProducts: number;
+  newComplaints: number;
+  totalOrders: number;
+  pendingStores?: number;
+  totalRevenue: number | string;
+  recentOrders?: RawOrder[];
+  recentComplaints?: AdminComplaintDto[];
+  recentProducts?: AdminProductDto[];
+  recentSellers?: AdminSellerDto[];
+  recentAudit?: AdminAuditLogDto[];
+}
+
+/** Store as returned by admin endpoints — includes moderation fields. */
+export interface AdminSellerDto extends StoreDto {
+  moderationStatus?: StoreModerationStatus;
+  moderationReason?: string | null;
+  moderatedAt?: string | null;
+  owner?: UserDto;
+  createdAt?: string;
+}
+
+export interface AdminProductDto extends ProductDto {
+  moderationStatus?: ProductModerationStatus;
+  moderationReason?: string | null;
+  moderatedAt?: string | null;
+  createdAt?: string;
+}
+
+export interface AdminUserDto extends UserDto {
+  status?: "active" | "blocked";
+  createdAt?: string;
+  orderCount?: number;
+}
+
+export interface AdminComplaintDto {
+  id: string;
+  reporterId: string;
+  reporter?: UserDto;
+  targetType: "product" | "store" | "review" | "user";
+  targetId: string;
+  reason: ComplaintReason;
+  comment?: string | null;
+  images?: string[] | null;
+  status: ComplaintStatus;
+  assigneeId?: string | null;
+  resolution?: string | null;
+  resolvedAt?: string | null;
+  createdAt: string;
+  updatedAt?: string;
+  history?: AdminAuditLogDto[];
+}
+
+export interface AdminOrderListDto extends AdminList<RawOrder> {}
+
+export interface AdminSellerOrderView {
+  id: string;
+  status: string;
+  subtotal: number | string;
+  sellerEarnings?: number | string;
+  createdAt?: string;
+  order?: RawOrder;
+}
+
+export interface AdminSellerDetailsDto {
+  store: AdminSellerDto;
+  products: AdminProductDto[];
+  productCount: number;
+  complaintCount: number;
+  orders: AdminSellerOrderView[];
+  moderationHistory: AdminAuditLogDto[];
+}
+
+export interface AdminProductDetailsDto {
+  product: AdminProductDto;
+  history: AdminAuditLogDto[];
+  complaints: AdminComplaintDto[];
+}
+
+export interface AdminOrderDetailsDto extends RawOrder {
+  events?: OrderEventDto[];
+}
+
+export interface AdminUserDetailsDto {
+  user: AdminUserDto;
+  orders: RawOrder[];
+  stores: AdminSellerDto[];
+  complaints: AdminComplaintDto[];
+  audit: AdminAuditLogDto[];
+}
+
+export interface AdminCategoryDto extends CategoryDto {
+  isActive?: boolean;
+  sortOrder?: number;
+  parentId?: string | null;
+}
+
+export interface AdminQuery {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: string;
+  role?: string;
+  categoryId?: string;
+  storeId?: string;
+  dateFrom?: string;
+  dateTo?: string;
+  targetId?: string;
+  targetType?: string;
+  moderationStatus?: ProductModerationStatus;
 }
 
 // ── Delivery ──────────────────────────────────────────────────────────────

@@ -1,0 +1,89 @@
+@use "../../app/styles/variables" as *;
+
+.page {
+  display: grid;
+  place-items: center;
+  min-height: 100dvh;
+  padding: 24px;
+  background: var(--bg-primary);
+}
+
+.card {
+  width: min(100%, 390px);
+  padding: 30px;
+  border: 1px solid var(--color-border);
+  border-radius: $radius-md;
+  background: var(--bg-surface);
+  box-shadow: $shadow-soft;
+  text-align: center;
+}
+
+.mark {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  margin: 0 auto 16px;
+  border-radius: $radius-sm;
+  background: var(--bg-surface-secondary);
+  color: $text-primary;
+}
+
+.title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 750;
+  color: $text-primary;
+}
+
+.subtitle {
+  margin: 7px 0 24px;
+  font-size: 13px;
+  color: $text-secondary;
+}
+
+.loginButton {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid $text-primary;
+  border-radius: $radius-sm;
+  background: $text-primary;
+  color: var(--bg-surface);
+  font-size: 14px;
+  font-weight: 650;
+  font-family: $font-family;
+  cursor: pointer;
+  transition: opacity 0.18s ease;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: wait;
+  }
+}
+
+.hint {
+  margin: 14px 0 0;
+  font-size: 11.5px;
+  line-height: 1.5;
+  color: $text-tertiary;
+}
+
+.error {
+  margin: 14px 0 0;
+  font-size: 12.5px;
+  color: #c0392b;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-top: 24px;
+  font-size: 12.5px;
+  color: $text-secondary;
+  text-decoration: none;
+
+  &:hover {
+    color: $text-primary;
+  }
+}

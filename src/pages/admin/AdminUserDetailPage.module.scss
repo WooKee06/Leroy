@@ -1,0 +1,140 @@
+@use "../../app/styles/variables" as *;
+
+.back {
+  font-size: 12.5px;
+  color: $text-secondary;
+  text-decoration: none;
+  white-space: nowrap;
+
+  &:hover {
+    color: $text-primary;
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(280px, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.empty {
+  margin: 0;
+  padding: 16px 18px;
+  font-size: 12.5px;
+  color: $text-tertiary;
+}
+
+.primary,
+.secondary,
+.danger {
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: $radius-sm;
+  font-size: 12.5px;
+  font-weight: 600;
+  font-family: $font-family;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.primary {
+  border: 1px solid $text-primary;
+  background: $text-primary;
+  color: var(--bg-surface);
+}
+
+.secondary {
+  border: 1px solid var(--color-border);
+  background: var(--bg-surface);
+  color: $text-primary;
+}
+
+.danger {
+  border: 1px solid #c0392b;
+  background: #c0392b;
+  color: #fff;
+}
+
+.actionError {
+  margin: 12px 0 0;
+  font-size: 12.5px;
+  color: #c0392b;
+}
+
+.rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 11px 18px;
+    border-bottom: 1px solid var(--color-divider);
+    font-size: 12.5px;
+    color: $text-secondary;
+  }
+
+  li:last-child {
+    border-bottom: none;
+  }
+
+  a {
+    color: $text-primary;
+    text-decoration: none;
+  }
+}
+
+.timeline {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--color-divider);
+  }
+
+  li:last-child {
+    border-bottom: none;
+  }
+
+  strong {
+    font-size: 12.5px;
+    font-weight: 650;
+    color: $text-primary;
+  }
+
+  span {
+    font-size: 12px;
+    color: $text-secondary;
+  }
+
+  time {
+    font-size: 11px;
+    color: $text-tertiary;
+  }
+}
+
+@media (max-width: 1000px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { FiActivity, FiBarChart2, FiCheck, FiGrid } from "react-icons/fi";
+import { FiActivity, FiBarChart2, FiGrid } from "react-icons/fi";
 import type { Product, Seller } from "@shared/api/models";
 import { mapProduct, mapSeller } from "@shared/api/models";
 import { leroyApi } from "@shared/api/leroyApi";
@@ -10,6 +10,7 @@ import { StorePageSkeleton } from "@shared/ui/Skeletons";
 import Tabs from "@shared/ui/Tabs/Tabs";
 import type { TabItem } from "@shared/ui/Tabs/Tabs";
 import ProductCard from "@widgets/product/ProductCard";
+import StoreStatusBadge from "@shared/ui/store/StoreStatusBadge";
 import styles from "./StorePage.module.scss";
 import { useInfiniteScroll } from "@/shared/lib/hooks/useInfiniteScroll";
 
@@ -154,11 +155,7 @@ export default function StorePage() {
           <div className={styles.identity}>
             <div className={styles.nameRow}>
               <h1 className={styles.name}>{seller.name}</h1>
-              {seller.verified && (
-                <span className={styles.verified}>
-                  <FiCheck size={16} />
-                </span>
-              )}
+              <StoreStatusBadge seller={seller} />
             </div>
             <p className={styles.desc}>{seller.description}</p>
           </div>

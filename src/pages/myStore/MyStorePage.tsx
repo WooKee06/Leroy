@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { observer } from "mobx-react-lite";
-import { FiCheck, FiEdit2 } from "react-icons/fi";
+import { FiEdit2 } from "react-icons/fi";
 import type { ProductDto, RawSellerOrder } from "@shared/api/models";
 import { lazy, Suspense } from "react";
 
@@ -10,6 +10,7 @@ import { sellerStore } from "@shared/stores/sellerStore";
 
 import PageContainer from "@shared/ui/PageContainer";
 import { StorePageSkeleton } from "@shared/ui/Skeletons";
+import StoreStatusBadge from "@shared/ui/store/StoreStatusBadge";
 import { ProductFormSheet } from "@widgets/store/CreateSheets";
 import styles from "./MyStorePage.module.scss";
 import Items from "./TabComponents/Items/Items";
@@ -112,11 +113,7 @@ const MyStorePage = observer(function MyStorePage() {
           <div className={styles.sellerInfo}>
             <div className={styles.sellerNameRow}>
               <h1 className={styles.sellerName}>{seller.name}</h1>
-              {seller.verified && (
-                <span className={styles.verifiedBadge}>
-                  <FiCheck size={14} />
-                </span>
-              )}
+              <StoreStatusBadge seller={seller} />
             </div>
             <p className={styles.sellerDesc}>{seller.description}</p>
           </div>

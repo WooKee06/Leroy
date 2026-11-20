@@ -14,31 +14,118 @@
 
 .preview {
   position: relative;
+  margin-bottom: $space-lg;
+}
+
+.hiddenFile {
+  display: none;
+}
+
+.coverArea {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 160px;
+  padding: 0;
+  overflow: hidden;
+  border: none;
+  border-radius: $radius-lg;
+  background: var(--bg-surface-secondary);
+  cursor: pointer;
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.7;
+  }
+
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      180deg,
+      rgba(0, 0, 0, 0) 45%,
+      rgba(0, 0, 0, 0.28) 100%
+    );
+    pointer-events: none;
+  }
 }
 
 .cover {
   width: 100%;
-  height: 160px;
-  border-radius: $radius-lg;
+  height: 100%;
   object-fit: cover;
+  display: block;
+}
+
+.coverHint {
+  position: absolute;
+  left: 50%;
+  bottom: 12px;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 12px;
+  border-radius: $radius-pill;
+  background: rgba(0, 0, 0, 0.42);
+  color: #ffffff;
+  font-size: 12px;
+  font-weight: 600;
+  transform: translateX(-50%);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.avatarArea {
+  position: absolute;
+  left: $space-lg;
+  bottom: -36px;
+  width: 84px;
+  height: 84px;
+  padding: 0;
+  overflow: hidden;
+  border: 3px solid var(--bg-surface);
+  border-radius: $radius-xl;
   background: var(--bg-surface-secondary);
+  box-shadow: $shadow-soft;
+  cursor: pointer;
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.7;
+  }
 }
 
 .avatar {
-  position: absolute;
-  left: $space-lg;
-  bottom: -$space-2xl;
-  width: 84px;
-  height: 84px;
-  border-radius: $radius-xl;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
-  border: 3px solid var(--bg-surface);
-  background: var(--bg-surface-secondary);
-  box-shadow: $shadow-soft;
+  display: block;
+}
+
+.avatarHint {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-top-left-radius: 10px;
+  background: var(--inverted);
+  color: var(--inverted-fg);
+}
+
+.previewHint {
+  margin: 0 0 $space-xl;
+  font-size: 12px;
+  line-height: 1.45;
+  color: var(--text-secondary);
 }
 
 .form {
-  padding-top: $space-3xl;
+  padding-top: $space-lg;
 }
 
 .field {

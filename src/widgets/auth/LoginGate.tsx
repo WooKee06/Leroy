@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { observer } from "mobx-react-lite";
 import { FiExternalLink } from "react-icons/fi";
 import { accountStore, type UserRole } from "@shared/stores/accountStore";
@@ -17,8 +17,14 @@ const TG_REGISTER_URL = TG_BOT_USERNAME
   ? `https://t.me/${TG_BOT_USERNAME}?startapp=register`
   : undefined;
 
-/** Dev login is exposed only when VITE_DEV_AUTH=true (see .env.development). */
-const DEV_AUTH = import.meta.env.VITE_DEV_AUTH === "true";
+/**
+ * Dev-панель существует только в dev-сборке. `import.meta.env.DEV` Vite
+ * подставляет как `false` при `vite build`, поэтому ветка с панелью,
+ * DEV_ACCOUNTS и handleDevLogin полностью вырезается из production-бандла
+ * даже если в окружении случайно окажется VITE_DEV_AUTH=true.
+ */
+const DEV_AUTH =
+  import.meta.env.DEV && import.meta.env.VITE_DEV_AUTH === "true";
 
 const DEV_ACCOUNTS: {
   role: UserRole;
@@ -35,11 +41,13 @@ function LoginGate() {
   const [mode, setMode] = useState<AuthMode>("login");
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const show =
     accountStore.initialized &&
     !accountStore.isAuthenticated &&
-    isOnWeb();
+    isOnWeb() &&
+    !location.pathname.startsWith("/admin");
 
   if (!show) return null;
 

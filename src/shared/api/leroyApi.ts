@@ -1,10 +1,22 @@
 import { http } from "./client";
 import type {
   AddressDto,
+  AdminAuditLogDto,
+  AdminCategoryDto,
+  AdminComplaintDto,
   AdminDashboardDto,
+  AdminList,
+  AdminOrderDetailsDto,
   AdminOrderListDto,
+  AdminProductDetailsDto,
+  AdminProductDto,
+  AdminQuery,
+  AdminSellerDetailsDto,
   AdminSellerDto,
+  AdminUserDetailsDto,
+  AdminUserDto,
   AnalyticsEventInput,
+  ComplaintReason,
   CartDto,
   CategoryDto,
   CreateAddressInput,
@@ -63,6 +75,8 @@ export const leroyApi = {
 
   /**
    * Local development login (backend requires ALLOW_DEV_AUTH=true).
+   * В production метод запрещён даже при вызове из консоли: вторая линия
+   * защиты после route-level кабинета и 404 на странице бэкенда.
    */
   devAuth(body: {
     role?: "buyer" | "seller" | "admin";
@@ -70,6 +84,9 @@ export const leroyApi = {
     firstName?: string;
     username?: string;
   }): Promise<{ token: string; user: UserDto; isNew?: boolean }> {
+    if (import.meta.env.PROD) {
+      throw new Error("Dev auth is disabled in production");
+    }
     return http.post<{ token: string; user: UserDto; isNew?: boolean }>(
       "/auth/dev",
       body,
@@ -225,34 +242,148 @@ export const leroyApi = {
     return http.get<AdminDashboardDto>("/admin/dashboard");
   },
 
-  adminOrders(
-    page = 1,
-    limit = 20,
-    status?: string,
-  ): Promise<AdminOrderListDto> {
-    return http.get<AdminOrderListDto>("/admin/orders", {
-      page,
-      limit,
-      status,
-    });
+  adminOrders(query: AdminQuery = {}): Promise<AdminOrderListDto> {
+    return http.get<AdminOrderListDto>("/admin/orders", query);
   },
 
-  adminOrder(id: string): Promise<OrderView> {
-    return http.get<RawOrder>(`/admin/orders/${id}`).then((o) => mapOrder(o));
+  adminOrder(id: string): Promise<AdminOrderDetailsDto> {
+    return http.get<AdminOrderDetailsDto>(`/admin/orders/${id}`);
   },
 
-  adminSellers(page = 1, limit = 20): Promise<Paginated<AdminSellerDto>> {
-    return http.get<Paginated<AdminSellerDto>>("/admin/sellers", {
-      page,
-      limit,
-    });
-  },
-
-  adminUpdateSeller(
+  adminUpdateOrderStatus(
     id: string,
-    action: "block" | "approve" | "verify",
+    status: string,
+    reason?: string,
+  ): Promise<RawOrder> {
+    return http.patch<RawOrder>(`/admin/orders/${id}/status`, { status, reason });
+  },
+
+  adminSellers(query: AdminQuery = {}): Promise<AdminList<AdminSellerDto>> {
+    return http.get<AdminList<AdminSellerDto>>("/admin/sellers", query);
+  },
+
+  adminSeller(id: string): Promise<AdminSellerDetailsDto> {
+    return http.get<AdminSellerDetailsDto>(`/admin/sellers/${id}`);
+  },
+
+  adminModerateStore(
+    id: string,
+    dto: { action: string; reason?: string },
   ): Promise<AdminSellerDto> {
-    return http.patch<AdminSellerDto>(`/admin/sellers/${id}`, { action });
+    return http.patch<AdminSellerDto>(`/admin/sellers/${id}`, dto);
+  },
+
+  adminProducts(query: AdminQuery = {}): Promise<AdminList<AdminProductDto>> {
+    return http.get<AdminList<AdminProductDto>>("/admin/products", query);
+  },
+
+  adminModerationQueue(
+    query: AdminQuery = {},
+  ): Promise<AdminList<AdminProductDto>> {
+    return http.get<AdminList<AdminProductDto>>(
+      "/admin/products/moderation/queue",
+      query,
+    );
+  },
+
+  adminProduct(id: string): Promise<AdminProductDetailsDto> {
+    return http.get<AdminProductDetailsDto>(`/admin/products/${id}`);
+  },
+
+  adminProductHistory(id: string): Promise<AdminAuditLogDto[]> {
+    return http.get<AdminAuditLogDto[]>(`/admin/products/${id}/history`);
+  },
+
+  adminModerateProduct(
+    id: string,
+    dto: { action: string; reason?: string; requestedDocuments?: string[] },
+  ): Promise<AdminProductDto> {
+    return http.patch<AdminProductDto>(`/admin/products/${id}/moderate`, dto);
+  },
+
+  adminUsers(query: AdminQuery = {}): Promise<AdminList<AdminUserDto>> {
+    return http.get<AdminList<AdminUserDto>>("/admin/users", query);
+  },
+
+  adminUser(id: string): Promise<AdminUserDetailsDto> {
+    return http.get<AdminUserDetailsDto>(`/admin/users/${id}`);
+  },
+
+  adminUpdateUserStatus(id: string, status: "active" | "blocked") {
+    return http.patch<AdminUserDto>(`/admin/users/${id}/status`, { status });
+  },
+
+  adminUpdateUserRole(id: string, role: "buyer" | "seller") {
+    return http.patch<AdminUserDto>(`/admin/users/${id}/role`, { role });
+  },
+
+  adminComplaints(
+    query: AdminQuery = {},
+  ): Promise<AdminList<AdminComplaintDto>> {
+    return http.get<AdminList<AdminComplaintDto>>("/admin/complaints", query);
+  },
+
+  adminComplaint(id: string): Promise<AdminComplaintDto> {
+    return http.get<AdminComplaintDto>(`/admin/complaints/${id}`);
+  },
+
+  adminUpdateComplaint(
+    id: string,
+    dto: {
+      status: string;
+      resolution?: string;
+      productAction?: string;
+      storeAction?: string;
+    },
+  ): Promise<AdminComplaintDto> {
+    return http.patch<AdminComplaintDto>(`/admin/complaints/${id}`, dto);
+  },
+
+  adminAudit(query: AdminQuery = {}): Promise<AdminList<AdminAuditLogDto>> {
+    return http.get<AdminList<AdminAuditLogDto>>("/admin/audit", query);
+  },
+
+  adminCategories(): Promise<AdminCategoryDto[]> {
+    return http.get<AdminCategoryDto[]>("/admin/categories");
+  },
+
+  adminCreateCategory(dto: {
+    name: string;
+    icon?: string;
+    parentId?: string;
+    sortOrder?: number;
+  }): Promise<AdminCategoryDto> {
+    return http.post<AdminCategoryDto>("/admin/categories", dto);
+  },
+
+  adminUpdateCategory(
+    id: string,
+    dto: {
+      name?: string;
+      icon?: string;
+      parentId?: string;
+      isActive?: boolean;
+      sortOrder?: number;
+    },
+  ): Promise<AdminCategoryDto> {
+    return http.patch<AdminCategoryDto>(`/admin/categories/${id}`, dto);
+  },
+
+  adminDeleteCategory(id: string): Promise<{ success: boolean }> {
+    return http.delete<{ success: boolean }>(`/admin/categories/${id}`);
+  },
+
+  createComplaint(dto: {
+    targetType: "product" | "store";
+    targetId: string;
+    reason: ComplaintReason;
+    comment?: string;
+  }): Promise<AdminComplaintDto> {
+    return http.post<AdminComplaintDto>("/complaints", dto);
+  },
+
+  myComplaints(): Promise<AdminComplaintDto[]> {
+    return http.get<AdminComplaintDto[]>("/complaints/mine");
   },
 
   upload(file: File): Promise<{

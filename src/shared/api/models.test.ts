@@ -16,6 +16,8 @@ describe("mapSeller", () => {
       name: "Магазинчик",
       slug: "shop",
       isVerified: true,
+      moderationStatus: "verified",
+      moderationReason: null,
       rating: "4.5",
       productCount: 10,
       orderCount: "3",
@@ -27,6 +29,8 @@ describe("mapSeller", () => {
     expect(seller.id).toBe("s1");
     expect(seller.name).toBe("Магазинчик");
     expect(seller.verified).toBe(true);
+    expect(seller.ownerId).toBe("u1");
+    expect(seller.moderationStatus).toBe("verified");
     expect(seller.rating).toBe(4.5);
     expect(seller.productCount).toBe(10);
     expect(seller.orderCount).toBe(3);

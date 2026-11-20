@@ -1,100 +1,89 @@
-import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { FiSearch, FiChevronDown, FiChevronUp } from "react-icons/fi";
+import { useCallback, useEffect, useState } from "react";
+import { FiChevronDown, FiChevronUp, FiSearch } from "react-icons/fi";
 import { observer } from "mobx-react-lite";
-import type { AdminDashboardDto, RawOrder } from "@shared/api/models";
+import type { RawOrder } from "@shared/api/models";
 import { leroyApi } from "@shared/api/leroyApi";
-import { accountStore } from "@shared/stores/accountStore";
 import { imageUrlWithCacheBust } from "@shared/api/client";
-import { statusInfo } from "@shared/lib/orders";
-import PageContainer from "@shared/ui/PageContainer";
-import PageHeader from "@shared/ui/PageHeader";
+import {
+  canAdminChangeOrderStatus,
+  formatDate,
+  formatMoney,
+  ORDER_STATUSES,
+  personName,
+  statusMeta,
+} from "@shared/lib/admin";
+import {
+  AdminCard,
+  ConfirmDialog,
+  PageIntro,
+  ReasonDialog,
+  SelectInput,
+  StateBlock,
+  StatusBadge,
+  Toolbar,
+} from "@shared/ui/admin/AdminUi";
 import styles from "./AdminOrdersPage.module.scss";
 
-const STATUS_OPTIONS = [
-  { id: "", label: "Все" },
-  { id: "pending", label: "Ожидает" },
-  { id: "paid", label: "Оплачен" },
-  { id: "accepted", label: "Принят" },
-  { id: "shipped", label: "В пути" },
-  { id: "delivered", label: "Доставлен" },
-  { id: "completed", label: "Завершён" },
-  { id: "cancelled", label: "Отменён" },
-];
+const PAGE_SIZE = 20;
 
-const formatMoney = (value: number | string) =>
-  `${Number(value || 0).toLocaleString("ru-RU")} ₽`;
-
-const formatDate = (value?: string) => {
-  if (!value) return "—";
-  const d = new Date(value);
-  return Number.isNaN(d.getTime())
-    ? "—"
-    : d.toLocaleDateString("ru-RU", {
-        day: "numeric",
-        month: "short",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-};
-
-export default observer(function AdminOrdersPage() {
-  const navigate = useNavigate();
-  const [dashboard, setDashboard] = useState<AdminDashboardDto | null>(null);
+function AdminOrdersPage() {
   const [orders, setOrders] = useState<RawOrder[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
   const [status, setStatus] = useState("");
   const [search, setSearch] = useState("");
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [actionError, setActionError] = useState<string | null>(null);
+  const [nextStatus, setNextStatus] = useState<{ id: string; status: string } | null>(null);
 
-  useEffect(() => {
-    if (accountStore.role !== "admin") {
-      navigate("/", { replace: true });
-      return;
-    }
-
+  const load = useCallback(() => {
     let alive = true;
     setLoading(true);
-
-    Promise.all([leroyApi.adminDashboard(), leroyApi.adminOrders(1, 100, status)])
-      .then(([dash, list]) => {
+    setError(null);
+    leroyApi
+      .adminOrders({ page, limit: PAGE_SIZE, status: status || undefined })
+      .then((result) => {
         if (!alive) return;
-        setDashboard(dash);
         setOrders(
-          list.data.map((order) => ({
+          result.items.map((order) => ({
             ...order,
-            sellerOrders: order.sellerOrders?.map((so) => ({
-              ...so,
-              items: so.items?.map((item) => ({
+            sellerOrders: order.sellerOrders?.map((sellerOrder) => ({
+              ...sellerOrder,
+              items: sellerOrder.items?.map((item) => ({
                 ...item,
                 imageUrl: imageUrlWithCacheBust(item.imageUrl, order.createdAt),
               })),
             })),
           })),
         );
+        setTotal(result.total);
       })
-      .catch(() => {})
+      .catch((err: Error) => {
+        if (alive) setError(err.message);
+      })
       .finally(() => {
         if (alive) setLoading(false);
       });
-
     return () => {
       alive = false;
     };
-  }, [navigate, status]);
+  }, [page, status]);
 
-  const filteredOrders = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return orders;
-    return orders.filter(
-      (o) =>
-        String(o.orderNumber).includes(q) ||
-        o.user?.firstName?.toLowerCase().includes(q) ||
-        o.user?.username?.toLowerCase().includes(q),
+  useEffect(() => load(), [load]);
+  useEffect(() => setPage(1), [status]);
+
+  const filtered = orders.filter((order) => {
+    const query = search.trim().toLowerCase();
+    if (!query) return true;
+    return (
+      String(order.orderNumber).includes(query) ||
+      personName(order.user).toLowerCase().includes(query)
     );
-  }, [orders, search]);
+  });
 
-  const toggleExpand = (id: string) => {
+  const toggle = (id: string) => {
     setExpanded((prev) => {
       const next = new Set(prev);
       if (next.has(id)) next.delete(id);
@@ -103,136 +92,126 @@ export default observer(function AdminOrdersPage() {
     });
   };
 
+  const changeStatus = async (reason?: string) => {
+    if (!nextStatus) return;
+    setActionError(null);
+    try {
+      const updated = await leroyApi.adminUpdateOrderStatus(
+        nextStatus.id,
+        nextStatus.status,
+        reason,
+      );
+      setOrders((prev) =>
+        prev.map((order) => (order.id === updated.id ? { ...order, ...updated } : order)),
+      );
+      setNextStatus(null);
+    } catch (err) {
+      setActionError(err instanceof Error ? err.message : "Не удалось изменить статус");
+      setNextStatus(null);
+    }
+  };
+
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+
   return (
-    <div className="page-wrapper">
-      <PageContainer>
-        <PageHeader title="Админка · Заказы" />
+    <div>
+      <PageIntro
+        title="Заказы"
+        description="Список заказов, покупатели и продавцы, суммы и статусы."
+      />
 
-        {dashboard && (
-          <div className={styles.statsGrid}>
-            <div className={styles.statCard}>
-              <span className={styles.statValue}>{dashboard.totalOrders}</span>
-              <span className={styles.statLabel}>Заказов</span>
-            </div>
-            <div className={styles.statCard}>
-              <span className={styles.statValue}>
-                {formatMoney(dashboard.totalRevenue)}
-              </span>
-              <span className={styles.statLabel}>Выручка</span>
-            </div>
-            <div className={styles.statCard}>
-              <span className={styles.statValue}>{dashboard.totalSellers}</span>
-              <span className={styles.statLabel}>Магазинов</span>
-            </div>
-            <div className={styles.statCard}>
-              <span className={styles.statValue}>{dashboard.totalUsers}</span>
-              <span className={styles.statLabel}>Пользователей</span>
-            </div>
-          </div>
-        )}
-
-        <div className={styles.filters}>
-          <div className={styles.search}>
-            <FiSearch size={16} />
-            <input
-              placeholder="Поиск по номеру или покупателю"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
-          </div>
-          <div className={styles.statusChips}>
-            {STATUS_OPTIONS.map((s) => (
-              <button
-                key={s.id}
-                className={status === s.id ? styles.chipActive : styles.chip}
-                onClick={() => setStatus(s.id)}
-              >
-                {s.label}
-              </button>
-            ))}
-          </div>
+      <Toolbar>
+        <div className={styles.search}>
+          <FiSearch size={16} />
+          <input
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Номер заказа или покупатель"
+          />
         </div>
+        <SelectInput
+          value={status}
+          onChange={setStatus}
+          options={[
+            { id: "", label: "Все статусы" },
+            ...Object.entries(ORDER_STATUSES).map(([id, value]) => ({
+              id,
+              label: value.label,
+            })),
+          ]}
+        />
+      </Toolbar>
 
-        {loading ? (
-          <p className={styles.loading}>Загрузка…</p>
-        ) : filteredOrders.length === 0 ? (
-          <p className={styles.empty}>Заказы не найдены</p>
+      {actionError && <StateBlock kind="error" text={actionError} />}
+
+      <AdminCard padded={false}>
+        {error ? (
+          <StateBlock kind="error" text={error} />
+        ) : loading ? (
+          <StateBlock kind="loading" text="Загружаем заказы…" />
+        ) : filtered.length === 0 ? (
+          <StateBlock kind="empty" text="Заказы не найдены" />
         ) : (
-          <div className={styles.ordersList}>
-            {filteredOrders.map((order) => {
+          <div className={styles.list}>
+            {filtered.map((order) => {
               const isOpen = expanded.has(order.id);
-              const items =
-                order.sellerOrders?.flatMap((so) => so.items ?? []) ?? [];
-
+              const items = order.sellerOrders?.flatMap((sellerOrder) => sellerOrder.items ?? []) ?? [];
+              const statusInfo = statusMeta(ORDER_STATUSES, order.status);
               return (
-                <div key={order.id} className={styles.orderCard}>
+                <div key={order.id} className={styles.order}>
                   <button
                     type="button"
                     className={styles.orderHead}
-                    onClick={() => toggleExpand(order.id)}
+                    onClick={() => toggle(order.id)}
                   >
-                    <div className={styles.orderMain}>
-                      <span className={styles.orderNumber}>
-                        №{order.orderNumber}
-                      </span>
-                      <span className={styles.orderDate}>
-                        {formatDate(order.createdAt)}
-                      </span>
-                    </div>
-                    <div className={styles.orderMeta}>
-                      <span
-                        className={styles.orderStatus}
-                        style={{
-                          color: statusInfo(order.status).tint,
-                          background: `${statusInfo(order.status).tint}1a`,
-                        }}
-                      >
-                        {statusInfo(order.status).label}
-                      </span>
-                      <span className={styles.orderTotal}>
-                        {formatMoney(order.total)}
-                      </span>
-                      {isOpen ? (
-                        <FiChevronUp size={18} />
-                      ) : (
-                        <FiChevronDown size={18} />
-                      )}
-                    </div>
+                    <span className={styles.number}>№{order.orderNumber}</span>
+                    <span className={styles.buyer}>{personName(order.user)}</span>
+                    <span className={styles.seller}>
+                      {order.sellerOrders?.map((sellerOrder) => sellerOrder.store?.name).filter(Boolean).join(", ") || "—"}
+                    </span>
+                    <StatusBadge {...statusInfo} />
+                    <span className={styles.total}>{formatMoney(order.total)}</span>
+                    <span className={styles.date}>{formatDate(order.createdAt)}</span>
+                    {isOpen ? <FiChevronUp size={17} /> : <FiChevronDown size={17} />}
                   </button>
-
                   {isOpen && (
                     <div className={styles.orderBody}>
-                      <p className={styles.orderBuyer}>
-                        Покупатель:{" "}
-                        {order.user
-                          ? `${order.user.firstName ?? ""} ${order.user.lastName ?? ""}`.trim() ||
-                            order.user.username ||
-                            order.user.id
-                          : "—"}
-                      </p>
-                      {order.deliveryAddress && (
-                        <p className={styles.orderDelivery}>
-                          Адрес: {order.deliveryAddress}
-                        </p>
-                      )}
-                      <div className={styles.orderItems}>
+                      <div className={styles.orderMeta}>
+                        <span>Адрес: {order.deliveryAddress || "—"}</span>
+                        <span>Способ: {order.deliveryMethod || "—"}</span>
+                        <label>
+                          Статус:{" "}
+                          <select
+                            value={order.status}
+                            onChange={(event) =>
+                              setNextStatus({ id: order.id, status: event.target.value })
+                            }
+                          >
+                            {Object.entries(ORDER_STATUSES)
+                              .filter(
+                                ([id]) =>
+                                  id === order.status ||
+                                  canAdminChangeOrderStatus(order.status, id),
+                              )
+                              .map(([id, value]) => (
+                                <option key={id} value={id}>
+                                  {value.label}
+                                </option>
+                              ))}
+                          </select>
+                        </label>
+                      </div>
+                      <div className={styles.items}>
                         {items.map((item) => (
-                          <div key={item.id} className={styles.orderItem}>
+                          <div key={item.id} className={styles.item}>
                             {item.imageUrl && (
-                              <img
-                                src={item.imageUrl}
-                                alt={item.name}
-                                className={styles.orderItemImage}
-                                loading="lazy"
-                                decoding="async"
-                              />
+                              <img src={item.imageUrl} alt="" loading="lazy" />
                             )}
                             <div>
-                              <p className={styles.orderItemName}>{item.name}</p>
-                              <p className={styles.orderItemMeta}>
+                              <strong>{item.name}</strong>
+                              <span>
                                 {item.quantity} × {formatMoney(item.price)}
-                                {item.selectedSize && ` · р. ${item.selectedSize}`}
-                              </p>
+                              </span>
                             </div>
                           </div>
                         ))}
@@ -244,7 +223,46 @@ export default observer(function AdminOrdersPage() {
             })}
           </div>
         )}
-      </PageContainer>
+      </AdminCard>
+
+      <div className={styles.pagination}>
+        <button disabled={page <= 1} onClick={() => setPage((value) => value - 1)}>
+          Назад
+        </button>
+        <span>
+          Страница {page} из {totalPages} · {total} заказов
+        </span>
+        <button
+          disabled={page >= totalPages}
+          onClick={() => setPage((value) => value + 1)}
+        >
+          Вперёд
+        </button>
+      </div>
+
+      {nextStatus &&
+        (nextStatus.status === "cancelled" ? (
+          <ReasonDialog
+            title="Отменить заказ"
+            message="Товар вернётся на склад, а оплаченная сумма — на кошелёк покупателя. Укажите причину отмены."
+            confirmLabel="Отменить заказ"
+            danger
+            onCancel={() => setNextStatus(null)}
+            onConfirm={(reason) => void changeStatus(reason)}
+          />
+        ) : (
+          <ConfirmDialog
+            title="Изменить статус заказа"
+            message={`Новый статус: ${
+              ORDER_STATUSES[nextStatus.status]?.label ?? nextStatus.status
+            }.`}
+            confirmLabel="Изменить"
+            onCancel={() => setNextStatus(null)}
+            onConfirm={() => void changeStatus()}
+          />
+        ))}
     </div>
   );
-});
+}
+
+export default observer(AdminOrdersPage);

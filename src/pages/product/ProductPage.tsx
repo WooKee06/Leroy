@@ -13,6 +13,7 @@ import { mapProduct, mapReview } from "@shared/api/models";
 import { leroyApi } from "@shared/api/leroyApi";
 import { trackProductView } from "@shared/lib/analytics";
 import { productBarStore } from "@shared/stores/productBarStore";
+import ReportProductButton from "@features/complaints/ReportProductButton";
 import PageContainer from "@shared/ui/PageContainer";
 import { ProductPageSkeleton } from "@shared/ui/Skeletons";
 import styles from "./ProductPage.module.scss";
@@ -224,6 +225,8 @@ function ProductPage() {
             </span>
             <FiChevronRight size={18} className={styles.sellerChevron} />
           </button>
+
+          <ReportProductButton productId={product.id} />
 
           {product.colors && (
             <div className={styles.colors}>

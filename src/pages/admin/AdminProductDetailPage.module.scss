@@ -1,0 +1,167 @@
+@use "../../app/styles/variables" as *;
+
+.back {
+  font-size: 12.5px;
+  color: $text-secondary;
+  text-decoration: none;
+  white-space: nowrap;
+
+  &:hover {
+    color: $text-primary;
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.6fr) minmax(300px, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.column {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 8px;
+  margin-bottom: 16px;
+
+  img {
+    width: 100%;
+    aspect-ratio: 1;
+    object-fit: cover;
+    border-radius: $radius-sm;
+    border: 1px solid var(--color-border);
+    background: var(--bg-surface-secondary);
+  }
+}
+
+.noImage,
+.empty {
+  padding: 14px;
+  margin: 0;
+  font-size: 12.5px;
+  color: $text-tertiary;
+}
+
+.description {
+  margin: 0 0 18px;
+  font-size: 13.5px;
+  line-height: 1.6;
+  color: $text-secondary;
+  white-space: pre-wrap;
+}
+
+.reason {
+  margin: 16px 0 0;
+  padding: 10px 12px;
+  border-radius: $radius-sm;
+  background: var(--bg-surface-secondary);
+  font-size: 12.5px;
+  color: $text-secondary;
+}
+
+.sellerBlock {
+  padding: 18px;
+}
+
+.sellerLink {
+  display: inline-block;
+  margin-top: 14px;
+  font-size: 12.5px;
+  color: $text-primary;
+}
+
+.help {
+  margin: 0 0 14px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: $text-secondary;
+}
+
+.primary,
+.secondary,
+.danger {
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: $radius-sm;
+  font-size: 12.5px;
+  font-weight: 600;
+  font-family: $font-family;
+  cursor: pointer;
+  transition: opacity 0.18s ease;
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.primary {
+  border: 1px solid $text-primary;
+  background: $text-primary;
+  color: var(--bg-surface);
+}
+
+.secondary {
+  border: 1px solid var(--color-border);
+  background: var(--bg-surface);
+  color: $text-primary;
+}
+
+.danger {
+  border: 1px solid #c0392b;
+  background: #c0392b;
+  color: #fff;
+}
+
+.actionError {
+  margin: 12px 0 0;
+  font-size: 12.5px;
+  color: #c0392b;
+}
+
+.timeline {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+
+  li {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px 18px;
+    border-bottom: 1px solid var(--color-divider);
+  }
+
+  li:last-child {
+    border-bottom: none;
+  }
+
+  strong {
+    font-size: 12.5px;
+    font-weight: 650;
+    color: $text-primary;
+  }
+
+  span {
+    font-size: 12px;
+    color: $text-secondary;
+  }
+
+  time {
+    font-size: 11px;
+    color: $text-tertiary;
+  }
+}
+
+@media (max-width: 1000px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}

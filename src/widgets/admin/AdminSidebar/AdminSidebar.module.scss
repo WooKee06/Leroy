@@ -1,0 +1,67 @@
+@use "../../../app/styles/variables" as *;
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding: 18px 12px;
+}
+
+.navGroupTitle {
+  padding: 0 12px 10px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: $text-tertiary;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-height: 50px;
+  padding: 0 12px;
+  border-radius: $radius-sm;
+  color: $text-secondary;
+  font-size: 16px;
+  font-weight: 500;
+  text-decoration: none;
+  transition:
+    background 0.18s ease,
+    color 0.18s ease;
+
+  svg {
+    flex-shrink: 0;
+  }
+
+  &:hover {
+    background: var(--bg-surface-secondary);
+    color: $text-primary;
+  }
+}
+
+.active {
+  background: var(--bg-surface-secondary);
+  color: $text-primary;
+  font-weight: 650;
+
+  svg {
+    color: $text-primary;
+  }
+}
+
+.navFooter {
+  display: flex;
+  justify-content: space-between;
+  margin-top: auto;
+  padding: 16px 12px 0;
+  border-top: 1px solid var(--color-border);
+  font-size: 11px;
+  color: $text-tertiary;
+}
+
+.version {
+  color: $text-tertiary;
+}

@@ -1,199 +1,178 @@
 @use "../../app/styles/variables" as *;
 
-.page {
-  min-height: 100dvh;
-  padding-bottom: var(--bottom-nav-space);
-}
-
-.statsGrid {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 10px;
-  margin: 8px 0 16px;
-}
-
-.statCard {
-  padding: 14px;
-  border: 1px solid var(--color-border);
-  border-radius: $radius-lg;
-  background: var(--bg-surface);
-}
-
-.statValue {
-  font-size: 20px;
-  font-weight: 700;
-  color: $text-primary;
-  margin-bottom: 2px;
-}
-
-.statLabel {
-  font-size: 12px;
-  color: $text-secondary;
-}
-
-.filters {
-  margin-bottom: 16px;
-}
-
 .search {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 14px;
+  gap: 9px;
+  flex: 1;
+  min-width: 220px;
+  height: 38px;
+  padding: 0 13px;
   border: 1px solid var(--color-border);
-  border-radius: $radius-pill;
-  background: var(--bg-surface-secondary);
-  margin-bottom: 10px;
-  color: $text-secondary;
+  border-radius: $radius-sm;
+  background: var(--bg-surface);
+  color: $text-tertiary;
 
   input {
     flex: 1;
     border: none;
-    background: transparent;
-    font-size: 14px;
-    color: $text-primary;
     outline: none;
+    background: transparent;
+    color: $text-primary;
+    font-size: 13px;
+    font-family: $font-family;
   }
 }
 
-.statusChips {
-  display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  padding-bottom: 4px;
-}
-
-.chip,
-.chipActive {
-  padding: 8px 14px;
-  border-radius: $radius-pill;
-  border: 1px solid var(--color-border);
-  background: var(--bg-surface-secondary);
-  color: $text-secondary;
-  font-size: 13px;
-  font-weight: 600;
-  white-space: nowrap;
-  cursor: pointer;
-}
-
-.chipActive {
-  background: var(--inverted);
-  border-color: var(--inverted);
-  color: var(--inverted-fg);
-}
-
-.loading,
-.empty {
-  text-align: center;
-  padding: 40px 0;
-  color: $text-secondary;
-  font-size: 15px;
-}
-
-.ordersList {
+.list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
 }
 
-.orderCard {
-  border: 1px solid var(--color-border);
-  border-radius: $radius-lg;
-  background: var(--bg-surface);
-  overflow: hidden;
+.order {
+  border-bottom: 1px solid var(--color-divider);
+
+  &:last-child {
+    border-bottom: none;
+  }
 }
 
 .orderHead {
-  width: 100%;
-  display: flex;
+  display: grid;
+  grid-template-columns: 90px minmax(100px, 1fr) minmax(100px, 1fr) 110px 110px 110px 20px;
   align-items: center;
-  justify-content: space-between;
   gap: 12px;
-  padding: 14px;
+  width: 100%;
+  padding: 13px 16px;
   border: none;
   background: transparent;
   text-align: left;
+  font-family: $font-family;
   cursor: pointer;
+
+  &:hover {
+    background: var(--bg-surface-secondary);
+  }
 }
 
-.orderMain {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.orderNumber {
-  font-size: 16px;
-  font-weight: 700;
+.number {
+  font-size: 13px;
+  font-weight: 650;
   color: $text-primary;
 }
 
-.orderDate {
-  font-size: 12px;
-  color: $text-tertiary;
+.buyer,
+.seller,
+.date {
+  font-size: 12.5px;
+  color: $text-secondary;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.orderMeta {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  flex-shrink: 0;
-}
-
-.orderStatus {
-  padding: 4px 10px;
-  border-radius: $radius-pill;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.orderTotal {
-  font-size: 15px;
-  font-weight: 700;
+.total {
+  font-size: 13px;
+  font-weight: 650;
   color: $text-primary;
 }
 
 .orderBody {
-  padding: 0 14px 14px;
-  border-top: 1px solid var(--color-border);
+  padding: 0 16px 16px;
+  border-top: 1px solid var(--color-divider);
 }
 
-.orderBuyer,
-.orderDelivery {
-  font-size: 13px;
+.orderMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 20px;
+  margin-top: 12px;
+  font-size: 12.5px;
   color: $text-secondary;
-  margin: 10px 0 0;
+
+  select {
+    margin-left: 4px;
+    padding: 4px 8px;
+    border: 1px solid var(--color-border);
+    border-radius: $radius-sm;
+    background: var(--bg-surface);
+    color: $text-primary;
+    font-size: 12px;
+  }
 }
 
-.orderItems {
+.items {
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-top: 12px;
+  margin-top: 14px;
 }
 
-.orderItem {
+.item {
   display: flex;
   align-items: center;
   gap: 10px;
+
+  img {
+    width: 40px;
+    height: 40px;
+    border-radius: $radius-sm;
+    object-fit: cover;
+    border: 1px solid var(--color-border);
+  }
+
+  div {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  strong {
+    font-size: 12.5px;
+    font-weight: 600;
+    color: $text-primary;
+  }
+
+  span {
+    font-size: 12px;
+    color: $text-secondary;
+  }
 }
 
-.orderItemImage {
-  width: 44px;
-  height: 44px;
-  border-radius: $radius-md;
-  object-fit: cover;
-  background: var(--bg-surface-secondary);
-}
-
-.orderItemName {
-  font-size: 13.5px;
-  font-weight: 500;
-  color: $text-primary;
-}
-
-.orderItemMeta {
-  font-size: 12px;
+.pagination {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 14px;
+  font-size: 12.5px;
   color: $text-secondary;
+
+  button {
+    min-height: 32px;
+    padding: 0 12px;
+    border: 1px solid var(--color-border);
+    border-radius: $radius-sm;
+    background: var(--bg-surface);
+    color: $text-primary;
+    font-size: 12px;
+    font-family: $font-family;
+    cursor: pointer;
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+  }
+}
+
+@media (max-width: 1000px) {
+  .orderHead {
+    grid-template-columns: 80px 1fr 100px 20px;
+
+    .seller,
+    .date {
+      display: none;
+    }
+  }
 }

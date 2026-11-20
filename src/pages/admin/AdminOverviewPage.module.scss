@@ -1,0 +1,139 @@
+@use "../../app/styles/variables" as *;
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: $radius-md;
+  background: var(--bg-surface);
+  text-decoration: none;
+  transition: border-color 0.18s ease, transform 0.18s ease;
+
+  &:hover {
+    border-color: $text-tertiary;
+    transform: translateY(-1px);
+  }
+}
+
+.metricValue {
+  font-size: 22px;
+  font-weight: 750;
+  line-height: 1;
+  color: $text-primary;
+}
+
+.metricLabel {
+  font-size: 12px;
+  color: $text-secondary;
+}
+
+.revenue {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 16px;
+  margin: 12px 0 20px;
+  padding: 14px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: $radius-md;
+  background: var(--bg-surface);
+
+  span {
+    font-size: 12.5px;
+    color: $text-secondary;
+  }
+
+  strong {
+    font-size: 18px;
+    color: $text-primary;
+  }
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.listItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 18px;
+  border-bottom: 1px solid var(--color-divider);
+
+  &:last-child {
+    border-bottom: none;
+  }
+
+  div {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  strong {
+    font-size: 13px;
+    font-weight: 600;
+    color: $text-primary;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  span,
+  time {
+    font-size: 11.5px;
+    color: $text-tertiary;
+    white-space: nowrap;
+  }
+}
+
+.empty {
+  margin: 0;
+  padding: 22px 18px;
+  font-size: 13px;
+  color: $text-tertiary;
+}
+
+@media (max-width: 1100px) {
+  .metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 860px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .metrics {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .metric {
+    padding: 13px;
+  }
+
+  .metricValue {
+    font-size: 19px;
+  }
+}
