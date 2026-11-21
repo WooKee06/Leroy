@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { observer } from "mobx-react-lite";
 import type {
@@ -48,7 +48,7 @@ function AdminSellerDetailPage() {
   const [pending, setPending] = useState<PendingAction>(null);
   const [busy, setBusy] = useState(false);
 
-  const load = () => {
+  const load = useCallback(() => {
     let alive = true;
     setError(null);
     Promise.all([
@@ -66,9 +66,9 @@ function AdminSellerDetailPage() {
     return () => {
       alive = false;
     };
-  };
+  }, [id]);
 
-  useEffect(() => load(), [id]);
+  useEffect(() => load(), [load]);
 
   const runAction = async (action: Exclude<PendingAction, null>, reason?: string) => {
     setBusy(true);

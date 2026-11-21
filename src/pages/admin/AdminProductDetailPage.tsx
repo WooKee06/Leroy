@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Link, useLocation, useParams } from "react-router-dom";
 import { observer } from "mobx-react-lite";
 import type { AdminProductDetailsDto, AdminProductDto } from "@shared/api/models";
@@ -46,7 +46,7 @@ function AdminProductDetailPage() {
   const [pending, setPending] = useState<PendingAction>(null);
   const [busy, setBusy] = useState(false);
 
-  const load = () => {
+  const load = useCallback(() => {
     let alive = true;
     setError(null);
     leroyApi
@@ -60,9 +60,9 @@ function AdminProductDetailPage() {
     return () => {
       alive = false;
     };
-  };
+  }, [id]);
 
-  useEffect(() => load(), [id]);
+  useEffect(() => load(), [load]);
 
   const applyProduct = (product: AdminProductDto) => {
     setDetails((prev) => (prev ? { ...prev, product } : prev));

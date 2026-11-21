@@ -636,14 +636,17 @@ Guard'ы:
 - [x] Разобрать мёртвые поля/методы (7.2).
 - [x] Debounce, `dateTo`, server-side orders search, правильные audit filters.
 - [x] Кликабельные recent-элементы, фильтрованные метрики, корректный back-link.
-- [ ] Admin tests + browser smoke + проверка адаптивности.
-- [ ] Почистить warnings в новых admin-компонентах.
+- [x] Admin unit-тесты хелперов и guards.
+- [ ] Browser smoke + проверка адаптивности.
+- [ ] Почистить оставшиеся warnings в новых admin-компонентах.
 
 **Статус фильтров (21.11.2026):** закрыто. На сервере добавлен `AdminAuditQueryDto` с каноничными `entity`/`action` (старые `search`/`status` остались алиасами) и поддержкой `dateFrom`/`dateTo`; `buildProductWhere` теперь применяет `categoryId`; заказы ищутся сервером по номеру и имени/username покупателя; пользователи — по имени, username и числовому Telegram ID. На клиенте поиск товаров/продавцов/пользователей/заказов дебаунсится на 350 мс через общий `useDebounce`, в списке товаров и журнале появился `dateTo`, заказы больше не фильтруют локально только загруженную страницу, а Audit шлёт `entity`/`action` и использует полный `ACTION_LABELS`. Проверено: сервер `npx tsc -b` + `npm run build`, e2e `phase-b` и `admin-order`, клиент `npx tsc -b`, `npm test -- --run` (34/34), `npm run lint` (0 errors), `npm run build`. Коммит сервера: `5020d16`.
 
 **Статус UX (21.11.2026):** закрыто. Неизвестные `/admin/*` редиректятся на `/admin`; guards показывают общий `AppLoader` вместо `null`; recent-элементы Overview и объект в журнале стали ссылками на detail-страницы с `state.from`; back-link товара учитывает origin (обзор / журнал / каталог / очередь / продавец). Скрытие и смена порядка категорий, а также все смены статуса заказа подтверждаются, причина статуса пишется в аудит; история пользователя показывает причину. Брендинг сведён к русскому «Обзор» + «Avilon Admin», фиктивная версия `v1.0` удалена. Проверено теми же командами, что и этап фильтров; 34/34 теста, 0 ошибок линтера.
 
 **Статус мёртвого кода (21.11.2026):** закрыто. Удалены неиспользуемые клиентские методы `adminOrder`, `adminProductHistory`, `myComplaints` и тип `AdminOrderDetailsDto`; из `AdminComplaintDto` убраны неотображаемые `images`/`assigneeId`, из `Column` — `hideBelow`, из `accountStore` — `setRole`. Убрана колонка ИНН с хардкодом и фейковая «Сессия» в Settings (вместе с устаревшим текстом про тестовый вход). Список причин жалобы в `ReportProductButton` теперь берётся из общего `COMPLAINT_REASONS`. Остальные неиспользуемые наружу seller/payment/delivery-методы API оставлены: они соответствуют реальным бэкенд-роутам и могут быть подключены отдельными фичами.
+
+**Статус тестов и warnings (21.11.2026):** добавлены `src/shared/lib/admin.test.ts` (audit-ссылки, полный `ACTION_LABELS`, state-machine модерации и заказов) и `src/shared/guards/guards.test.tsx` (loader/redirect/forbidden/allowed для обоих guards). Всего 47/47 тестов, `npx tsc -b`, `npm run lint` (0 errors) и `npm run build` проходят. Исправлены missing deps в `AdminProductDetailPage`/`AdminSellerDetailPage`. Остались некритичные `set-state-in-effect` на page-reset/filter-load и общий для проекта `only-export-components` от `observer()` — не блокируют релиз. Browser smoke и проверка адаптивности требуют реального браузера и остаются за пользователем.
 
 **Критерий:** `/admin/login` работает в prod, все кнопки ведут к реальным действиям, нет заглушек без пометки, 0 admin-ошибок в консоли браузера.
 
