@@ -8,6 +8,7 @@ import type {
 import { leroyApi } from "@shared/api/leroyApi";
 import {
   actionLabel,
+  canModerateStore,
   formatDate,
   formatDateTime,
   formatMoney,
@@ -142,13 +143,6 @@ function AdminSellerDetailPage() {
               </DetailGrid>
             </AdminCard>
 
-            <AdminCard title="Документы" padded={false}>
-              <p className={styles.empty}>
-                Документы продавца не выставляются в публичный API. Проверка ведётся
-                по данным профиля и жалобам; запрос документов фиксируется в журнале.
-              </p>
-            </AdminCard>
-
             <AdminCard title="Товары продавца" padded={false}>
               {details.products.length === 0 ? (
                 <p className={styles.empty}>Товаров нет</p>
@@ -208,7 +202,9 @@ function AdminSellerDetailPage() {
                 <button
                   type="button"
                   className={styles.primary}
-                  disabled={busy || store.moderationStatus === "verified"}
+                  disabled={
+                    busy || !canModerateStore(store.moderationStatus, "verify")
+                  }
                   onClick={() => setPending("verify")}
                 >
                   Подтвердить
@@ -216,7 +212,9 @@ function AdminSellerDetailPage() {
                 <button
                   type="button"
                   className={styles.secondary}
-                  disabled={busy || store.moderationStatus === "rejected"}
+                  disabled={
+                    busy || !canModerateStore(store.moderationStatus, "reject")
+                  }
                   onClick={() => setPending("reject")}
                 >
                   Отклонить
@@ -224,7 +222,9 @@ function AdminSellerDetailPage() {
                 <button
                   type="button"
                   className={styles.secondary}
-                  disabled={busy}
+                  disabled={
+                    busy || !canModerateStore(store.moderationStatus, "request_docs")
+                  }
                   onClick={() => setPending("request_docs")}
                 >
                   Запросить документы
@@ -232,7 +232,9 @@ function AdminSellerDetailPage() {
                 <button
                   type="button"
                   className={styles.danger}
-                  disabled={busy || store.moderationStatus === "blocked"}
+                  disabled={
+                    busy || !canModerateStore(store.moderationStatus, "block")
+                  }
                   onClick={() => setPending("block")}
                 >
                   Заблокировать
@@ -240,7 +242,9 @@ function AdminSellerDetailPage() {
                 <button
                   type="button"
                   className={styles.secondary}
-                  disabled={busy || store.moderationStatus !== "blocked"}
+                  disabled={
+                    busy || !canModerateStore(store.moderationStatus, "unblock")
+                  }
                   onClick={() => setPending("unblock")}
                 >
                   Разблокировать
@@ -248,7 +252,9 @@ function AdminSellerDetailPage() {
                 <button
                   type="button"
                   className={styles.secondary}
-                  disabled={busy || !store.isVerified}
+                  disabled={
+                    busy || !canModerateStore(store.moderationStatus, "unverify")
+                  }
                   onClick={() => setPending("unverify")}
                 >
                   Снять подтверждение

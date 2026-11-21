@@ -82,6 +82,11 @@ class SellerStore {
     await this.ensureLoaded(true);
   }
 
+  updateStore(store: StoreDto) {
+    this.sellerDto = store;
+    this.seller = mapSeller(store);
+  }
+
   setStore(store: StoreDto) {
     this.sellerDto = store;
     this.seller = mapSeller(store);

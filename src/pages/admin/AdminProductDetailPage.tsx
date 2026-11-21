@@ -5,6 +5,7 @@ import type { AdminProductDetailsDto, AdminProductDto } from "@shared/api/models
 import { leroyApi } from "@shared/api/leroyApi";
 import { imageUrlWithCacheBust } from "@shared/api/client";
 import {
+  canModerateProduct,
   COMPLAINT_REASONS,
   formatDate,
   formatDateTime,
@@ -183,7 +184,9 @@ function AdminProductDetailPage() {
                 <button
                   type="button"
                   className={styles.primary}
-                  disabled={busy || product.moderationStatus === "approved"}
+                  disabled={
+                    busy || !canModerateProduct(product.moderationStatus, "approve")
+                  }
                   onClick={() => setPending("approve")}
                 >
                   Одобрить
@@ -191,7 +194,9 @@ function AdminProductDetailPage() {
                 <button
                   type="button"
                   className={styles.secondary}
-                  disabled={busy || product.moderationStatus === "rejected"}
+                  disabled={
+                    busy || !canModerateProduct(product.moderationStatus, "reject")
+                  }
                   onClick={() => setPending("reject")}
                 >
                   Отклонить
@@ -199,7 +204,9 @@ function AdminProductDetailPage() {
                 <button
                   type="button"
                   className={styles.danger}
-                  disabled={busy || product.moderationStatus === "blocked"}
+                  disabled={
+                    busy || !canModerateProduct(product.moderationStatus, "block")
+                  }
                   onClick={() => setPending("block")}
                 >
                   Заблокировать
@@ -207,7 +214,10 @@ function AdminProductDetailPage() {
                 <button
                   type="button"
                   className={styles.secondary}
-                  disabled={busy}
+                  disabled={
+                    busy ||
+                    !canModerateProduct(product.moderationStatus, "request_docs")
+                  }
                   onClick={() => setPending("request_docs")}
                 >
                   Запросить документы
@@ -215,7 +225,10 @@ function AdminProductDetailPage() {
                 <button
                   type="button"
                   className={styles.secondary}
-                  disabled={busy || product.moderationStatus === "draft"}
+                  disabled={
+                    busy ||
+                    !canModerateProduct(product.moderationStatus, "return_to_draft")
+                  }
                   onClick={() => setPending("return_to_draft")}
                 >
                   На доработку
@@ -223,20 +236,15 @@ function AdminProductDetailPage() {
                 <button
                   type="button"
                   className={styles.secondary}
-                  disabled={busy || product.moderationStatus === "archived"}
+                  disabled={
+                    busy || !canModerateProduct(product.moderationStatus, "archive")
+                  }
                   onClick={() => setPending("archive")}
                 >
                   В архив
                 </button>
               </ActionRow>
               {actionError && <p className={styles.actionError}>{actionError}</p>}
-            </AdminCard>
-
-            <AdminCard title="Документы и сертификаты" padded={false}>
-              <p className={styles.empty}>
-                Загруженные документы в текущей модели товара не предусмотрены.
-                Запрос документов фиксируется в истории решений.
-              </p>
             </AdminCard>
 
             <AdminCard title="История решений" padded={false}>

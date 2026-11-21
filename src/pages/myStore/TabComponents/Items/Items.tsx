@@ -1,4 +1,4 @@
-import { FiEdit2, FiPlus, FiTrash2 } from "react-icons/fi";
+import { FiEdit2, FiPlus, FiRefreshCw, FiTrash2 } from "react-icons/fi";
 import styles from "./Items.module.scss";
 import { useMemo } from "react";
 import { mapProduct } from "@/shared/api/models";
@@ -9,12 +9,14 @@ type Props = {
   setEditingProduct: (product: any) => void;
   setProductOpen: (open: boolean) => void;
   handleDeleteProduct: (productId: string) => Promise<void>;
+  handleResubmitProduct: (productId: string) => Promise<void>;
 };
 
 const Items = ({
   setEditingProduct,
   setProductOpen,
   handleDeleteProduct,
+  handleResubmitProduct,
 }: Props) => {
   const seller = sellerStore.seller;
   const products = sellerStore.products;
@@ -52,6 +54,21 @@ const Items = ({
               >
                 <FiEdit2 size={14} />
               </button>
+              {(products[index].moderationStatus === "draft" ||
+                products[index].moderationStatus === "rejected") && (
+                <button
+                  type="button"
+                  className={`${styles.productAction} ${styles.productActionReview}`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    void handleResubmitProduct(product.id);
+                  }}
+                  aria-label="Отправить на проверку"
+                  title="Отправить на проверку"
+                >
+                  <FiRefreshCw size={14} />
+                </button>
+              )}
               <button
                 type="button"
                 className={`${styles.productAction} ${styles.productActionDanger}`}

@@ -190,6 +190,10 @@ export const leroyApi = {
     return http.patch<StoreDto>(`/stores/${id}`, dto);
   },
 
+  resubmitStore(id: string): Promise<StoreDto> {
+    return http.patch<StoreDto>(`/stores/${id}/resubmit`);
+  },
+
   createStore(dto: {
     name: string;
     description?: string;
@@ -464,6 +468,10 @@ export const leroyApi = {
     }>,
   ): Promise<ProductDto> {
     return http.patch<ProductDto>(`/products/${id}`, dto);
+  },
+
+  resubmitProduct(id: string): Promise<ProductDto> {
+    return http.patch<ProductDto>(`/products/${id}/resubmit`);
   },
 
   deleteProduct(id: string): Promise<{ success: boolean }> {

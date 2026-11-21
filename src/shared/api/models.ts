@@ -188,6 +188,9 @@ export interface ProductDto {
   stock: number;
   isActive: boolean;
   isFeatured?: boolean;
+  /** Present in seller/admin previews; never in public catalog responses. */
+  moderationStatus?: ProductModerationStatus;
+  moderationReason?: string | null;
   rating?: number | string;
   reviewCount?: number;
   salesCount?: number;

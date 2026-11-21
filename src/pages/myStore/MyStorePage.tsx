@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { observer } from "mobx-react-lite";
-import { FiEdit2 } from "react-icons/fi";
+import { FiEdit2, FiRefreshCw } from "react-icons/fi";
 import type { ProductDto, RawSellerOrder } from "@shared/api/models";
 import { lazy, Suspense } from "react";
 
@@ -38,6 +38,7 @@ const MyStorePage = observer(function MyStorePage() {
     null,
   );
   const [statusLoading, setStatusLoading] = useState(false);
+  const [storeResubmitting, setStoreResubmitting] = useState(false);
 
   useEffect(() => {
     void sellerStore.ensureLoaded();
@@ -73,6 +74,28 @@ const MyStorePage = observer(function MyStorePage() {
       console.log("Failed to update order status");
     } finally {
       setStatusLoading(false);
+    }
+  };
+
+  const handleResubmitStore = async () => {
+    if (!seller?.id) return;
+    setStoreResubmitting(true);
+    try {
+      const updated = await leroyApi.resubmitStore(seller.id);
+      sellerStore.updateStore(updated);
+    } catch {
+      console.log("Failed to resubmit store");
+    } finally {
+      setStoreResubmitting(false);
+    }
+  };
+
+  const handleResubmitProduct = async (id: string) => {
+    try {
+      const updated = await leroyApi.resubmitProduct(id);
+      sellerStore.updateProduct(updated);
+    } catch {
+      console.log("Failed to resubmit product");
     }
   };
 
@@ -114,6 +137,16 @@ const MyStorePage = observer(function MyStorePage() {
             <div className={styles.sellerNameRow}>
               <h1 className={styles.sellerName}>{seller.name}</h1>
               <StoreStatusBadge seller={seller} />
+              {seller.moderationStatus === "rejected" && (
+                <button
+                  type="button"
+                  className={styles.resubmitBtn}
+                  disabled={storeResubmitting}
+                  onClick={() => void handleResubmitStore()}
+                >
+                  <FiRefreshCw size={13} /> На проверку
+                </button>
+              )}
             </div>
             <p className={styles.sellerDesc}>{seller.description}</p>
           </div>
@@ -142,6 +175,7 @@ const MyStorePage = observer(function MyStorePage() {
               setEditingProduct={setEditingProduct}
               setProductOpen={setProductOpen}
               handleDeleteProduct={handleDeleteProduct}
+              handleResubmitProduct={handleResubmitProduct}
             />
           )}
 

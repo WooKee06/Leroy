@@ -34,6 +34,61 @@ export const STORE_STATUSES: {
   { id: "blocked", label: "Заблокирован", tone: "bad" },
 ];
 
+export type ProductModerationAction =
+  | "approve"
+  | "reject"
+  | "block"
+  | "request_docs"
+  | "return_to_draft"
+  | "archive";
+
+export type StoreModerationAction =
+  | "verify"
+  | "reject"
+  | "request_docs"
+  | "block"
+  | "unblock"
+  | "unverify";
+
+/** UI mirror of the server transition tables; backend remains authoritative. */
+const PRODUCT_ACTIONS_BY_STATUS: Record<
+  ProductModerationStatus,
+  ProductModerationAction[]
+> = {
+  pending_review: ["approve", "reject", "block", "return_to_draft", "archive"],
+  under_review: ["approve", "reject", "block", "return_to_draft", "archive"],
+  approved: ["reject", "block", "request_docs", "return_to_draft", "archive"],
+  draft: ["block", "archive"],
+  rejected: ["block", "request_docs", "return_to_draft", "archive"],
+  blocked: ["return_to_draft", "archive"],
+  archived: ["return_to_draft"],
+};
+
+const STORE_ACTIONS_BY_STATUS: Record<
+  StoreModerationStatus,
+  StoreModerationAction[]
+> = {
+  pending: ["verify", "reject", "block", "request_docs"],
+  under_review: ["verify", "reject", "block"],
+  verified: ["reject", "block", "request_docs", "unverify"],
+  rejected: ["verify", "block", "request_docs"],
+  blocked: ["unblock"],
+};
+
+export function canModerateProduct(
+  status: ProductModerationStatus | undefined | null,
+  action: ProductModerationAction,
+): boolean {
+  return status ? (PRODUCT_ACTIONS_BY_STATUS[status] ?? []).includes(action) : false;
+}
+
+export function canModerateStore(
+  status: StoreModerationStatus | undefined | null,
+  action: StoreModerationAction,
+): boolean {
+  return status ? (STORE_ACTIONS_BY_STATUS[status] ?? []).includes(action) : false;
+}
+
 export const COMPLAINT_STATUSES: {
   id: ComplaintStatus;
   label: string;
@@ -154,12 +209,14 @@ const ACTION_LABELS: Record<string, string> = {
   "product.request_docs": "Запрошены документы",
   "product.return_to_draft": "Товар отправлен на доработку",
   "product.archive": "Товар архивирован",
+  "product.resubmit": "Товар отправлен на проверку продавцом",
   "store.verify": "Магазин подтверждён",
   "store.reject": "Магазин отклонён",
   "store.block": "Магазин заблокирован",
   "store.unblock": "Магазин разблокирован",
   "store.request_docs": "Запрошены документы магазина",
   "store.unverify": "Подтверждение снято",
+  "store.resubmit": "Магазин отправлен на проверку продавцом",
   "complaint.new": "Жалоба создана",
   "complaint.under_review": "Жалоба взята в работу",
   "complaint.resolved": "Жалоба решена",
