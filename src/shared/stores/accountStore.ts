@@ -117,6 +117,26 @@ class AccountStore {
   }
 
   /**
+   * Admin-panel entrance. Uses the dedicated backend route so that the admin
+   * role is verified on the server before a session is issued. No secret or
+   * password lives in the client.
+   */
+  async adminLoginWithTelegramWidget(user: TelegramLoginUser) {
+    this.authLoading = true;
+    try {
+      const { token, user: profile } = await leroyApi.adminTelegram(
+        buildTelegramLoginInitData(user),
+      );
+      setAuthToken(token);
+      this.applyProfile(profile);
+      this.isAuthenticated = true;
+      void this.loadWallet(true);
+    } finally {
+      this.authLoading = false;
+    }
+  }
+
+  /**
    * Local-only login for development. Backend must run with ALLOW_DEV_AUTH=true.
    * Creates/updates a test user with the given role and authenticates it.
    */

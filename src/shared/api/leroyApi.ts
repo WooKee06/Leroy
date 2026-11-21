@@ -69,6 +69,19 @@ export const leroyApi = {
     );
   },
 
+  /**
+   * Admin-panel login. The backend verifies the Telegram signature and the
+   * admin role from the database; a non-admin never receives a token.
+   */
+  adminTelegram(
+    initData: string,
+  ): Promise<{ token: string; user: UserDto }> {
+    return http.post<{ token: string; user: UserDto }>(
+      "/auth/admin/telegram",
+      { initData },
+    );
+  },
+
   me(): Promise<UserDto> {
     return http.get<UserDto>("/auth/me");
   },

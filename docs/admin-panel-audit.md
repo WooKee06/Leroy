@@ -40,7 +40,7 @@
 6. ~~Admin order status обходит логику отмены/возврата/рестора~~ — закрыто 21.11.2026: единый `changeOrderStatus`.
 7. ~~Миграции готовы, но ещё не закоммичены~~ — закрыто 21.11.2026: обе миграции вошли в серверный коммит `9e1e249`.
 8. ~~Публичные store endpoints отдают внутренние поля и данные владельца~~ — закрыто 21.11.2026: явный public DTO + preview только для владельца/админа.
-9. **Нет production admin login** — в проде страница входа показывает только заглушку.
+9. ~~Нет production admin login~~ — закрыто 21.11.2026: отдельный `/api/auth/admin/telegram`, роль и статус проверяются сервером из БД.
 10. ~~Нет rate limiting, CORS отражает любой origin, SVG в upload~~ — закрыто 21.11.2026: CORS-allowlist, throttler, magic-byte проверка + nosniff + квота.
 
 ### Оценка готовности
@@ -422,6 +422,16 @@ Guard'ы:
 
 **Статус (21.11.2026):** закрыто. `main.ts` использует `origin: (origin, cb) => cb(null, !origin || allowedOrigins.includes(origin))` — неизвестный origin получает ответ без `Access-Control-Allow-Origin`, а не 500. Глобальный `ThrottlerGuard` (in-memory, `THROTTLE_TTL_MS=60000` / `THROTTLE_LIMIT=300`) не трогает `/health`. Sensitive-роуты имеют отдельный `BURST_THROTTLE` (10/10с); `/api/auth/dev` использует `DEV_AUTH_THROTTLE` (100/10с) — это устранённая регрессия: общий 10/10с лимит ломал `e2e:orders`, который за минуту логинит десятки временных юзеров, а реальный production-логин при этом защищён по-прежнему строго. `UploadService.detectImageType()` пускает только PNG/JPEG/GIF/WEBP по сигнатуре; SVG отклоняется даже при подменённом `.png` и `image/png`. Имя файла — `uuid + расширение из байтов`, `originalName` санитизируется, отдача идёт только по строгому regex с `nosniff` и пересчитанным `Content-Type`. Квота — in-memory `Map` на пользователя с окном 1 час, без БД-нагрузки; при ошибке upload'а зарезервированный слот возвращается. Env: `CORS_ALLOWED_ORIGINS`, `THROTTLE_TTL_MS`, `THROTTLE_LIMIT`, `TRUST_PROXY_HOPS`, `UPLOAD_QUOTA_FILES_PER_HOUR`, `UPLOAD_QUOTA_BYTES_PER_HOUR` — задокументированы в `.env.example` и выставлены в `render.yaml`. Команда `npm run e2e:security`: CORS allow/deny/без Origin, nosniff, отказ SVG и замаскированного SVG, валидный PNG + его байты/тип на отдаче, отказ path traversal, 429 на burst `/auth/telegram`, доступность `/health` — 14/14. Проверка квоты: после рестарта с `UPLOAD_QUOTA_FILES_PER_HOUR=1`, `SECURITY_MODE=quota npm run e2e:security` — первая загрузка 201, вторая 429 (3/3); после чего сервер возвращён к обычной конфигурации.
 
+### 5.10 Production admin login
+
+**Где:** `src/modules/auth/auth.controller.ts`, `src/modules/auth/auth.service.ts`, `dev-tests/admin-login-check.js`; клиент — `src/pages/admin/AdminLoginPage.tsx`, `src/shared/api/leroyApi.ts`, `src/shared/stores/accountStore.ts`.
+
+**Решение:** отдельный пароль/2FA не вводится. Используется тот же Telegram Login Widget, но с отдельным роутом `POST /api/auth/admin/telegram`: он переиспользует проверенную подпись initData, находит аккаунт по `telegramId`, читает `role`/`status` из БД и **не выдаёт токен** не-админу или заблокированному аккаунту. Роль в токене — только подтверждённая БД; `JwtStrategy` всё равно перечитывает её на каждый запрос. Секретов и паролей в frontend нет; dev-кнопка вырезается из prod-бандла через `import.meta.env.DEV`.
+
+**Статус (21.11.2026):** закрыто. `npm run e2e:admin-login` — 7 проверок: вход сидированного админа, доступ к `/admin/dashboard`, отказ покупателя (403), обычный логин не сломан, неизвестный аккаунт не регистрируется через админ-роут (401), отказ заблокированного админа (403), повторный вход после разблокировки. Все остальные 9 e2e и client build зелёные.
+
+**Эксплуатационный нюанс:** админские аккаунты создаются сидом (`telegramId=111111111`) или назначением роли напрямую в БД — админка намеренно запрещает повышать до `admin` через UI. Для входа с веба домен фронтенда должен быть зарегистрирован в боте через BotFather (domain validation Telegram Login Widget); внутри Mini App авторизация уже идёт через `initData`.
+
 ---
 
 ## 6. P1 — модерация и бизнес-правила
@@ -478,15 +488,11 @@ Guard'ы:
 
 ## 7. P1/P2 — frontend админки
 
-### 7.1 Нет production admin login
+### 7.1 Нет production admin login — закрыто (5.10)
 
-`src/pages/admin/AdminLoginPage.tsx:59-81`: в prod показывается только текст. Router/guard при этом всё равно пускает только роль `admin` из токена.
+Было: `AdminLoginPage.tsx` в prod показывал только заглушку, а `LoginGate` прятал виджет на `/admin`.
 
-**Нужно выбрать:**
-
-- [ ] Отдельный `/api/admin/login` с password/2FA/TOTP, не зависящий от Telegram initData; или
-- [ ] Отдельный Telegram-бот для админов с initData + whitelist telegramId; или
-- [ ] OAuth/SSO. В любом случае — не dev endpoint.
+Стало: на `/admin/login` рендерится штатный `TelegramLoginWidget`, который вызывает отдельный серверный роут с проверкой роли/статуса. Dev-кнопка осталась только в dev-сборке. Пароль и 2FA не потребовались: вход привязан к реальному Telegram-аккаунту, а роль берётся из БД. Варианты с отдельным ботом/SSO остаются возможными enhancements, но сейчас не блокируют релиз.
 
 ### 7.2 Мёртвые/недоиспользованные вещи
 
@@ -626,7 +632,7 @@ Guard'ы:
 
 ## Фаза C — P1/P2, frontend админки
 
-- [ ] Production admin login.
+- [x] Production admin login (5.10).
 - [ ] Разобрать мёртвые поля/методы (7.2).
 - [ ] Debounce, `dateTo`, server-side orders search, правильные audit filters.
 - [ ] Кликабельные recent-элементы, фильтрованные метрики, корректный back-link.
@@ -654,14 +660,14 @@ Guard'ы:
 - [ ] Решить судьбу `stats.html` — сгенерированный build visualizer'ом файл, пока оставлен изменённым вне коммита.
 - [x] Явно зафиксировать в `.env.example`, что `ALLOW_DEV_AUTH` — local only.
 - [x] Прогнать `npx tsc -b`, `npm test`, `npm run lint`, `npm run build` на клиенте.
-- [x] Прогнать `npx tsc -b`, `npm run build` и 9 e2e-проверок на сервере.
+- [x] Прогнать `npx tsc -b`, `npm run build` и 10 e2e-проверок на сервере (включая `e2e:admin-login`).
 - [ ] Остановить/оставить dev-серверы осознанно (сейчас backend на 4000, frontend на 5173).
 
 ---
 
 ## 11. Открытые вопросы
 
-1. **Production admin login:** отдельный пароль/2FA, отдельный Telegram-бот для админов или SSO?
+1. ~~Production admin login~~ — решён в 5.10 через Telegram + серверную проверку роли. При желании позже можно добавить TOTP вторым фактором; отдельный бот/SSO сейчас не нужны.
 2. **Документы:** делать реальную загрузку документов продавца/товара или убрать секции из админки?
 3. **Можно ли продавцу самому вернуть товар на модерацию после отказа?** Сейчас — нет.
 4. **Нужен ли отдельный `StorePublicDto` или достаточно явного `select` в query?**

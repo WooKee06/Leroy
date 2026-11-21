@@ -74,6 +74,55 @@
   color: #c0392b;
 }
 
+.widgetBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: $space-sm;
+  min-height: 56px;
+}
+
+.loadingRow {
+  display: inline-flex;
+  align-items: center;
+  gap: $space-sm;
+  font-size: 12.5px;
+  color: $text-secondary;
+}
+
+.spinner {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid var(--bg-surface-secondary);
+  border-top-color: var(--text-primary);
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.devBlock {
+  margin-top: 20px;
+  padding-top: 18px;
+  border-top: 1px solid var(--color-border);
+}
+
+.devBadge {
+  display: inline-block;
+  margin-bottom: 10px;
+  padding: 2px 7px;
+  border: 1px solid var(--color-border);
+  border-radius: 4px;
+  color: $text-tertiary;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+
 .back {
   display: inline-flex;
   align-items: center;
