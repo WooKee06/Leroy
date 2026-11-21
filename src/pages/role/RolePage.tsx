@@ -1,19 +1,17 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { observer } from "mobx-react-lite";
-import {
-  FiCheck,
-  FiLock,
-  FiShoppingBag,
-  FiShield,
-  FiUser,
-} from "react-icons/fi";
-import { accountStore, type UserRole } from "@shared/stores/accountStore";
+import { FiCheck, FiShoppingBag, FiUser } from "react-icons/fi";
+import { accountStore } from "@shared/stores/accountStore";
 import PageContainer from "@shared/ui/PageContainer";
 import styles from "./RolePage.module.scss";
 
+/** Only these roles can be switched from the user-facing UI. Admin is
+ * assigned in the database and is changing here neither visible nor enabled. */
+type SelectableRole = "buyer" | "seller";
+
 const ROLES: {
-  id: UserRole;
+  id: SelectableRole;
   label: string;
   desc: string;
   icon: React.ReactNode;
@@ -30,26 +28,20 @@ const ROLES: {
     desc: "Свой магазин, товары, заказы покупателей",
     icon: <FiShoppingBag size={20} />,
   },
-  {
-    id: "admin",
-    label: "Администратор",
-    desc: "Управление платформой и модерация",
-    icon: <FiShield size={20} />,
-  },
 ];
 
 function RolePage() {
   const navigate = useNavigate();
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const isAdmin = accountStore.role === "admin";
 
-  const select = async (role: UserRole) => {
+  // The server forbids self-demotion, so there is nothing to switch here.
+  if (accountStore.role === "admin") {
+    return <Navigate to="/admin" replace />;
+  }
+
+  const select = async (role: SelectableRole) => {
     if (saving || role === accountStore.role) return;
-    if (role === "admin" && !isAdmin) {
-      setError("Роль администратора недоступна для самостоятельного назначения");
-      return;
-    }
     setSaving(true);
     setError(null);
     try {
@@ -78,13 +70,12 @@ function RolePage() {
         <div className={styles.card}>
           {ROLES.map((r) => {
             const active = r.id === accountStore.role;
-            const locked = r.id === "admin" && !isAdmin;
             return (
               <button
                 key={r.id}
                 className={`${styles.row} ${active ? styles.rowActive : ""}`}
                 onClick={() => select(r.id)}
-                disabled={saving || locked}
+                disabled={saving}
                 type="button"
               >
                 <span className={styles.rowIcon}>{r.icon}</span>
@@ -93,7 +84,6 @@ function RolePage() {
                   <span className={styles.rowDesc}>{r.desc}</span>
                 </span>
                 {active && <FiCheck size={20} className={styles.rowCheck} />}
-                {locked && <FiLock size={16} className={styles.rowLock} />}
               </button>
             );
           })}

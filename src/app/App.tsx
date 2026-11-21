@@ -166,8 +166,8 @@ export default function App() {
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="/addresses" element={<AddressesPage />} />
-          {/* Смена роли — только для авторизованных. Повышение до admin
-              сервер всё равно запрещает (AuthService.updateRole). */}
+          {/* Смена роли — только для авторизованных. Пользователю доступны
+              buyer/seller; admin назначается в БД и в этом UI не предлагается. */}
           <Route element={<RequireRole />}>
             <Route path="/role" element={<RolePage />} />
           </Route>

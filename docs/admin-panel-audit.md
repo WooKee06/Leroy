@@ -721,7 +721,7 @@ Guard'ы:
 4. **Нужен ли отдельный `StorePublicDto` или достаточно явного `select` в query?**
 5. **Менять ли `JWT_EXPIRES_IN` с 30 дней на короткий + refresh token?**
 6. **Оставлять ли `POST /api/categories` как duplicate или удалить в пользу `/api/admin/categories`?**
-7. **Что делать с `AuthService.updateRole` — оставить self-service buyer↔seller или только админ?**
+7. ~~Что делать с `AuthService.updateRole` — оставить self-service buyer↔seller или только админ?~~ — решено 21.11.2026: клиентский API и `accountStore.updateRole` сужены до `buyer | seller`; роль `admin` выдаётся только через БД, в пользовательском переключателе её нет, админов `/role` редиректит в `/admin`. Сервер по-прежнему запрещает и повышение, и самопонижение.
 
 ---
 

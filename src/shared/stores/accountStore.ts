@@ -241,7 +241,7 @@ class AccountStore {
     }
   }
 
-  async updateRole(role: UserRole): Promise<void> {
+  async updateRole(role: "buyer" | "seller"): Promise<void> {
     const { token, user } = await leroyApi.updateRole(role);
     setAuthToken(token);
     this.applyProfile(user);

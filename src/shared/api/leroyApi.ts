@@ -105,9 +105,8 @@ export const leroyApi = {
     );
   },
 
-  updateRole(
-    role: "buyer" | "seller" | "admin",
-  ): Promise<{ token: string; user: UserDto }> {
+  // Admin is assigned in the DB only; the client never requests this role.
+  updateRole(role: "buyer" | "seller"): Promise<{ token: string; user: UserDto }> {
     return http.patch<{ token: string; user: UserDto }>("/auth/role", { role });
   },
 
