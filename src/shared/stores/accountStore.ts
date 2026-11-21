@@ -38,6 +38,7 @@ class AccountStore {
   userId: string | undefined;
   isAuthenticated = false;
   initialized = false;
+  private initializing = false;
   authLoading = false;
   stars = 1920;
 
@@ -59,12 +60,22 @@ class AccountStore {
   }
 
   initialize() {
-    if (this.initialized) return;
-    this.initialized = true;
+    if (this.initialized || this.initializing) return;
+    this.initializing = true;
 
     readyTelegramWebApp();
 
-    void this.loadUser();
+    // Route guards must keep showing the loader until /auth/me has answered:
+    // flipping `initialized` here would redirect a saved admin session to
+    // /admin/login on every refresh before the profile arrives.
+    void this.loadUser()
+      .catch((error) =>
+        console.error('[account] initialization failed', error),
+      )
+      .finally(() => {
+        this.initializing = false;
+        this.initialized = true;
+      });
   }
 
   private async loadUser() {

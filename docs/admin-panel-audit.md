@@ -2,7 +2,7 @@
 
 Дата: 21.11.2026 (первая версия — 20.11.2026). Репозитории: клиент `Leroy/`, сервер `LeroyServer/`.
 
-Статус: **аудит текущего состояния репозиториев**. Phase A зафиксирована коммитами сервера `9e1e249`, `75ddfad` и клиента `1d818dd`, `5ca4fee`; Phase B — сервер `b8f12ea`, клиент `3a73707` (21.11.2026). Единственное исключение — сгенерированный `stats.html`, намеренно оставленный вне коммита.
+Статус: **аудит текущего состояния репозиториев**. Phase A зафиксирована коммитами сервера `9e1e249`, `75ddfad` и клиента `1d818dd`, `5ca4fee`; Phase B — сервер `b8f12ea`, клиент `3a73707` (21.11.2026). Финальные блокеры второго аудита закрыты серверным коммитом `277553a` (вместе с локальным docs-коммитом `8b38dad`) и клиентским коммитом из §10.1. Единственное исключение — сгенерированный `stats.html`, намеренно оставленный вне коммита.
 
 Документ отвечает на три вопроса:
 
@@ -50,12 +50,12 @@
 
 | Слой | Готовность | Комментарий |
 |---|---:|---|
-| Admin UI | ~85% | Прод-логин и все экраны есть; нет browser-smoke и admin unit-тестов |
+| Admin UI | ~92% | Прод-логин, все экраны и unit-тесты guards/audit есть; browser-smoke за пользователем |
 | Admin API | ~95% | Роуты, аудит, бизнес-правила, public DTO и инфраструктура (CORS/throttle/upload) закрыты |
 | Модерация | ~98% | Статусы, связь товар↔магазин, жалобы, order state machine и жёсткие таблицы переходов закрыты |
-| Безопасность | ~95% | P0 закрыты, включая прод-логин; audit теперь с `ip`/`requestId`. Осталось DB-enforcement append-only |
-| Тесты/QA | ~75% | 34 client-теста, admin unit-тестов нет; 11 server e2e (включая security/orders/phase-b), smoke ручной |
-| Деплой/миграции | ~85% | 12 миграций, индексы и FK готовы и проверены на чистых БД; остался staging |
+| Безопасность | ~98% | P0 закрыты, включая прод-логин; audit с `ip`/`requestId`, проверка свежести `initData`, mock-оплата отключена в проде, CDEK-webhook fail-closed. Осталось DB-enforcement append-only |
+| Тесты/QA | ~85% | 52 client-теста (13 файлов), 13 server e2e (включая security/orders/phase-b/admin-login), smoke ручной |
+| Деплой/миграции | ~88% | 12 миграций, индексы и FK готовы и проверены на чистых БД; Render env и staging-проверки за пользователем |
 
 ---
 
@@ -194,7 +194,7 @@ Guard'ы:
 | Server `npm run build` | OK |
 | Server `npm run lint` | `eslint: command not found` — линтер не установлен |
 | Client `npx tsc -b` | OK |
-| Client `npm test` | 47/47 тестов, 11 файлов (включая admin-хелперы и guards) |
+| Client `npm test` | 52/52 тестов, 13 файлов (admin-хелперы, guards, RolePage и регресс инициализации auth) |
 | Client `npm run lint` | 0 errors, warnings only |
 | Client `npm run build` | OK |
 | `npm run migration:run` | Миграции применены локально |
@@ -569,7 +569,7 @@ Guard'ы:
 - [x] JWT_SECRET без fallback, min 32 chars.
 - [x] TON удалён из клиента.
 - [x] Отзывы только после покупки (`reviews.service.ts:51-62`).
-- [ ] Mock-оплата: ввести `PAYMENTS_MOCK_ENABLED`, по умолчанию `false`.
+- [x] Mock-оплата: `PAYMENTS_MOCK_ENABLED` добавлен. Явное `true` включает legacy MOCK/STARS только для демо; явное `false` или `NODE_ENV=production` → `403` на `POST /api/payments` с такими провайдерами. В `render.yaml` заданы `NODE_ENV=production` и `PAYMENTS_MOCK_ENABLED=false`; локально без флага поведение прежнее (e2e проходят).
 - [ ] Провайдер Stars: клиент `"telegram_stars"` vs enum `"stars"` — согласовать.
 - [x] Rate limiting / явный CORS / безопасный upload (см. 5.9).
 - [ ] Вызвать `BotService.notifyNewOrder/notifyOrderStatusChanged/notifyNewReview` — методы есть, не используются.
@@ -595,7 +595,7 @@ Guard'ы:
 - [x] Cache-busting картинок.
 - [x] Адреса из профиля.
 - [x] Мгновенное создание магазина с файлами.
-- [ ] Файл `stats.html` изменён build visualizer — решить, нужен ли в git.
+- [ ] Файл `stats.html` изменён build visualizer — решить, нужен ли в git. (Оставлен вне коммита намеренно.)
 - [ ] Server `npm run lint`: установить eslint + конфиг или удалить script.
 - [x] Добавить e2e/smoke script'ы в `dev-tests/` (11 server e2e, включая security и phase-b).
 
@@ -628,7 +628,7 @@ Guard'ы:
 - [x] Audit: единый `AuditService`, транзакционность, `ip`/`requestId` + аддитивная миграция.
 - [x] Уведомления владельцу контента и автору жалобы (проверено в e2e).
 
-**Критерий:** админ видит один и тот же статус везде, история полная, повторные действия запрещены, причины обязательны где нужно. Подтверждено `npm run e2e:phase-b` (6/6) и полным набором из 11 e2e. Коммиты: сервер `b8f12ea`, клиент `3a73707`.
+**Критерий:** админ видит один и тот же статус везде, история полная, повторные действия запрещены, причины обязательны где нужно. Подтверждено `npm run e2e:phase-b` (6/6) и полным набором из 13 e2e. Коммиты: сервер `b8f12ea`, клиент `3a73707`.
 
 ## Фаза C — P1/P2, frontend админки
 
@@ -640,13 +640,13 @@ Guard'ы:
 - [ ] Browser smoke + проверка адаптивности.
 - [ ] Почистить оставшиеся warnings в новых admin-компонентах.
 
-**Статус фильтров (21.11.2026):** закрыто. На сервере добавлен `AdminAuditQueryDto` с каноничными `entity`/`action` (старые `search`/`status` остались алиасами) и поддержкой `dateFrom`/`dateTo`; `buildProductWhere` теперь применяет `categoryId`; заказы ищутся сервером по номеру и имени/username покупателя; пользователи — по имени, username и числовому Telegram ID. На клиенте поиск товаров/продавцов/пользователей/заказов дебаунсится на 350 мс через общий `useDebounce`, в списке товаров и журнале появился `dateTo`, заказы больше не фильтруют локально только загруженную страницу, а Audit шлёт `entity`/`action` и использует полный `ACTION_LABELS`. Проверено: сервер `npx tsc -b` + `npm run build`, e2e `phase-b` и `admin-order`, клиент `npx tsc -b`, `npm test -- --run` (34/34), `npm run lint` (0 errors), `npm run build`. Коммит сервера: `5020d16`.
+**Статус фильтров (21.11.2026):** закрыто. На сервере добавлен `AdminAuditQueryDto` с каноничными `entity`/`action` (старые `search`/`status` остались алиасами) и поддержкой `dateFrom`/`dateTo`; `buildProductWhere` теперь применяет `categoryId`; заказы ищутся сервером по номеру и имени/username покупателя; пользователи — по имени, username и числовому Telegram ID. На клиенте поиск товаров/продавцов/пользователей/заказов дебаунсится на 350 мс через общий `useDebounce`, в списке товаров и журнале появился `dateTo`, заказы больше не фильтруют локально только загруженную страницу, а Audit шлёт `entity`/`action` и использует полный `ACTION_LABELS`. Проверено: сервер `npx tsc -b` + `npm run build`, e2e `phase-b` и `admin-order`, клиент `npx tsc -b`, `npm test -- --run` (сейчас 52/52; на момент этапа было 34/34), `npm run lint` (0 errors), `npm run build`. Коммит сервера: `5020d16`.
 
-**Статус UX (21.11.2026):** закрыто. Неизвестные `/admin/*` редиректятся на `/admin`; guards показывают общий `AppLoader` вместо `null`; recent-элементы Overview и объект в журнале стали ссылками на detail-страницы с `state.from`; back-link товара учитывает origin (обзор / журнал / каталог / очередь / продавец). Скрытие и смена порядка категорий, а также все смены статуса заказа подтверждаются, причина статуса пишется в аудит; история пользователя показывает причину. Брендинг сведён к русскому «Обзор» + «Avilon Admin», фиктивная версия `v1.0` удалена. Проверено теми же командами, что и этап фильтров; 34/34 теста, 0 ошибок линтера.
+**Статус UX (21.11.2026):** закрыто. Неизвестные `/admin/*` редиректятся на `/admin`; guards показывают общий `AppLoader` вместо `null`; recent-элементы Overview и объект в журнале стали ссылками на detail-страницы с `state.from`; back-link товара учитывает origin (обзор / журнал / каталог / очередь / продавец). Скрытие и смена порядка категорий, а также все смены статуса заказа подтверждаются, причина статуса пишется в аудит; история пользователя показывает причину. Брендинг сведён к русскому «Обзор» + «Avilon Admin», фиктивная версия `v1.0` удалена. Проверено теми же командами, что и этап фильтров; сейчас 52/52 теста, 0 ошибок линтера.
 
 **Статус мёртвого кода (21.11.2026):** закрыто. Удалены неиспользуемые клиентские методы `adminOrder`, `adminProductHistory`, `myComplaints` и тип `AdminOrderDetailsDto`; из `AdminComplaintDto` убраны неотображаемые `images`/`assigneeId`, из `Column` — `hideBelow`, из `accountStore` — `setRole`. Убрана колонка ИНН с хардкодом и фейковая «Сессия» в Settings (вместе с устаревшим текстом про тестовый вход). Список причин жалобы в `ReportProductButton` теперь берётся из общего `COMPLAINT_REASONS`. Остальные неиспользуемые наружу seller/payment/delivery-методы API оставлены: они соответствуют реальным бэкенд-роутам и могут быть подключены отдельными фичами.
 
-**Статус тестов и warnings (21.11.2026):** добавлены `src/shared/lib/admin.test.ts` (audit-ссылки, полный `ACTION_LABELS`, state-machine модерации и заказов) и `src/shared/guards/guards.test.tsx` (loader/redirect/forbidden/allowed для обоих guards). Всего 47/47 тестов, `npx tsc -b`, `npm run lint` (0 errors) и `npm run build` проходят. Исправлены missing deps в `AdminProductDetailPage`/`AdminSellerDetailPage`. Остались некритичные `set-state-in-effect` на page-reset/filter-load и общий для проекта `only-export-components` от `observer()` — не блокируют релиз. Browser smoke и проверка адаптивности требуют реального браузера и остаются за пользователем.
+**Статус тестов и warnings (21.11.2026):** добавлены `src/shared/lib/admin.test.ts` (audit-ссылки, полный `ACTION_LABELS`, state-machine модерации и заказов) и `src/shared/guards/guards.test.tsx` (loader/redirect/forbidden/allowed для обоих guards). Всего 52/52 тестов (13 файлов; плюс `accountStore.init.test.ts` после финального аудита), `npx tsc -b`, `npm run lint` (0 errors) и `npm run build` проходят. Исправлены missing deps в `AdminProductDetailPage`/`AdminSellerDetailPage`. Остались некритичные `set-state-in-effect` на page-reset/filter-load и общий для проекта `only-export-components` от `observer()` — не блокируют релиз. Browser smoke и проверка адаптивности требуют реального браузера и остаются за пользователем.
 
 **Критерий:** `/admin/login` работает в prod, все кнопки ведут к реальным действиям, нет заглушек без пометки, 0 admin-ошибок в консоли браузера.
 
@@ -654,10 +654,10 @@ Guard'ы:
 
 ### Код и проверки
 
-- [x] Коммит клиента и сервера отдельно. Сервер: `9e1e249`, `75ddfad`, `b8f12ea`, `5020d16`. Клиент: `1d818dd`, `5ca4fee`, `3a73707`, `a486669`, `83b2629`, `1a16b81`, `f1c0aed`, `6009ec5`.
+- [x] Коммит клиента и сервера отдельно. Сервер: `9e1e249`, `75ddfad`, `b8f12ea`, `5020d16`, `8b38dad` (docs), `277553a` (финальные блокеры). Клиент: `1d818dd`, `5ca4fee`, `3a73707`, `a486669`, `83b2629`, `1a16b81`, `f1c0aed`, `6009ec5`, `7780bf2`, `78109b6`, `cad640c`, `6b4d1ae` (финальные блокеры).
 - [x] Phase B закоммичена отдельно от Phase A: сервер `b8f12ea`, клиент `3a73707`.
-- [x] `npm run build` в обоих репозиториях; сервер e2e `phase-b` и `admin-order`; клиент `npx tsc -b`, 47/47 тестов, lint 0 errors.
-- [x] Push в `origin/main`: сервер `b0f231e..5020d16`, клиент `b85c110..6009ec5`.
+- [x] `npm run build` в обоих репозиториях; сервер — все 13 e2e (включая `phase-b`, `admin-order`, `admin-login`, `orders`); клиент `npx tsc -b`, 52/52 тестов, lint 0 errors.
+- [x] Push в `origin/main`: сервер `b0f231e..277553a` (включая docs-коммит `8b38dad`), клиент `b85c110..6b4d1ae`.
 - [x] Снять галочку «все изменения uncommitted».
 
 ### Деплой-конфигурация (прочитано из файлов репозиториев)
@@ -674,7 +674,7 @@ Guard'ы:
 
 - rewrite `/(.*) → /index.html` обеспечивает прямую навигацию и refresh на любом `/admin/*`
 - rewrite `/uploads/:path*` → публичный R2-домен
-- `API_BASE` берётся из `VITE_API_BASE`, дефолт в коде — `https://leroyserver.onrender.com/api`; для прода и staging нужно явно задать `https://api.avelonstore.ru/api`
+- `API_BASE` берётся из `VITE_API_BASE`. В `.env.production` уже явно задано `https://leroyserver.onrender.com/api` (совпадает с дефолтом в коде). Кастомный домен опционален: чтобы использовать его, задать `VITE_API_BASE=https://api.avelonstore.ru/api` и пересобрать клиент
 - `VITE_PUBLIC_URL` переопределяет origin в TonConnect-манифесте (`vite.config.ts`); без него используется `VERCEL_PROJECT_PRODUCTION_URL` / `VERCEL_URL`, которые Vercel задаёт автоматически
 
 ### Staging — требуется доступ (в harness не проверено)
@@ -684,9 +684,9 @@ Guard'ы:
 - [x] `ALLOW_DEV_AUTH=false` подтверждено внешним запросом: `POST /api/auth/dev` → 404 (роут спрятан). `DEV_ADMIN_TELEGRAM_IDS` и `DEV_AUTH_ALLOWED_IPS` визуально проверить в Render.
 - [x] Новый админ-логин задеплоен: `POST /api/auth/admin/telegram` с пустым телом → 400 (роут есть), `GET /api/admin/dashboard` без токена → 401.
 - [x] CORS allowlist работает: `Origin: https://app.avelonstore.ru` → `access-control-allow-origin` в ответе; `Origin: https://evil.example.com` → заголовка нет.
-- [ ] Остальные Render env визуально: `MINI_APP_URL=https://app.avelonstore.ru`, `PUBLIC_URL=https://api.avelonstore.ru`, `TRUST_PROXY_HOPS=1`, `DATABASE_SSL=true`, `DATABASE_SYNCHRONIZE=false`.
+- [ ] Остальные Render env визуально: `NODE_ENV=production`, `PAYMENTS_MOCK_ENABLED=false`, `MINI_APP_URL=https://app.avelonstore.ru`, `PUBLIC_URL=https://api.avelonstore.ru`, `TRUST_PROXY_HOPS=1`, `DATABASE_SSL=true`, `DATABASE_SYNCHRONIZE=false`, непустой `CDEK_WEBHOOK_SECRET` (без него webhook возвращает 400). `NODE_ENV`/`PAYMENTS_MOCK_ENABLED` уже прописаны в `render.yaml`; `CDEK_WEBHOOK_SECRET` нужно заполнить вручную.
 - [ ] BotFather: домен `https://app.avelonstore.ru` привязан к боту; Mini App открывается с этого домена и присылает подписанный `initData`.
-- [ ] Vercel env: задеплоенный бандл пока использует дефолт `https://leroyserver.onrender.com/api` (`VITE_API_BASE` не задан). Оба домена здоровы (health 200), но если нужен кастомный домен — задать `VITE_API_BASE=https://api.avelonstore.ru/api` и пересобрать. `VITE_PUBLIC_URL` задавать не обязательно: Vercel подставляет `VERCEL_*` автоматически.
+- [x] Vercel env: `VITE_API_BASE=https://leroyserver.onrender.com/api` задан в `.env.production`, деплой использует именно его. Оба домена здоровы (health 200). Переход на `https://api.avelonstore.ru/api` опционален и требует явной переменной окружения Vercel + пересборки. `VITE_PUBLIC_URL` задавать не обязательно: Vercel подставляет `VERCEL_*` автоматически.
 - [ ] В БД staging есть хотя бы один аккаунт с `role = admin` (назначается в БД/сидом; админка роли не повышает). Проверить входом через Mini App.
 
 ### Smoke из раздела 4 + browser smoke (вручную)
@@ -708,8 +708,28 @@ Guard'ы:
 - [ ] Решить судьбу `stats.html` — сгенерированный build visualizer'ом файл, пока оставлен изменённым вне коммита.
 - [x] Явно зафиксировать в `.env.example`, что `ALLOW_DEV_AUTH` — local only.
 - [x] Прогнать `npx tsc -b`, `npm test`, `npm run lint`, `npm run build` на клиенте.
-- [x] Прогнать `npx tsc -b`, `npm run build` и 11 e2e-проверок на сервере (включая `e2e:admin-login` и `e2e:phase-b`). В общей сессии `e2e:admin-login` упёрся в 429 throttler'а и прошёл после короткой паузы.
+- [x] Прогнать `npx tsc -b`, `npm run build` и все 13 e2e-проверок на сервере (включая `e2e:admin-login`, `e2e:orders`, `e2e:phase-b`). В общей сессии `e2e:admin-login` упёрся в 429 throttler'а и прошёл после короткой паузы.
 - [ ] Остановить/оставить dev-серверы осознанно (сейчас backend на 4000, frontend на 5173).
+
+---
+
+## 10.1 Финальные исправления второго аудита (21.11.2026)
+
+Пять блокеров из повторного аудита закрыты:
+
+| Блокер | Исправление | Проверка |
+|---|---|---|
+| Гонка авторизации в `accountStore.initialize()` | `initialized` выставляется только после того, как `loadUser()` (`/auth/me`) завершился; повторные вызовы не запускают второй запрос. Guard'ы видят loader, а не `isAuthenticated=false` | Новый `accountStore.init.test.ts`: 52/52 теста, 13 файлов |
+| Mock-оплата по умолчанию | `PAYMENTS_MOCK_ENABLED`: явное `true` — демо, явное `false`/`NODE_ENV=production` — `403`. Balance-оплата не затронута | Временный сервер на 4013 с `PAYMENTS_MOCK_ENABLED=false`: `POST /api/payments` → 403 `Mock payment providers are disabled` |
+| `initData` без проверки свежести | `auth_date` обязателен: прошлое не старше 10 минут, будущее не более 60 секунд; применяется и к `/api/auth/admin/telegram` | `e2e:admin-login` 7/7, все 13 e2e на пересобранном сервере |
+| `DATABASE_SSL=true` игнорировался приложением | Добавлен ключ `database.ssl` в `configuration.ts`, который читает `app.module.ts` | `npx tsc -b`, `npm run build`, полный e2e-прогон |
+| CDEK-webhook fail-open | Секрет обязателен: нет `CDEK_WEBHOOK_SECRET` или несовпавший `x-secret` → `400` | `POST /api/delivery/cdek/webhook` без заголовка → 400 `Invalid webhook secret` |
+
+Дополнительно: `render.yaml` задаёт `NODE_ENV=production` и `PAYMENTS_MOCK_ENABLED=false`, `.env.example` документирует оба флага; локальные e2e по-прежнему работают на mock-оплате (флаг не задан).
+
+**Проверено после правок:** сервер `npx tsc -b --pretty false && npm run build`, все 13 `e2e:*`; клиент `npx tsc -b --pretty false`, `npm test -- --run` (52/52), `npm run lint` (0 errors), `npm run build`. Коммит сервера `277553a` запушен в `origin/main`, клиентский коммит — `6b4d1ae`, также запушен в `origin/main`.
+
+**Остаётся только с доступами пользователя** (§9.3/§10): migration:show в Render Shell, домен BotFather, реальный вход админа через Mini App, browser-smoke/адаптив, визуальная проверка Render env и заполнение `CDEK_WEBHOOK_SECRET`.
 
 ---
 
