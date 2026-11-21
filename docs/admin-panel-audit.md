@@ -654,10 +654,10 @@ Guard'ы:
 
 ### Код и проверки
 
-- [x] Коммит клиента и сервера отдельно. Сервер: `9e1e249`, `75ddfad`, `b8f12ea`, `5020d16`, `8b38dad` (docs), `277553a` (финальные блокеры). Клиент: `1d818dd`, `5ca4fee`, `3a73707`, `a486669`, `83b2629`, `1a16b81`, `f1c0aed`, `6009ec5`, `7780bf2`, `78109b6`, `cad640c`, `6b4d1ae` (финальные блокеры).
+- [x] Коммит клиента и сервера отдельно. Сервер: `9e1e249`, `75ddfad`, `b8f12ea`, `5020d16`, `8b38dad` (docs), `277553a` (финальные блокеры). Клиент: `1d818dd`, `5ca4fee`, `3a73707`, `a486669`, `83b2629`, `1a16b81`, `f1c0aed`, `6009ec5`, `7780bf2`, `78109b6`, `cad640c`, `00e5e04` (финальные блокеры).
 - [x] Phase B закоммичена отдельно от Phase A: сервер `b8f12ea`, клиент `3a73707`.
 - [x] `npm run build` в обоих репозиториях; сервер — все 13 e2e (включая `phase-b`, `admin-order`, `admin-login`, `orders`); клиент `npx tsc -b`, 52/52 тестов, lint 0 errors.
-- [x] Push в `origin/main`: сервер `b0f231e..277553a` (включая docs-коммит `8b38dad`), клиент `b85c110..6b4d1ae`.
+- [x] Push в `origin/main`: сервер `b0f231e..277553a` (включая docs-коммит `8b38dad`), клиент `b85c110..00e5e04`.
 - [x] Снять галочку «все изменения uncommitted».
 
 ### Деплой-конфигурация (прочитано из файлов репозиториев)
@@ -727,7 +727,7 @@ Guard'ы:
 
 Дополнительно: `render.yaml` задаёт `NODE_ENV=production` и `PAYMENTS_MOCK_ENABLED=false`, `.env.example` документирует оба флага; локальные e2e по-прежнему работают на mock-оплате (флаг не задан).
 
-**Проверено после правок:** сервер `npx tsc -b --pretty false && npm run build`, все 13 `e2e:*`; клиент `npx tsc -b --pretty false`, `npm test -- --run` (52/52), `npm run lint` (0 errors), `npm run build`. Коммит сервера `277553a` запушен в `origin/main`, клиентский коммит — `6b4d1ae`, также запушен в `origin/main`.
+**Проверено после правок:** сервер `npx tsc -b --pretty false && npm run build`, все 13 `e2e:*`; клиент `npx tsc -b --pretty false`, `npm test -- --run` (52/52), `npm run lint` (0 errors), `npm run build`. Коммит сервера `277553a` запушен в `origin/main`, клиентский коммит — `00e5e04`, также запушен в `origin/main`.
 
 **Остаётся только с доступами пользователя** (§9.3/§10): migration:show в Render Shell, домен BotFather, реальный вход админа через Mini App, browser-smoke/адаптив, визуальная проверка Render env и заполнение `CDEK_WEBHOOK_SECRET`.
 
