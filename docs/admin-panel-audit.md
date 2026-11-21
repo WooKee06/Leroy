@@ -194,7 +194,7 @@ Guard'ы:
 | Server `npm run build` | OK |
 | Server `npm run lint` | `eslint: command not found` — линтер не установлен |
 | Client `npx tsc -b` | OK |
-| Client `npm test` | 34/34 теста, 9 файлов |
+| Client `npm test` | 47/47 тестов, 11 файлов (включая admin-хелперы и guards) |
 | Client `npm run lint` | 0 errors, warnings only |
 | Client `npm run build` | OK |
 | `npm run migration:run` | Миграции применены локально |
@@ -652,13 +652,49 @@ Guard'ы:
 
 ## Фаза D — релиз
 
-- [x] Коммит клиента (`1d818dd`, `5ca4fee`, `3a73707`) и сервера (`9e1e249`, `75ddfad`, `b8f12ea`) отдельно.
+### Код и проверки
+
+- [x] Коммит клиента и сервера отдельно. Сервер: `9e1e249`, `75ddfad`, `b8f12ea`, `5020d16`. Клиент: `1d818dd`, `5ca4fee`, `3a73707`, `a486669`, `83b2629`, `1a16b81`, `f1c0aed`, `6009ec5`.
 - [x] Phase B закоммичена отдельно от Phase A: сервер `b8f12ea`, клиент `3a73707`.
-- [x] `npm run build` в обоих репозиториях.
-- [ ] `migration:run:prod` на staging.
-- [ ] Smoke из раздела 4 + browser smoke.
-- [ ] Проверить `ALLOW_DEV_AUTH=false` в Render.
+- [x] `npm run build` в обоих репозиториях; сервер e2e `phase-b` и `admin-order`; клиент `npx tsc -b`, 47/47 тестов, lint 0 errors.
+- [x] Push в `origin/main`: сервер `b0f231e..5020d16`, клиент `b85c110..6009ec5`.
 - [x] Снять галочку «все изменения uncommitted».
+
+### Деплой-конфигурация (прочитано из файлов репозиториев)
+
+**Render (`LeroyServer/render.yaml`)** — `autoDeploy: true`, поэтому push в `main` уже запускает деплой:
+
+- build: `npm ci && npm run build`
+- start: `npm run migration:run:prod && node dist/main` — неприменённые миграции накатываются при каждом старте, применённые TypeORM пропускает
+- health: `GET /health` (глобального префикса `api` в `main.ts` нет; `/api/health` вернёт 404)
+- ручная проверка в Render Shell: `npm run migration:show:prod` → все 12 строк `[X]`; при необходимости `npm run migration:run:prod`
+- локально `migration:show:prod` уже PASS 12/12 на чистых БД (src и dist) — см. §4
+
+**Vercel (`Leroy/vercel.json`)** — framework `vite`, `buildCommand: npm run build`, `outputDirectory: dist`:
+
+- rewrite `/(.*) → /index.html` обеспечивает прямую навигацию и refresh на любом `/admin/*`
+- rewrite `/uploads/:path*` → публичный R2-домен
+- `API_BASE` берётся из `VITE_API_BASE`, дефолт в коде — `https://leroyserver.onrender.com/api`; для прода и staging нужно явно задать `https://api.avelonstore.ru/api`
+- `VITE_PUBLIC_URL` переопределяет origin в TonConnect-манифесте (`vite.config.ts`); без него используется `VERCEL_PROJECT_PRODUCTION_URL` / `VERCEL_URL`, которые Vercel задаёт автоматически
+
+### Staging — требуется доступ (в harness не проверено)
+
+- [ ] Дождаться зелёного деплоя Render и Vercel после push; `GET https://api.avelonstore.ru/health` → 200.
+- [ ] Render Shell: `npm run migration:show:prod` → 12/12 applied; при росте — `npm run migration:run:prod`.
+- [ ] Render env: `ALLOW_DEV_AUTH=false`, `DEV_ADMIN_TELEGRAM_IDS=""`, `DEV_AUTH_ALLOWED_IPS=""`.
+- [ ] Render env: `CORS_ALLOWED_ORIGINS=https://app.avelonstore.ru`, `MINI_APP_URL=https://app.avelonstore.ru`, `PUBLIC_URL=https://api.avelonstore.ru`, `TRUST_PROXY_HOPS=1`, `DATABASE_SSL=true`, `DATABASE_SYNCHRONIZE=false`.
+- [ ] BotFather: домен `https://app.avelonstore.ru` привязан к боту; Mini App открывается с этого домена и присылает подписанный `initData`.
+- [ ] Vercel env: `VITE_API_BASE=https://api.avelonstore.ru/api`; `VITE_PUBLIC_URL=https://app.avelonstore.ru` — если переопределён вручную.
+- [ ] В БД staging есть хотя бы один аккаунт с `role = admin` (назначается в БД/сидом; админка роли не повышает).
+
+### Smoke из раздела 4 + browser smoke (вручную)
+
+- [ ] Backend smoke §4 на staging: 401/403/200, `409` на повтор действия, `404` на несуществующую жалобу, dev-auth закрыт (`POST /api/auth/dev` → 404/403).
+- [ ] `/admin/login`: вход через Telegram; неавторизованный → `/admin/login`; buyer → «Доступ запрещён».
+- [ ] Прямая навигация и refresh на `/admin/moderation/:id`, `/admin/catalog/:id`, `/admin/sellers/:id`, `/admin/complaints/:id`, `/admin/users/:id`, `/admin/audit` — без 404 и без падения в пользовательский layout; `/admin/unknown` → `/admin`.
+- [ ] Модерация: approve/reject/block, обязательные причины, повтор действия → `409`, история и уведомления, resubmit продавцом.
+- [ ] Заказы, жалобы, категории: смена статуса с причиной, подтверждения, audit-записи, отмена с возвратом средств и остатка.
+- [ ] Адаптивность: 1440 / 1024 / 768 / 390 px — таблицы не обрезаются, навигация доступна, 0 ошибок в консоли браузера.
 
 ---
 
