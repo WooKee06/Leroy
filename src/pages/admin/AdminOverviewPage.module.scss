@@ -137,13 +137,19 @@
 @media (max-width: 520px) {
   .metrics {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
   }
 
   .metric {
-    padding: 13px;
+    min-height: 94px;
+    padding: 15px;
   }
 
   .metricValue {
-    font-size: 19px;
+    font-size: 21px;
+  }
+
+  .revenue {
+    padding: 16px;
   }
 }

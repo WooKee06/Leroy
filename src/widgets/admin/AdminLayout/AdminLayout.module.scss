@@ -12,6 +12,9 @@
   flex: 0 0 248px;
   width: 350px;
   height: 100dvh;
+  // Telegram draws its back/close buttons over the top of the Mini App.
+  // Keep the brand and the first nav items below that system area.
+  padding-top: var(--safe-top);
   border-right: 1px solid var(--color-border);
   background: var(--bg-surface);
   z-index: 30;
@@ -82,8 +85,10 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  min-height: 68px;
-  padding: 0 28px;
+  min-height: calc(68px + var(--safe-top));
+  // The blurred background extends into the Telegram system-button area,
+  // while the burger/avatar stay below it.
+  padding: var(--safe-top) 28px 0;
   border-bottom: 1px solid var(--color-border);
   background: color-mix(in srgb, var(--bg-surface) 88%, transparent);
   backdrop-filter: blur(14px);
@@ -97,8 +102,9 @@
   display: none;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
   border: 1px solid var(--color-border);
   border-radius: $radius-sm;
   background: var(--bg-surface);
@@ -198,11 +204,12 @@
   }
 
   .content {
-    padding: 20px 16px;
+    padding: 22px 18px calc(32px + var(--safe-bottom));
   }
 
   .topbar {
-    padding: 0 16px;
+    min-height: calc(60px + var(--safe-top));
+    padding: var(--safe-top) 18px 0;
   }
 }
 
@@ -213,6 +220,20 @@
   }
 
   .logout {
-    padding: 0 10px;
+    min-width: 40px;
+    min-height: 40px;
+    justify-content: center;
+    padding: 0 11px;
+  }
+
+  .avatar {
+    width: 38px;
+    height: 38px;
+  }
+
+  .content {
+    // Slightly looser vertical rhythm: dense admin tables look cramped
+    // on a phone, especially once Telegram's bottom controls are visible.
+    padding: 24px 16px calc(36px + var(--safe-bottom));
   }
 }

@@ -365,9 +365,54 @@
 @media (max-width: 720px) {
   .pageIntro {
     flex-direction: column;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+
+  .pageTitle {
+    font-size: 21px;
   }
 
   .cardHeader {
     flex-direction: column;
+    padding: 18px 16px;
+  }
+
+  .cardBody {
+    padding: 18px 16px;
+  }
+
+  .table {
+    font-size: 13.5px;
+
+    th {
+      padding: 12px 14px;
+      font-size: 11.5px;
+    }
+
+    td {
+      padding: 14px;
+    }
+  }
+
+  .toolbar {
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .searchInput,
+  .select {
+    min-width: 0;
+    flex: 1 1 calc(50% - 4px);
+    height: 40px;
+  }
+
+  .overlay {
+    padding: calc(20px + var(--safe-top)) 16px
+      calc(20px + var(--safe-bottom));
+  }
+
+  .modalBody {
+    padding: 16px;
   }
 }
