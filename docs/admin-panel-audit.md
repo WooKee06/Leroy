@@ -1,8 +1,8 @@
 # Аудит админ-панели и оставшегося бэклога Leroy
 
-Дата: 20.11.2026  
-Репозитории: клиент `Leroy/`, сервер `LeroyServer/`  
-Статус: **аудит текущего состояния репозиториев**. Все изменения зафиксированы отдельными коммитами: сервер `9e1e249`, клиент `1d818dd` (21.11.2026). Единственное исключение — сгенерированный `stats.html`, намеренно оставленный вне коммита.
+Дата: 21.11.2026 (первая версия — 20.11.2026). Репозитории: клиент `Leroy/`, сервер `LeroyServer/`.
+
+Статус: **аудит текущего состояния репозиториев**. Phase A зафиксирована коммитами сервера `9e1e249`, `75ddfad` и клиента `1d818dd`, `5ca4fee`; Phase B — сервер `b8f12ea`, клиент `3a73707` (21.11.2026). Единственное исключение — сгенерированный `stats.html`, намеренно оставленный вне коммита.
 
 Документ отвечает на три вопроса:
 
@@ -29,6 +29,9 @@
 - Status badge + модалка статуса магазина на публичной странице и в «Моём магазине».
 - Редактирование магазина переведено на выбор файла + обрезку + upload вместо URL-инпутов.
 - TON удалён, отзывы доступны только после покупки, адреса привязаны к профилю, есть skeletons и cache-busting картинок.
+- Жёсткие таблицы переходов магазина/товара (Phase B): невалидное действие → `400`, повтор уже применённого → `409`. Админ видит только доступные в текущем статусе кнопки.
+- Продавец может вернуть отклонённый магазин / черновик-или-отклонённый товар на повторную проверку; важные правки одобренного товара сбрасывают одобрение автоматически.
+- Единый `AuditService` пишет `ip`/`requestId` в `audit_logs`; заглушки документов удалены, а не оставлены «визуально».
 
 ### Главные блокеры перед продом (P0)
 
@@ -47,12 +50,12 @@
 
 | Слой | Готовность | Комментарий |
 |---|---:|---|
-| Admin UI | ~80% | Все экраны есть, но нет прод-логина, тестов и browser-smoke |
-| Admin API | ~90% | Роуты, аудит, бизнес-правила, public DTO и инфраструктура (CORS/throttle/upload) закрыты |
-| Модерация | ~90% | Статусы, связь товар↔магазин, жалобы и order state machine закрыты |
-| Безопасность | ~90% | P0 закрыты: self-approval, dev-auth, JWT snapshot, order-rules, public DTO, CORS/rate-limit/upload; остался прод-логин |
-| Тесты/QA | ~70% | 34 client-теста, admin unit-тестов нет; 9 server e2e (+security, +orders), smoke ручной |
-| Деплой/миграции | ~85% | Миграции, индексы и FK готовы и проверены на чистых БД; остался коммит |
+| Admin UI | ~85% | Прод-логин и все экраны есть; нет browser-smoke и admin unit-тестов |
+| Admin API | ~95% | Роуты, аудит, бизнес-правила, public DTO и инфраструктура (CORS/throttle/upload) закрыты |
+| Модерация | ~98% | Статусы, связь товар↔магазин, жалобы, order state machine и жёсткие таблицы переходов закрыты |
+| Безопасность | ~95% | P0 закрыты, включая прод-логин; audit теперь с `ip`/`requestId`. Осталось DB-enforcement append-only |
+| Тесты/QA | ~75% | 34 client-теста, admin unit-тестов нет; 11 server e2e (включая security/orders/phase-b), smoke ручной |
+| Деплой/миграции | ~85% | 12 миграций, индексы и FK готовы и проверены на чистых БД; остался staging |
 
 ---
 
@@ -122,7 +125,8 @@ Guard'ы:
 - `src/features/complaints/ReportProductButton.tsx` — подача жалобы с товара.
 - `src/shared/ui/store/StoreStatusBadge.tsx` — кликабельный статус магазина + модалка с объяснением правил публикации.
 - `src/pages/storeEdit/StoreEditPage.tsx` — выбор файла + `ImageCropModal` + upload для аватарки/шапки.
-- `src/pages/myStore/MyStorePage.tsx` — страница продавца, кнопка «Редактировать» восстановлена.
+- `src/pages/myStore/MyStorePage.tsx` — страница продавца, кнопка «Редактировать» восстановлена; кнопка «На проверку» для отклонённого магазина.
+- `src/pages/myStore/TabComponents/Items/Items.tsx` — resubmit-кнопка у товаров в `draft`/`rejected`.
 
 ---
 
@@ -167,12 +171,16 @@ Guard'ы:
 
 ### 3.3 Сущности и схема
 
-- `src/entities/AuditLog.entity.ts` — append-only journal (в коде; на уровне БД не обеспечено).
+- `src/entities/AuditLog.entity.ts` — append-only journal (в коде; на уровне БД не обеспечено), с 21.11 — `ip`/`requestId`.
 - `src/entities/Complaint.entity.ts` — `targetType`, `reason`, `status`, `assigneeId`, `resolution`, `images`.
 - `src/entities/ProductModerationStatus.ts`: `draft`, `pending_review`, `under_review`, `approved`, `rejected`, `blocked`, `archived`.
 - `src/entities/StoreModerationStatus.ts`: `pending`, `under_review`, `verified`, `rejected`, `blocked`.
 - `src/entities/UserStatus.ts`: `active`, `blocked`.
 - `src/migrations/1795200000000-AddAdminModeration.ts` — enums, поля, бэкфилл, индексы, таблицы audit/complaints.
+- `src/migrations/1795200000001-HardenAdminModeration.ts` — индексы и FK.
+- `src/migrations/1795200000002-AddAuditRequestContext.ts` — `audit_logs.ip`, `audit_logs.requestId` + индекс.
+- `src/modules/admin/moderation-transitions.ts` — жёсткие таблицы переходов магазина и товара.
+- `src/common/audit/` — глобальный `AuditService`, единая append-only запись аудита с метаданными запроса.
 
 ---
 
@@ -190,7 +198,7 @@ Guard'ы:
 | Client `npm run lint` | 0 errors, warnings only |
 | Client `npm run build` | OK |
 | `npm run migration:run` | Миграции применены локально |
-| `npm run migration:show` / `migration:show:prod` | PASS (21.11.2026), все 11 applied на чистых БД (src и dist) |
+| `npm run migration:show` / `migration:show:prod` | PASS (21.11.2026), все 12 applied на чистых БД (src и dist) |
 | `npm run migration:revert` + `migration:run` | PASS (21.11.2026), hardening-миграция откатывается и применяется повторно |
 | Server `npm run e2e:self-approval` | PASS (21.11.2026), self-approval → 400 |
 | Server `npm run e2e:dev-auth` | PASS (21.11.2026), произвольный admin → 403, prod-флаг → fail-fast |
@@ -201,6 +209,8 @@ Guard'ы:
 | Server `npm run e2e:orders` | PASS (21.11.2026), 53/53 после обновления фикстуры под 5.4 и отдельного dev-auth лимита |
 | Server `npm run e2e:public-dto` | PASS (21.11.2026), store/product/category payloads очищены, owner preview сохранён |
 | Server `npm run e2e:security` | PASS (21.11.2026), CORS allow/deny/без Origin, nosniff, magic bytes, 429 на burst, health без лимита, квота 3/3 |
+| Server `npm run e2e:admin-login` | PASS (21.11.2026), 7/7: прод-вход админа, доступ к dashboard, отказ buyer/заблокированного/неизвестного аккаунта |
+| Server `npm run e2e:phase-b` | PASS (21.11.2026), 6/6: жёсткие переходы и повторы → 409, resubmit только владельцем, `ip`/`requestId` в аудите, важные правки, уведомление владельца, unblock |
 
 ### Runtime smoke (backend, `ALLOW_DEV_AUTH=true`)
 
@@ -384,7 +394,7 @@ Guard'ы:
 - [x] Добавить индексы под moderation queue и storefront filters.
 - [x] Закоммитить обе миграции вместе с остальными изменениями (сервер `9e1e249`).
 
-**Статус (21.11.2026):** код готов и проверен, остался коммит. Базовая миграция теперь проверяет типы/колонки/таблицы и не перезаписывает уже принятые moderation-решения backfill'ом. Новая `HardenAdminModeration1795200000001` добавляет индексы (`products.moderationStatus`, `(isActive, moderationStatus)`, `stores.moderationStatus`, `(isActive, moderationStatus)`, `audit_logs.action+createdAt`, `complaints.assigneeId+status`) и FK на `moderatedById`/`assigneeId`/`actorId` с `ON DELETE SET NULL`; `complaints.targetId` остаётся без FK, потому что это полиморфная ссылка. Перед FK висячие ссылки на удалённых пользователей очищаются. Entity-колонки получили явный `uuid` и relation-метаданные. Проверено: чистая локальная БД → `migration:run` и `migration:run:prod` применяют все 11 миграций, `migration:show`/`migration:show:prod` показывают `[X]` для всех; `migration:revert` + повторный `migration:run` hardening-миграции проходят. На рабочей локальной БД новая миграция применена. ВАЖНО: `down()` базовой миграции всё ещё удаляет moderation-данные — использовать только вместе с откатом кода; откат hardening-миграции безопасен.
+**Статус (21.11.2026):** закрыто, код закоммичен (`9e1e249`). Базовая миграция теперь проверяет типы/колонки/таблицы и не перезаписывает уже принятые moderation-решения backfill'ом. Новая `HardenAdminModeration1795200000001` добавляет индексы (`products.moderationStatus`, `(isActive, moderationStatus)`, `stores.moderationStatus`, `(isActive, moderationStatus)`, `audit_logs.action+createdAt`, `complaints.assigneeId+status`) и FK на `moderatedById`/`assigneeId`/`actorId` с `ON DELETE SET NULL`; `complaints.targetId` остаётся без FK, потому что это полиморфная ссылка. Перед FK висячие ссылки на удалённых пользователей очищаются. Entity-колонки получили явный `uuid` и relation-метаданные. Проверено: чистая локальная БД → `migration:run` и `migration:run:prod` применяют все 12 миграций, `migration:show`/`migration:show:prod` показывают `[X]` для всех; `migration:revert` + повторный `migration:run` hardening-миграции проходят. На рабочей локальной БД новая миграция применена. ВАЖНО: `down()` базовой миграции всё ещё удаляет moderation-данные — использовать только вместе с откатом кода; откат hardening-миграции безопасен.
 
 ---
 
@@ -436,38 +446,28 @@ Guard'ы:
 
 ## 6. P1 — модерация и бизнес-правила
 
-### 6.1 Состояния магазина несогласованы
+### 6.1 Состояния магазина несогласованы — закрыто (Phase B, 21.11.2026)
 
-`admin.service.ts:369-395`:
+**Статус:** закрыто коммитом сервера `b8f12ea`. Действия заданы жёсткой таблицей `STORE_MODERATION_TRANSITIONS` в `src/modules/admin/moderation-transitions.ts`: каждая пара «действие + текущий статус» явно определяет итоговые `moderationStatus`, `isVerified`, `isActive`. Невалидная комбинация → `400`, повтор действия, ведущего в тот же статус, → `409`.
 
-| Действие | Сейчас | Должно быть |
+| Действие | Разрешено из | Результат |
 |---|---|---|
-| `REJECT` | status=`rejected`, флаги не меняются | `isActive=false`, `isVerified=false`, причина обязательна |
-| `UNVERIFY` | status=`pending`, `isVerified` остаётся `true` | `isVerified=false`, причина/audit |
-| `BLOCK` | `isActive=false`, `isVerified=false` | + скрыть товары |
-| `UNBLOCK` | `isActive=true`, `under_review` | ок, но товары остаются скрытыми до верификации |
-| `REQUEST_DOCS` | `under_review` | ок |
-| `VERIFY` | `verified`, `isVerified=true`, `isActive=true` | ок, но нужен state machine |
+| `VERIFY` | `pending`, `under_review`, `rejected` | `verified`, виден в каталоге |
+| `REJECT` | `pending`, `under_review`, `verified` | `rejected`, скрыт |
+| `BLOCK` | `pending`, `under_review`, `verified`, `rejected` | `blocked`, скрыт |
+| `UNBLOCK` | только `blocked` | `under_review`, активен |
+| `REQUEST_DOCS` | `pending`, `verified`, `rejected` | `under_review`, скрыт |
+| `UNVERIFY` | только `verified` | `pending`, скрыт |
 
-Также:
+Причина обязательна для `REJECT`/`BLOCK`/`REQUEST_DOCS`; при `VERIFY` старая причина очищается. Блокировка/отклонение в одной транзакции снимают `isActive` у товаров; повторная верификация возвращает в каталог только одобренные товары. Клиент дублирует таблицу в `canModerateStore()` (`src/shared/lib/admin.ts`) и дизейблит недоступные кнопки. Обратная совместимость с существующими сценариями (`pending → verify`, `verified → block`, `blocked → unblock`) сохранена.
 
-- [ ] `moderationReason` у магазина не очищается при `VERIFY` — может остаться старый текст отказа.
-- [ ] Нет state machine: `VERIFY` применяется к `BLOCKED`, `BLOCK` к любому статусу.
-- [ ] Reason проверяется только для `REJECT/BLOCK/REQUEST_DOCS`; нужно единообразие.
-- [ ] Conflict check сравнивает только `{status,isVerified,isActive}`, нельзя обновить только причину.
+### 6.2 Перемодерация товаров неполная — закрыто (Phase B, 21.11.2026)
 
-### 6.2 Перемодерация товаров неполная
+**Статус:** закрыто коммитами `b8f12ea` / `3a73707`. В список важных полей добавлены `price`, `oldPrice`, `stock`, `weightG/lengthCm/widthCm/heightCm` и `variants` (с нормализованным сравнением). Правка любого из них у одобренного/отклонённого/чернового товара сбрасывает его в `pending_review + isActive=false` и пишет аудит `product.resubmit` с `trigger: edit`; нерелевантные правки (например `tags`) статус не трогают.
 
-`products.service.ts:538-558` инициирует review только для `name`, `description`, `categoryId`, `images`.
+Добавлены явные эндпоинты `PATCH /api/products/:id/resubmit` (`draft|rejected → pending_review`) и `PATCH /api/stores/:id/resubmit` (`rejected → under_review`), только для владельца. Заблокированный контент самовозврату не поддаётся — нужен админский `UNBLOCK`. На странице «Мой магазин» появились кнопки «На проверку» у магазина и у товаров в `draft`/`rejected`; у админа кнопки теперь дизейблятся по тем же таблицам, что и на сервере.
 
-**Не хватает:** `price`, `oldPrice`, `stock`, `tags`, `weightG/lengthCm/widthCm/heightCm`, `variants`, `isFeatured`.
-
-**Также нет:**
-
-- [ ] Action «отправить на проверку» для продавца после `rejected`/`draft`.
-- [ ] После `reject` / возврата в `draft` редактирование не переводит товар в `pending_review`.
-- [ ] `requestedDocuments` пишется только в audit `data`, не хранится и не отображается.
-- [ ] Запрета менять `storeId` после создания (связано с 5.1).
+Остатки: `requestedDocuments` по-прежнему живёт только в аудите (отдельной модели документов нет, см. 7.2). Запрет смены `storeId` закрыт ещё в 5.1 whitelist'ом DTO. `isFeatured` намеренно не входит в важные поля — это мерчендайзинг, а не содержание товара.
 
 ### 6.3 User role/status
 
@@ -507,7 +507,7 @@ Guard'ы:
 | `accountStore.setRole()` | `accountStore.ts:179-181` | Публичный мутатор роли без сервера |
 | ИНН в списке продавцов | `AdminSellersPage.tsx:84` | Хардкод `—` |
 | «Сессия» в Settings | `AdminSettingsPage.tsx:88-90` | `new Date()`, не реальные данные |
-| Документы товара/продавца | `AdminProductDetailPage.tsx:235-240`, `AdminSellerDetailPage.tsx:145-150` | Явные заглушки |
+| Документы товара/продавца | `AdminProductDetailPage.tsx`, `AdminSellerDetailPage.tsx` | Заглушки удалены (`3a73707`); запрос документов фиксируется в истории решений |
 
 ### 7.3 UX/логика
 
@@ -538,7 +538,7 @@ Guard'ы:
 
 ## 8. Аудит и наблюдаемость
 
-Пишется: store/product/order/user/complaint/category actions (`admin.service.ts:112-135` и вызовы `log()`).
+Пишется: store/product/order/user/complaint/category actions, а также seller `resubmit` — через единый `AuditService` (`src/common/audit/audit.service.ts`) с полями `ip`/`requestId`.
 
 **Не пишется:**
 
@@ -551,9 +551,9 @@ Guard'ы:
 
 **Дополнительно:**
 
-- [ ] State change + audit + notification не в одной транзакции.
-- [ ] `actorRole` берётся из JWT и может быть устаревшим.
-- [ ] Нет IP / request-id / user-agent в логе.
+- [x] State change + audit + notification в одной транзакции — закрыто для модерации магазина/товара, жалоб и смены статуса заказа.
+- [ ] `actorRole` по-прежнему берётся из JWT, но роль/статус перечитываются из БД на каждый запрос (5.3), поэтому устаревшим быть не может.
+- [x] IP / request-id пишутся в `audit_logs` (`AuditContext`, миграция `1795200000002`). `requestId` берётся из `x-request-id` или генерируется заново, `ip` — из `req.ip` с учётом `TRUST_PROXY_HOPS`; заголовок `X-Forwarded-For` от клиента не доверяется. User-agent не пишется.
 - [ ] «Append-only» — только комментарий в entity, нет DB trigger/GRANT REVOKE UPDATE/DELETE.
 - [ ] Нет алертов на критичные действия (`ADMIN` role, block store, refund/cancel order).
 
@@ -585,9 +585,9 @@ Guard'ы:
 ### 9.3 seller/витрина
 
 - [x] Строгая связь товар↔магазин (5.4).
-- [ ] Документы продавца/товара: либо реальная модель + upload + moderation UI, либо убрать заглушки из админки.
-- [ ] Seller resubmit на модерацию.
-- [ ] Public store DTO без внутренних полей.
+- [x] Документы продавца/товара: заглушки убраны из админки (3a73707), запрос документов остаётся в аудите.
+- [x] Seller resubmit на модерацию (b8f12ea / 3a73707).
+- [x] Public store DTO без внутренних полей (5.8).
 
 ### 9.4 UX/качество
 
@@ -597,7 +597,7 @@ Guard'ы:
 - [x] Мгновенное создание магазина с файлами.
 - [ ] Файл `stats.html` изменён build visualizer — решить, нужен ли в git.
 - [ ] Server `npm run lint`: установить eslint + конфиг или удалить script.
-- [x] Добавить e2e/smoke script'ы в `dev-tests/` (9 server e2e, включая security).
+- [x] Добавить e2e/smoke script'ы в `dev-tests/` (11 server e2e, включая security и phase-b).
 
 ---
 
@@ -620,15 +620,15 @@ Guard'ы:
 
 **Критерий готовности:** ни один тест/сценарий не может self-approve, поднять админа через dev endpoint в prod-конфиге, оставить товар заблокированного магазина в каталоге, одобрить/верифицировать контент через жалобу, сломать заказ админской сменой статуса, получить внутренние moderation/owner-поля из публичных endpoint'ов, обойти CORS-allowlist или залить SVG как изображение.
 
-## Фаза B — P1, модерация как продукт
+## Фаза B — P1, модерация как продукт — закрыта (21.11.2026)
 
-- [ ] State machine для store/product/order (complaint — закрыта в 5.5).
-- [ ] Полная перемодерация товара, action повторной отправки на проверку.
-- [ ] Документы: реальная модель или честное удаление заглушек.
-- [ ] Audit: все admin-действия, транзакционность, IP/request-id.
-- [ ] Уведомления всем сторонам.
+- [x] State machine для store/product (complaint — закрыта в 5.5, order — в 5.6): `moderation-transitions.ts`.
+- [x] Полная перемодерация товара + seller resubmit для товара и магазина.
+- [x] Документы: честное удаление заглушек из админки (реальной модели нет).
+- [x] Audit: единый `AuditService`, транзакционность, `ip`/`requestId` + аддитивная миграция.
+- [x] Уведомления владельцу контента и автору жалобы (проверено в e2e).
 
-**Критерий:** админ видит один и тот же статус везде, история полная, повторные действия запрещены, причины обязательны где нужно.
+**Критерий:** админ видит один и тот же статус везде, история полная, повторные действия запрещены, причины обязательны где нужно. Подтверждено `npm run e2e:phase-b` (6/6) и полным набором из 11 e2e. Коммиты: сервер `b8f12ea`, клиент `3a73707`.
 
 ## Фаза C — P1/P2, frontend админки
 
@@ -643,7 +643,8 @@ Guard'ы:
 
 ## Фаза D — релиз
 
-- [x] Коммит клиента (`1d818dd`) и сервера (`9e1e249`) отдельно.
+- [x] Коммит клиента (`1d818dd`, `5ca4fee`, `3a73707`) и сервера (`9e1e249`, `75ddfad`, `b8f12ea`) отдельно.
+- [x] Phase B закоммичена отдельно от Phase A: сервер `b8f12ea`, клиент `3a73707`.
 - [x] `npm run build` в обоих репозиториях.
 - [ ] `migration:run:prod` на staging.
 - [ ] Smoke из раздела 4 + browser smoke.
@@ -660,7 +661,7 @@ Guard'ы:
 - [ ] Решить судьбу `stats.html` — сгенерированный build visualizer'ом файл, пока оставлен изменённым вне коммита.
 - [x] Явно зафиксировать в `.env.example`, что `ALLOW_DEV_AUTH` — local only.
 - [x] Прогнать `npx tsc -b`, `npm test`, `npm run lint`, `npm run build` на клиенте.
-- [x] Прогнать `npx tsc -b`, `npm run build` и 10 e2e-проверок на сервере (включая `e2e:admin-login`).
+- [x] Прогнать `npx tsc -b`, `npm run build` и 11 e2e-проверок на сервере (включая `e2e:admin-login` и `e2e:phase-b`). В общей сессии `e2e:admin-login` упёрся в 429 throttler'а и прошёл после короткой паузы.
 - [ ] Остановить/оставить dev-серверы осознанно (сейчас backend на 4000, frontend на 5173).
 
 ---
@@ -668,8 +669,8 @@ Guard'ы:
 ## 11. Открытые вопросы
 
 1. ~~Production admin login~~ — решён в 5.10 через Telegram + серверную проверку роли. При желании позже можно добавить TOTP вторым фактором; отдельный бот/SSO сейчас не нужны.
-2. **Документы:** делать реальную загрузку документов продавца/товара или убрать секции из админки?
-3. **Можно ли продавцу самому вернуть товар на модерацию после отказа?** Сейчас — нет.
+2. ~~Документы: делать реальную загрузку или убрать секции~~ — заглушки удалены (`3a73707`), запрос документов остаётся в аудите.
+3. ~~Можно ли продавцу самому вернуть товар на модерацию после отказа?~~ — да, через `resubmit` (`b8f12ea` / `3a73707`).
 4. **Нужен ли отдельный `StorePublicDto` или достаточно явного `select` в query?**
 5. **Менять ли `JWT_EXPIRES_IN` с 30 дней на короткий + refresh token?**
 6. **Оставлять ли `POST /api/categories` как duplicate или удалить в пользу `/api/admin/categories`?**
@@ -714,7 +715,9 @@ Guard'ы:
 - `src/shared/lib/admin.ts`
 - `src/shared/guards/RequireAdmin.tsx`
 - `src/shared/stores/accountStore.ts`
+- `src/shared/stores/sellerStore.ts` (updateStore)
 - `src/features/complaints/ReportProductButton.tsx`
+- `src/pages/myStore/MyStorePage.tsx` (seller resubmit)
 
 ### Сервер
 
@@ -722,8 +725,12 @@ Guard'ы:
 - `src/modules/admin/admin.service.ts`
 - `src/modules/admin/dto/admin.dto.ts`
 - `src/modules/admin/complaints.controller.ts`
+- `src/modules/admin/moderation-transitions.ts`
+- `src/common/audit/{audit.service.ts,audit.module.ts}`
+- `src/common/decorators/audit-context.decorator.ts`
 - `src/entities/{AuditLog,Complaint,Product,Store,User,Category}.entity.ts`
 - `src/migrations/1795200000000-AddAdminModeration.ts`
+- `src/migrations/1795200000002-AddAuditRequestContext.ts`
 - `src/modules/products/products.service.ts`
 - `src/modules/stores/stores.service.ts`
 - `src/modules/search/search.service.ts`
