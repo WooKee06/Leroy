@@ -54,14 +54,9 @@
 
 .navFooter {
   display: flex;
-  justify-content: space-between;
   margin-top: auto;
   padding: 16px 12px 0;
   border-top: 1px solid var(--color-border);
   font-size: 11px;
-  color: $text-tertiary;
-}
-
-.version {
   color: $text-tertiary;
 }

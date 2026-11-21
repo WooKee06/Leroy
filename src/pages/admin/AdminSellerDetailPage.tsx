@@ -150,7 +150,12 @@ function AdminSellerDetailPage() {
                 <ul className={styles.rows}>
                   {details.products.map((product) => (
                     <li key={product.id}>
-                      <Link to={`/admin/catalog/${product.id}`}>{product.name}</Link>
+                      <Link
+                        to={`/admin/catalog/${product.id}`}
+                        state={{ from: `/admin/sellers/${id}` }}
+                      >
+                        {product.name}
+                      </Link>
                       <span>{formatMoney(product.price)}</span>
                     </li>
                   ))}

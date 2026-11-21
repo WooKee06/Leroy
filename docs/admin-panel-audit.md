@@ -516,15 +516,15 @@ Guard'ы:
 - [x] Есть `dateFrom`, нет `dateTo`, хотя backend его поддерживает.
 - [x] Audit filter передаёт `entity` как `search`, `action` как `status` (`AdminAuditPage.tsx:58-64`) — нужен отдельный DTO/params.
 - [x] Список ACTIONS в Audit — только 9 из ~20 известных (`admin.ts:205-230` → `ACTION_LABELS`).
-- [ ] Recent-элементы Overview не кликабельны; метрики не несут фильтры.
-- [ ] Product detail back-link всегда ведёт в `/admin/moderation`, даже если открыт из catalog.
-- [ ] Category toggle/sort пишут сразу без подтверждения.
-- [ ] Order status меняется без `reason`, хотя API его принимает.
-- [ ] User detail history не показывает `reason`.
-- [ ] Guards возвращают `null` пока `initialized=false` — белый экран вместо loader.
-- [ ] Нет `/admin/*` catch-all: неизвестный admin-URL уходит в пользовательский layout.
+- [x] Recent-элементы Overview не кликабельны; метрики не несут фильтры.
+- [x] Product detail back-link всегда ведёт в `/admin/moderation`, даже если открыт из catalog.
+- [x] Category toggle/sort пишут сразу без подтверждения.
+- [x] Order status меняется без `reason`, хотя API его принимает.
+- [x] User detail history не показывает `reason`.
+- [x] Guards возвращают `null` пока `initialized=false` — белый экран вместо loader.
+- [x] Нет `/admin/*` catch-all: неизвестный admin-URL уходит в пользовательский layout.
 - [ ] Hook warnings: missing deps в `AdminProductDetailPage`/`AdminSellerDetailPage`, `set-state-in-effect` на страницах списков.
-- [ ] Брендинг смешанный: `Overview`, `Avilon Admin`, `v1.0` среди русских подписей.
+- [x] Брендинг смешанный: `Overview`, `Avilon Admin`, `v1.0` среди русских подписей.
 - [ ] `ReportProductButton` дублирует причины вместо `COMPLAINT_REASONS`.
 
 ### 7.4 Тесты и браузерный smoke
@@ -635,11 +635,13 @@ Guard'ы:
 - [x] Production admin login (5.10).
 - [ ] Разобрать мёртвые поля/методы (7.2).
 - [x] Debounce, `dateTo`, server-side orders search, правильные audit filters.
-- [ ] Кликабельные recent-элементы, фильтрованные метрики, корректный back-link.
+- [x] Кликабельные recent-элементы, фильтрованные метрики, корректный back-link.
 - [ ] Admin tests + browser smoke + проверка адаптивности.
 - [ ] Почистить warnings в новых admin-компонентах.
 
 **Статус фильтров (21.11.2026):** закрыто. На сервере добавлен `AdminAuditQueryDto` с каноничными `entity`/`action` (старые `search`/`status` остались алиасами) и поддержкой `dateFrom`/`dateTo`; `buildProductWhere` теперь применяет `categoryId`; заказы ищутся сервером по номеру и имени/username покупателя; пользователи — по имени, username и числовому Telegram ID. На клиенте поиск товаров/продавцов/пользователей/заказов дебаунсится на 350 мс через общий `useDebounce`, в списке товаров и журнале появился `dateTo`, заказы больше не фильтруют локально только загруженную страницу, а Audit шлёт `entity`/`action` и использует полный `ACTION_LABELS`. Проверено: сервер `npx tsc -b` + `npm run build`, e2e `phase-b` и `admin-order`, клиент `npx tsc -b`, `npm test -- --run` (34/34), `npm run lint` (0 errors), `npm run build`. Коммит сервера: `5020d16`.
+
+**Статус UX (21.11.2026):** закрыто. Неизвестные `/admin/*` редиректятся на `/admin`; guards показывают общий `AppLoader` вместо `null`; recent-элементы Overview и объект в журнале стали ссылками на detail-страницы с `state.from`; back-link товара учитывает origin (обзор / журнал / каталог / очередь / продавец). Скрытие и смена порядка категорий, а также все смены статуса заказа подтверждаются, причина статуса пишется в аудит; история пользователя показывает причину. Брендинг сведён к русскому «Обзор» + «Avilon Admin», фиктивная версия `v1.0` удалена. Проверено теми же командами, что и этап фильтров; 34/34 теста, 0 ошибок линтера.
 
 **Критерий:** `/admin/login` работает в prod, все кнопки ведут к реальным действиям, нет заглушек без пометки, 0 admin-ошибок в консоли браузера.
 

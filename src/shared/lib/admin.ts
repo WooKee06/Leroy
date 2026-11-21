@@ -246,6 +246,25 @@ export function auditObjectLabel(log: AdminAuditLogDto): string {
   return `${map[log.entityType] ?? log.entityType}${suffix}`;
 }
 
+/** Best-effort admin deeplink for a journal entry, or null when there is no detail page. */
+export function auditTargetHref(log: AdminAuditLogDto): string | null {
+  if (!log.entityId) return null;
+  switch (log.entityType) {
+    case "product":
+      return `/admin/catalog/${log.entityId}`;
+    case "store":
+      return `/admin/sellers/${log.entityId}`;
+    case "complaint":
+      return `/admin/complaints/${log.entityId}`;
+    case "user":
+      return `/admin/users/${log.entityId}`;
+    case "category":
+      return "/admin/categories";
+    default:
+      return null;
+  }
+}
+
 export function stateValue(value: unknown): string {
   if (value === null || value === undefined) return "—";
   if (typeof value === "object") return JSON.stringify(value);

@@ -10,6 +10,7 @@ import { leroyApi } from "@shared/api/leroyApi";
 import {
   actionLabel,
   auditObjectLabel,
+  auditTargetHref,
   COMPLAINT_REASONS,
   formatDateTime,
   formatMoney,
@@ -78,7 +79,7 @@ function AdminOverviewPage() {
   return (
     <div>
       <PageIntro
-        title="Overview"
+        title="Обзор"
         description="Ключевые показатели маркетплейса и последние события."
       />
 
@@ -111,15 +112,33 @@ function AdminOverviewPage() {
                 <p className={styles.empty}>Действий пока нет</p>
               ) : (
                 <ul className={styles.list}>
-                  {data.recentAudit!.map((log) => (
-                    <li key={log.id} className={styles.listItem}>
-                      <div>
-                        <strong>{actionLabel(log.action)}</strong>
-                        <span>{auditObjectLabel(log)}</span>
-                      </div>
-                      <time>{formatDateTime(log.createdAt)}</time>
-                    </li>
-                  ))}
+                  {data.recentAudit!.map((log) => {
+                    const href = auditTargetHref(log);
+                    const content = (
+                      <>
+                        <div>
+                          <strong>{actionLabel(log.action)}</strong>
+                          <span>{auditObjectLabel(log)}</span>
+                        </div>
+                        <time>{formatDateTime(log.createdAt)}</time>
+                      </>
+                    );
+                    return (
+                      <li key={log.id} className={styles.listItem}>
+                        {href ? (
+                          <Link
+                            to={href}
+                            state={{ from: "/admin" }}
+                            className={styles.listLink}
+                          >
+                            {content}
+                          </Link>
+                        ) : (
+                          <div className={styles.listLink}>{content}</div>
+                        )}
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
             </AdminCard>
@@ -151,13 +170,19 @@ function AdminOverviewPage() {
                 <ul className={styles.list}>
                   {data.recentProducts!.map((product) => (
                     <li key={product.id} className={styles.listItem}>
-                      <div>
-                        <strong>{product.name}</strong>
-                        <span>{product.store?.name ?? "—"}</span>
-                      </div>
-                      <StatusBadge
-                        {...statusMeta(PRODUCT_STATUSES, product.moderationStatus)}
-                      />
+                      <Link
+                        to={`/admin/catalog/${product.id}`}
+                        state={{ from: "/admin" }}
+                        className={styles.listLink}
+                      >
+                        <div>
+                          <strong>{product.name}</strong>
+                          <span>{product.store?.name ?? "—"}</span>
+                        </div>
+                        <StatusBadge
+                          {...statusMeta(PRODUCT_STATUSES, product.moderationStatus)}
+                        />
+                      </Link>
                     </li>
                   ))}
                 </ul>
@@ -198,11 +223,17 @@ function ComplaintRow({ complaint }: { complaint: AdminComplaintDto }) {
   );
   return (
     <li className={styles.listItem}>
-      <div>
-        <strong>{COMPLAINT_REASONS[complaint.reason] ?? complaint.reason}</strong>
-        <span>{personName(complaint.reporter)}</span>
-      </div>
-      <StatusBadge {...status} />
+      <Link
+        to={`/admin/complaints/${complaint.id}`}
+        state={{ from: "/admin" }}
+        className={styles.listLink}
+      >
+        <div>
+          <strong>{COMPLAINT_REASONS[complaint.reason] ?? complaint.reason}</strong>
+          <span>{personName(complaint.reporter)}</span>
+        </div>
+        <StatusBadge {...status} />
+      </Link>
     </li>
   );
 }
@@ -210,11 +241,17 @@ function ComplaintRow({ complaint }: { complaint: AdminComplaintDto }) {
 function SellerRow({ seller }: { seller: AdminSellerDto }) {
   return (
     <li className={styles.listItem}>
-      <div>
-        <strong>{seller.name}</strong>
-        <span>{personName(seller.owner)}</span>
-      </div>
-      <StatusBadge {...statusMeta(STORE_STATUSES, seller.moderationStatus)} />
+      <Link
+        to={`/admin/sellers/${seller.id}`}
+        state={{ from: "/admin" }}
+        className={styles.listLink}
+      >
+        <div>
+          <strong>{seller.name}</strong>
+          <span>{personName(seller.owner)}</span>
+        </div>
+        <StatusBadge {...statusMeta(STORE_STATUSES, seller.moderationStatus)} />
+      </Link>
     </li>
   );
 }

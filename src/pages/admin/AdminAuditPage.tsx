@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { observer } from "mobx-react-lite";
 import type { AdminAuditLogDto } from "@shared/api/models";
 import { leroyApi } from "@shared/api/leroyApi";
@@ -6,6 +7,7 @@ import {
   ACTION_LABELS,
   actionLabel,
   auditObjectLabel,
+  auditTargetHref,
   formatDateTime,
   stateValue,
 } from "@shared/lib/admin";
@@ -82,7 +84,20 @@ function AdminAuditPage() {
   const columns: Column<AdminAuditLogDto>[] = [
     { key: "date", label: "Дата", render: (log) => formatDateTime(log.createdAt) },
     { key: "action", label: "Действие", render: (log) => actionLabel(log.action) },
-    { key: "object", label: "Объект", render: (log) => auditObjectLabel(log) },
+    {
+      key: "object",
+      label: "Объект",
+      render: (log) => {
+        const href = auditTargetHref(log);
+        return href ? (
+          <Link to={href} state={{ from: "/admin/audit" }}>
+            {auditObjectLabel(log)}
+          </Link>
+        ) : (
+          auditObjectLabel(log)
+        );
+      },
+    },
     { key: "actor", label: "Кто", render: (log) => log.actorId?.slice(0, 8) ?? "система" },
     {
       key: "before",

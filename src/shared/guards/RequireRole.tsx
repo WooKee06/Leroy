@@ -1,6 +1,7 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { observer } from "mobx-react-lite";
 import { accountStore, type UserRole } from "@shared/stores/accountStore";
+import AppLoader from "@shared/ui/AppLoader";
 
 interface RequireRoleProps {
   /**
@@ -22,7 +23,7 @@ interface RequireRoleProps {
  */
 function RequireRole({ roles }: RequireRoleProps) {
   if (!accountStore.initialized) {
-    return null;
+    return <AppLoader label="Проверяем доступ…" />;
   }
 
   if (!accountStore.isAuthenticated) {

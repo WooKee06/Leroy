@@ -27,6 +27,11 @@ function AdminCategoriesPage() {
   const [name, setName] = useState("");
   const [icon, setIcon] = useState("");
   const [sortOrder, setSortOrder] = useState(0);
+  const [pendingToggle, setPendingToggle] = useState<AdminCategoryDto | null>(null);
+  const [pendingSort, setPendingSort] = useState<{
+    category: AdminCategoryDto;
+    value: number;
+  } | null>(null);
 
   const load = () => {
     let alive = true;
@@ -82,6 +87,7 @@ function AdminCategoriesPage() {
   };
 
   const toggleActive = async (category: AdminCategoryDto) => {
+    setPendingToggle(null);
     try {
       await leroyApi.adminUpdateCategory(category.id, { isActive: !category.isActive });
       setCategories((prev) =>
@@ -95,6 +101,7 @@ function AdminCategoriesPage() {
   };
 
   const changeOrder = async (category: AdminCategoryDto, value: number) => {
+    setPendingSort(null);
     try {
       await leroyApi.adminUpdateCategory(category.id, { sortOrder: value });
       setCategories((prev) =>
@@ -124,11 +131,9 @@ function AdminCategoriesPage() {
       key: "order",
       label: "Порядок",
       render: (category) => (
-        <input
-          className={styles.orderInput}
-          type="number"
-          value={category.sortOrder ?? 0}
-          onChange={(event) => void changeOrder(category, Number(event.target.value))}
+        <SortOrderInput
+          category={category}
+          onCommit={(value) => setPendingSort({ category, value })}
         />
       ),
     },
@@ -147,7 +152,7 @@ function AdminCategoriesPage() {
       label: "",
       render: (category) => (
         <div className={styles.rowActions}>
-          <button type="button" onClick={() => toggleActive(category)}>
+          <button type="button" onClick={() => setPendingToggle(category)}>
             {category.isActive === false ? "Включить" : "Скрыть"}
           </button>
           <button type="button" onClick={() => openEditor(category)}>
@@ -234,7 +239,67 @@ function AdminCategoriesPage() {
           onConfirm={() => void remove()}
         />
       )}
+
+      {pendingToggle && (
+        <ConfirmDialog
+          title={pendingToggle.isActive === false ? "Включить категорию" : "Скрыть категорию"}
+          message={
+            pendingToggle.isActive === false
+              ? `Категория «${pendingToggle.name}» снова появится в публичном каталоге.`
+              : `Категория «${pendingToggle.name}» исчезнет из публичного каталога, но товары останутся в базе.`
+          }
+          confirmLabel={pendingToggle.isActive === false ? "Включить" : "Скрыть"}
+          danger={pendingToggle.isActive !== false}
+          onCancel={() => setPendingToggle(null)}
+          onConfirm={() => void toggleActive(pendingToggle)}
+        />
+      )}
+
+      {pendingSort && (
+        <ConfirmDialog
+          title="Изменить порядок"
+          message={`Категория «${pendingSort.category.name}»: порядок ${pendingSort.category.sortOrder ?? 0} → ${pendingSort.value}.`}
+          confirmLabel="Сохранить"
+          onCancel={() => setPendingSort(null)}
+          onConfirm={() => void changeOrder(pendingSort.category, pendingSort.value)}
+        />
+      )}
     </div>
+  );
+}
+
+function SortOrderInput({
+  category,
+  onCommit,
+}: {
+  category: AdminCategoryDto;
+  onCommit: (value: number) => void;
+}) {
+  const [value, setValue] = useState(category.sortOrder ?? 0);
+
+  useEffect(() => setValue(category.sortOrder ?? 0), [category.sortOrder]);
+
+  const commit = () => {
+    const next = Number(value);
+    if (!Number.isFinite(next) || next === (category.sortOrder ?? 0)) return;
+    onCommit(next);
+  };
+
+  return (
+    <input
+      className={styles.orderInput}
+      type="number"
+      value={value}
+      onChange={(event) => setValue(Number(event.target.value))}
+      onBlur={commit}
+      onKeyDown={(event) => {
+        if (event.key === "Enter") event.currentTarget.blur();
+        if (event.key === "Escape") {
+          setValue(category.sortOrder ?? 0);
+          event.currentTarget.blur();
+        }
+      }}
+    />
   );
 }
 

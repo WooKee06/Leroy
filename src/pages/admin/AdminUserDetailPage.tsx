@@ -203,6 +203,7 @@ function AdminUserDetailPage() {
                       <span>
                         {stateValue(log.before)} → {stateValue(log.after)}
                       </span>
+                      {log.reason && <span>Причина: {log.reason}</span>}
                       <time>{formatDateTime(log.createdAt)}</time>
                     </li>
                   ))}

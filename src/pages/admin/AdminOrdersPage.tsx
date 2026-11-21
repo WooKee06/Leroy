@@ -15,7 +15,6 @@ import {
 } from "@shared/lib/admin";
 import {
   AdminCard,
-  ConfirmDialog,
   PageIntro,
   ReasonDialog,
   SelectInput,
@@ -238,27 +237,26 @@ function AdminOrdersPage() {
         </button>
       </div>
 
-      {nextStatus &&
-        (nextStatus.status === "cancelled" ? (
-          <ReasonDialog
-            title="Отменить заказ"
-            message="Товар вернётся на склад, а оплаченная сумма — на кошелёк покупателя. Укажите причину отмены."
-            confirmLabel="Отменить заказ"
-            danger
-            onCancel={() => setNextStatus(null)}
-            onConfirm={(reason) => void changeStatus(reason)}
-          />
-        ) : (
-          <ConfirmDialog
-            title="Изменить статус заказа"
-            message={`Новый статус: ${
-              ORDER_STATUSES[nextStatus.status]?.label ?? nextStatus.status
-            }.`}
-            confirmLabel="Изменить"
-            onCancel={() => setNextStatus(null)}
-            onConfirm={() => void changeStatus()}
-          />
-        ))}
+      {nextStatus && (
+        <ReasonDialog
+          title={
+            nextStatus.status === "cancelled"
+              ? "Отменить заказ"
+              : "Изменить статус заказа"
+          }
+          message={
+            nextStatus.status === "cancelled"
+              ? "Товар вернётся на склад, а оплаченная сумма — на кошелёк покупателя. Укажите причину отмены."
+              : `Новый статус: ${
+                  ORDER_STATUSES[nextStatus.status]?.label ?? nextStatus.status
+                }. Причина попадёт в журнал действий.`
+          }
+          confirmLabel={nextStatus.status === "cancelled" ? "Отменить заказ" : "Изменить"}
+          danger={nextStatus.status === "cancelled"}
+          onCancel={() => setNextStatus(null)}
+          onConfirm={(reason) => void changeStatus(reason)}
+        />
+      )}
     </div>
   );
 }

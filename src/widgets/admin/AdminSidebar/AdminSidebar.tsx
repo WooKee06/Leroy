@@ -15,7 +15,7 @@ import type { IconType } from "react-icons";
 import styles from "./AdminSidebar.module.scss";
 
 const NAV: { to: string; label: string; icon: IconType }[] = [
-  { to: "/admin", label: "Overview", icon: FiGrid },
+  { to: "/admin", label: "Обзор", icon: FiGrid },
   { to: "/admin/moderation", label: "Модерация товаров", icon: FiPackage },
   { to: "/admin/sellers", label: "Продавцы", icon: FiShoppingBag },
   { to: "/admin/complaints", label: "Жалобы", icon: FiFlag },
@@ -47,7 +47,6 @@ export default function AdminSidebar({ onNavigate }: { onNavigate?: () => void }
       ))}
       <div className={styles.navFooter}>
         <span>Avilon Admin</span>
-        <span className={styles.version}>v1.0</span>
       </div>
     </nav>
   );

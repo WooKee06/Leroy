@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useLocation, useParams } from "react-router-dom";
 import { observer } from "mobx-react-lite";
 import type { AdminProductDetailsDto, AdminProductDto } from "@shared/api/models";
 import { leroyApi } from "@shared/api/leroyApi";
@@ -39,6 +39,7 @@ type PendingAction =
 
 function AdminProductDetailPage() {
   const { id = "" } = useParams();
+  const location = useLocation();
   const [details, setDetails] = useState<AdminProductDetailsDto | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
@@ -88,13 +89,33 @@ function AdminProductDetailPage() {
 
   const product = details?.product;
   const status = statusMeta(PRODUCT_STATUSES, product?.moderationStatus);
+  const from = (location.state as { from?: string } | null)?.from;
+  const backTo =
+    from ??
+    (location.pathname.startsWith("/admin/catalog")
+      ? "/admin/catalog"
+      : "/admin/moderation");
+  const backLabel =
+    backTo === "/admin"
+      ? "К обзору"
+      : backTo === "/admin/audit"
+        ? "К журналу"
+        : backTo.startsWith("/admin/sellers/")
+          ? "К продавцу"
+          : backTo === "/admin/catalog"
+            ? "К каталогу"
+            : "К очереди";
 
   return (
     <div>
       <PageIntro
         title="Товар"
         description={product?.name ?? "Просмотр и решение по товару"}
-        action={<Link to="/admin/moderation" className={styles.back}>К очереди</Link>}
+        action={
+          <Link to={backTo} className={styles.back}>
+            {backLabel}
+          </Link>
+        }
       />
 
       {error && <StateBlock kind="error" text={error} />}

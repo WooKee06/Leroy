@@ -138,6 +138,7 @@ export default function App() {
             <Route path="/admin/categories" element={<AdminCategoriesPage />} />
             <Route path="/admin/audit" element={<AdminAuditPage />} />
             <Route path="/admin/settings" element={<AdminSettingsPage />} />
+            <Route path="*" element={<Navigate to="/admin" replace />} />
           </Route>
         </Route>
 

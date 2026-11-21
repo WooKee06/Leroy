@@ -1,6 +1,7 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { observer } from "mobx-react-lite";
 import { accountStore } from "@shared/stores/accountStore";
+import AppLoader from "@shared/ui/AppLoader";
 import styles from "./RequireAdmin.module.scss";
 
 /**
@@ -9,7 +10,7 @@ import styles from "./RequireAdmin.module.scss";
  * The backend enforces the same rule on every /api/admin request.
  */
 function RequireAdmin() {
-  if (!accountStore.initialized) return null;
+  if (!accountStore.initialized) return <AppLoader label="Проверяем доступ…" />;
 
   if (!accountStore.isAuthenticated) {
     return <Navigate to="/admin/login" replace />;
