@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { observer } from "mobx-react-lite";
+import { useDebounce } from "@shared/lib/hooks/useDebounce";
 import type { AdminSellerDto } from "@shared/api/models";
 import { leroyApi } from "@shared/api/leroyApi";
 import {
@@ -29,11 +30,12 @@ function AdminSellersPage() {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 350);
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => setPage(1), [search, status]);
+  useEffect(() => setPage(1), [debouncedSearch, status]);
 
   const load = useCallback(() => {
     let alive = true;
@@ -43,7 +45,7 @@ function AdminSellersPage() {
       .adminSellers({
         page,
         limit: PAGE_SIZE,
-        search: search || undefined,
+        search: debouncedSearch.trim() || undefined,
         status: status || undefined,
       })
       .then((result) => {
@@ -60,7 +62,7 @@ function AdminSellersPage() {
     return () => {
       alive = false;
     };
-  }, [page, search, status]);
+  }, [page, debouncedSearch, status]);
 
   useEffect(() => load(), [load]);
 

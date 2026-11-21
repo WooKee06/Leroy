@@ -815,6 +815,8 @@ export interface AdminQuery {
   limit?: number;
   search?: string;
   status?: string;
+  entity?: string;
+  action?: string;
   role?: string;
   categoryId?: string;
   storeId?: string;

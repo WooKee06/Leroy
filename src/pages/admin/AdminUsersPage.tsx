@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { observer } from "mobx-react-lite";
+import { useDebounce } from "@shared/lib/hooks/useDebounce";
 import type { AdminUserDto } from "@shared/api/models";
 import { leroyApi } from "@shared/api/leroyApi";
 import { formatDate, personName } from "@shared/lib/admin";
@@ -24,6 +25,7 @@ function AdminUsersPage() {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 350);
   const [role, setRole] = useState("");
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(true);
@@ -37,7 +39,7 @@ function AdminUsersPage() {
       .adminUsers({
         page,
         limit: PAGE_SIZE,
-        search: search || undefined,
+        search: debouncedSearch.trim() || undefined,
         role: role || undefined,
         status: status || undefined,
       })
@@ -55,10 +57,10 @@ function AdminUsersPage() {
     return () => {
       alive = false;
     };
-  }, [page, search, role, status]);
+  }, [page, debouncedSearch, role, status]);
 
   useEffect(() => load(), [load]);
-  useEffect(() => setPage(1), [search, role, status]);
+  useEffect(() => setPage(1), [debouncedSearch, role, status]);
 
   const columns: Column<AdminUserDto>[] = [
     {
@@ -110,7 +112,11 @@ function AdminUsersPage() {
         description="Поиск пользователей, роли, статус аккаунта и количество заказов."
       />
       <Toolbar>
-        <SearchInput value={search} onChange={setSearch} placeholder="Имя или username" />
+        <SearchInput
+          value={search}
+          onChange={setSearch}
+          placeholder="Имя, username или Telegram ID"
+        />
         <SelectInput
           value={role}
           onChange={setRole}

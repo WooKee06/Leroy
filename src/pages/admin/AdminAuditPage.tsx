@@ -3,6 +3,7 @@ import { observer } from "mobx-react-lite";
 import type { AdminAuditLogDto } from "@shared/api/models";
 import { leroyApi } from "@shared/api/leroyApi";
 import {
+  ACTION_LABELS,
   actionLabel,
   auditObjectLabel,
   formatDateTime,
@@ -32,14 +33,7 @@ const ENTITIES = [
 
 const ACTIONS = [
   { id: "", label: "Все действия" },
-  { id: "product.approve", label: "Товар одобрен" },
-  { id: "product.reject", label: "Товар отклонён" },
-  { id: "product.block", label: "Товар заблокирован" },
-  { id: "store.verify", label: "Магазин подтверждён" },
-  { id: "store.block", label: "Магазин заблокирован" },
-  { id: "complaint.resolved", label: "Жалоба решена" },
-  { id: "user.status_changed", label: "Статус пользователя" },
-  { id: "order.status_changed", label: "Статус заказа" },
+  ...Object.entries(ACTION_LABELS).map(([id, label]) => ({ id, label })),
 ];
 
 function AdminAuditPage() {
@@ -48,6 +42,8 @@ function AdminAuditPage() {
   const [page, setPage] = useState(1);
   const [entity, setEntity] = useState("");
   const [action, setAction] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -59,8 +55,10 @@ function AdminAuditPage() {
       .adminAudit({
         page,
         limit: PAGE_SIZE,
-        search: entity || undefined,
-        status: action || undefined,
+        entity: entity || undefined,
+        action: action || undefined,
+        dateFrom: dateFrom || undefined,
+        dateTo: dateTo || undefined,
       })
       .then((result) => {
         if (!alive) return;
@@ -76,10 +74,10 @@ function AdminAuditPage() {
     return () => {
       alive = false;
     };
-  }, [page, entity, action]);
+  }, [page, entity, action, dateFrom, dateTo]);
 
   useEffect(() => load(), [load]);
-  useEffect(() => setPage(1), [entity, action]);
+  useEffect(() => setPage(1), [entity, action, dateFrom, dateTo]);
 
   const columns: Column<AdminAuditLogDto>[] = [
     { key: "date", label: "Дата", render: (log) => formatDateTime(log.createdAt) },
@@ -109,6 +107,20 @@ function AdminAuditPage() {
       <div className={styles.filters}>
         <SelectInput value={entity} onChange={setEntity} options={ENTITIES} />
         <SelectInput value={action} onChange={setAction} options={ACTIONS} />
+        <input
+          className={styles.dateInput}
+          type="date"
+          value={dateFrom}
+          onChange={(event) => setDateFrom(event.target.value)}
+          aria-label="Дата с"
+        />
+        <input
+          className={styles.dateInput}
+          type="date"
+          value={dateTo}
+          onChange={(event) => setDateTo(event.target.value)}
+          aria-label="Дата по"
+        />
       </div>
       <AdminCard padded={false}>
         {error ? (

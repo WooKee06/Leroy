@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { FiChevronDown, FiChevronUp, FiSearch } from "react-icons/fi";
 import { observer } from "mobx-react-lite";
+import { useDebounce } from "@shared/lib/hooks/useDebounce";
 import type { RawOrder } from "@shared/api/models";
 import { leroyApi } from "@shared/api/leroyApi";
 import { imageUrlWithCacheBust } from "@shared/api/client";
@@ -32,6 +33,7 @@ function AdminOrdersPage() {
   const [page, setPage] = useState(1);
   const [status, setStatus] = useState("");
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 350);
   const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -43,7 +45,12 @@ function AdminOrdersPage() {
     setLoading(true);
     setError(null);
     leroyApi
-      .adminOrders({ page, limit: PAGE_SIZE, status: status || undefined })
+      .adminOrders({
+        page,
+        limit: PAGE_SIZE,
+        status: status || undefined,
+        search: debouncedSearch.trim() || undefined,
+      })
       .then((result) => {
         if (!alive) return;
         setOrders(
@@ -69,19 +76,10 @@ function AdminOrdersPage() {
     return () => {
       alive = false;
     };
-  }, [page, status]);
+  }, [page, status, debouncedSearch]);
 
   useEffect(() => load(), [load]);
-  useEffect(() => setPage(1), [status]);
-
-  const filtered = orders.filter((order) => {
-    const query = search.trim().toLowerCase();
-    if (!query) return true;
-    return (
-      String(order.orderNumber).includes(query) ||
-      personName(order.user).toLowerCase().includes(query)
-    );
-  });
+  useEffect(() => setPage(1), [status, debouncedSearch]);
 
   const toggle = (id: string) => {
     setExpanded((prev) => {
@@ -149,11 +147,11 @@ function AdminOrdersPage() {
           <StateBlock kind="error" text={error} />
         ) : loading ? (
           <StateBlock kind="loading" text="Загружаем заказы…" />
-        ) : filtered.length === 0 ? (
+        ) : orders.length === 0 ? (
           <StateBlock kind="empty" text="Заказы не найдены" />
         ) : (
           <div className={styles.list}>
-            {filtered.map((order) => {
+            {orders.map((order) => {
               const isOpen = expanded.has(order.id);
               const items = order.sellerOrders?.flatMap((sellerOrder) => sellerOrder.items ?? []) ?? [];
               const statusInfo = statusMeta(ORDER_STATUSES, order.status);

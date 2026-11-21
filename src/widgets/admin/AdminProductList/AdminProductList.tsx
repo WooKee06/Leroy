@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useDebounce } from "@shared/lib/hooks/useDebounce";
 import type {
   AdminCategoryDto,
   AdminProductDto,
@@ -36,10 +37,12 @@ export default function AdminProductList({
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
+  const debouncedSearch = useDebounce(search, 350);
   const [status, setStatus] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [storeId, setStoreId] = useState("");
   const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
   const [categories, setCategories] = useState<AdminCategoryDto[]>([]);
   const [sellers, setSellers] = useState<AdminSellerDto[]>([]);
   const [loading, setLoading] = useState(true);
@@ -58,7 +61,7 @@ export default function AdminProductList({
   // Reset to the first page whenever a filter changes.
   useEffect(() => {
     setPage(1);
-  }, [search, status, categoryId, storeId, dateFrom]);
+  }, [debouncedSearch, status, categoryId, storeId, dateFrom, dateTo]);
 
   const load = useCallback(() => {
     let alive = true;
@@ -67,11 +70,12 @@ export default function AdminProductList({
     const query = {
       page,
       limit: PAGE_SIZE,
-      search: search || undefined,
+      search: debouncedSearch.trim() || undefined,
       moderationStatus: (status || undefined) as AdminProductDto["moderationStatus"],
       categoryId: categoryId || undefined,
       storeId: storeId || undefined,
       dateFrom: dateFrom || undefined,
+      dateTo: dateTo || undefined,
     };
     const request =
       mode === "moderation"
@@ -93,7 +97,7 @@ export default function AdminProductList({
     return () => {
       alive = false;
     };
-  }, [mode, page, search, status, categoryId, storeId, dateFrom]);
+  }, [mode, page, debouncedSearch, status, categoryId, storeId, dateFrom, dateTo]);
 
   useEffect(() => load(), [load]);
 
@@ -165,7 +169,7 @@ export default function AdminProductList({
         <SearchInput
           value={search}
           onChange={setSearch}
-          placeholder="Название товара или продавец"
+          placeholder="Название товара"
         />
         <SelectInput
           value={status}
@@ -200,6 +204,13 @@ export default function AdminProductList({
           value={dateFrom}
           onChange={(event) => setDateFrom(event.target.value)}
           aria-label="Дата создания с"
+        />
+        <input
+          className={styles.dateInput}
+          type="date"
+          value={dateTo}
+          onChange={(event) => setDateTo(event.target.value)}
+          aria-label="Дата создания по"
         />
       </Toolbar>
 

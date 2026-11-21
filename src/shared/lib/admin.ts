@@ -202,7 +202,7 @@ export function personName(user?: {
   );
 }
 
-const ACTION_LABELS: Record<string, string> = {
+export const ACTION_LABELS: Record<string, string> = {
   "product.approve": "Товар одобрен",
   "product.reject": "Товар отклонён",
   "product.block": "Товар заблокирован",
