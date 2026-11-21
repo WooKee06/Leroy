@@ -756,9 +756,7 @@ export interface AdminComplaintDto {
   targetId: string;
   reason: ComplaintReason;
   comment?: string | null;
-  images?: string[] | null;
   status: ComplaintStatus;
-  assigneeId?: string | null;
   resolution?: string | null;
   resolvedAt?: string | null;
   createdAt: string;
@@ -790,10 +788,6 @@ export interface AdminProductDetailsDto {
   product: AdminProductDto;
   history: AdminAuditLogDto[];
   complaints: AdminComplaintDto[];
-}
-
-export interface AdminOrderDetailsDto extends RawOrder {
-  events?: OrderEventDto[];
 }
 
 export interface AdminUserDetailsDto {

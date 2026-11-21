@@ -6,7 +6,6 @@ import type {
   AdminComplaintDto,
   AdminDashboardDto,
   AdminList,
-  AdminOrderDetailsDto,
   AdminOrderListDto,
   AdminProductDetailsDto,
   AdminProductDto,
@@ -263,10 +262,6 @@ export const leroyApi = {
     return http.get<AdminOrderListDto>("/admin/orders", query);
   },
 
-  adminOrder(id: string): Promise<AdminOrderDetailsDto> {
-    return http.get<AdminOrderDetailsDto>(`/admin/orders/${id}`);
-  },
-
   adminUpdateOrderStatus(
     id: string,
     status: string,
@@ -305,10 +300,6 @@ export const leroyApi = {
 
   adminProduct(id: string): Promise<AdminProductDetailsDto> {
     return http.get<AdminProductDetailsDto>(`/admin/products/${id}`);
-  },
-
-  adminProductHistory(id: string): Promise<AdminAuditLogDto[]> {
-    return http.get<AdminAuditLogDto[]>(`/admin/products/${id}/history`);
   },
 
   adminModerateProduct(
@@ -397,10 +388,6 @@ export const leroyApi = {
     comment?: string;
   }): Promise<AdminComplaintDto> {
     return http.post<AdminComplaintDto>("/complaints", dto);
-  },
-
-  myComplaints(): Promise<AdminComplaintDto[]> {
-    return http.get<AdminComplaintDto[]>("/complaints/mine");
   },
 
   upload(file: File): Promise<{

@@ -4,7 +4,6 @@ import { observer } from "mobx-react-lite";
 import { API_BASE } from "@shared/api/client";
 import { leroyApi } from "@shared/api/leroyApi";
 import { accountStore } from "@shared/stores/accountStore";
-import { formatDateTime } from "@shared/lib/admin";
 import {
   ActionRow,
   AdminCard,
@@ -85,13 +84,10 @@ function AdminSettingsPage() {
           <DetailGrid>
             <DetailItem label="API">{API_BASE}</DetailItem>
             <DetailItem label="Режим">{import.meta.env.DEV ? "Разработка" : "Production"}</DetailItem>
-            <DetailItem label="Сессия">
-              {formatDateTime(new Date().toISOString())}
-            </DetailItem>
           </DetailGrid>
           <p className={styles.note}>
-            Временный тестовый вход будет заменён отдельным backend admin login.
-            Права проверяются сервером на каждый запрос к /api/admin.
+            Вход через Telegram initData, права и роль проверяются сервером на
+            каждый запрос к /api/admin.
           </p>
         </AdminCard>
       </div>

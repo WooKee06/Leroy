@@ -196,10 +196,6 @@ class AccountStore {
     }
   }
 
-  setRole(role: UserRole) {
-    this.role = role;
-  }
-
   /**
    * Re-reads the wallet balance from the server. Safe to call often: it
    * deduplicates concurrent calls and only skips the request when a fresh

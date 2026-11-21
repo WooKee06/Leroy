@@ -83,7 +83,6 @@ function AdminSellersPage() {
       label: "Тип",
       render: (seller) => (seller.owner?.role === "seller" ? "Продавец" : seller.owner?.role ?? "—"),
     },
-    { key: "inn", label: "ИНН", render: () => "—" },
     { key: "date", label: "Дата регистрации", render: (seller) => formatDate(seller.createdAt) },
     {
       key: "status",

@@ -498,15 +498,15 @@ Guard'ы:
 
 | Что | Где | Статус |
 |---|---|---|
-| `adminOrder()` (events) | `leroyApi.ts:249-251` | API есть, роута/страницы нет |
-| `adminProductHistory()` | `leroyApi.ts:293-295` | Не вызывается |
-| `myComplaints()` | `leroyApi.ts:385-387` | Не вызывается |
-| `AdminComplaintDto.images` | `models.ts:755` | Не рендерится |
-| `assigneeId` | `models.ts:757` | Не показывается, нет assign action |
-| `Column.hideBelow` | `AdminUi.tsx:50,53-94` | Объявлен, таблица игнорирует |
-| `accountStore.setRole()` | `accountStore.ts:179-181` | Публичный мутатор роли без сервера |
-| ИНН в списке продавцов | `AdminSellersPage.tsx:84` | Хардкод `—` |
-| «Сессия» в Settings | `AdminSettingsPage.tsx:88-90` | `new Date()`, не реальные данные |
+| `adminOrder()` (events) | `leroyApi.ts` | Удалён вместе с `AdminOrderDetailsDto` |
+| `adminProductHistory()` | `leroyApi.ts` | Удалён; история приходит в detail-DTO |
+| `myComplaints()` | `leroyApi.ts` | Удалён |
+| `AdminComplaintDto.images` | `models.ts` | Удалено из DTO |
+| `assigneeId` | `models.ts` | Удалено из DTO, assign action нет |
+| `Column.hideBelow` | `AdminUi.tsx` | Удалено из типа колонки |
+| `accountStore.setRole()` | `accountStore.ts` | Удалён; роль приходит с `/auth/me` |
+| ИНН в списке продавцов | `AdminSellersPage.tsx` | Колонка с хардкодом удалена |
+| «Сессия» в Settings | `AdminSettingsPage.tsx` | Удалена; текст про тестовый вход обновлён |
 | Документы товара/продавца | `AdminProductDetailPage.tsx`, `AdminSellerDetailPage.tsx` | Заглушки удалены (`3a73707`); запрос документов фиксируется в истории решений |
 
 ### 7.3 UX/логика
@@ -633,7 +633,7 @@ Guard'ы:
 ## Фаза C — P1/P2, frontend админки
 
 - [x] Production admin login (5.10).
-- [ ] Разобрать мёртвые поля/методы (7.2).
+- [x] Разобрать мёртвые поля/методы (7.2).
 - [x] Debounce, `dateTo`, server-side orders search, правильные audit filters.
 - [x] Кликабельные recent-элементы, фильтрованные метрики, корректный back-link.
 - [ ] Admin tests + browser smoke + проверка адаптивности.
@@ -642,6 +642,8 @@ Guard'ы:
 **Статус фильтров (21.11.2026):** закрыто. На сервере добавлен `AdminAuditQueryDto` с каноничными `entity`/`action` (старые `search`/`status` остались алиасами) и поддержкой `dateFrom`/`dateTo`; `buildProductWhere` теперь применяет `categoryId`; заказы ищутся сервером по номеру и имени/username покупателя; пользователи — по имени, username и числовому Telegram ID. На клиенте поиск товаров/продавцов/пользователей/заказов дебаунсится на 350 мс через общий `useDebounce`, в списке товаров и журнале появился `dateTo`, заказы больше не фильтруют локально только загруженную страницу, а Audit шлёт `entity`/`action` и использует полный `ACTION_LABELS`. Проверено: сервер `npx tsc -b` + `npm run build`, e2e `phase-b` и `admin-order`, клиент `npx tsc -b`, `npm test -- --run` (34/34), `npm run lint` (0 errors), `npm run build`. Коммит сервера: `5020d16`.
 
 **Статус UX (21.11.2026):** закрыто. Неизвестные `/admin/*` редиректятся на `/admin`; guards показывают общий `AppLoader` вместо `null`; recent-элементы Overview и объект в журнале стали ссылками на detail-страницы с `state.from`; back-link товара учитывает origin (обзор / журнал / каталог / очередь / продавец). Скрытие и смена порядка категорий, а также все смены статуса заказа подтверждаются, причина статуса пишется в аудит; история пользователя показывает причину. Брендинг сведён к русскому «Обзор» + «Avilon Admin», фиктивная версия `v1.0` удалена. Проверено теми же командами, что и этап фильтров; 34/34 теста, 0 ошибок линтера.
+
+**Статус мёртвого кода (21.11.2026):** закрыто. Удалены неиспользуемые клиентские методы `adminOrder`, `adminProductHistory`, `myComplaints` и тип `AdminOrderDetailsDto`; из `AdminComplaintDto` убраны неотображаемые `images`/`assigneeId`, из `Column` — `hideBelow`, из `accountStore` — `setRole`. Убрана колонка ИНН с хардкодом и фейковая «Сессия» в Settings (вместе с устаревшим текстом про тестовый вход). Список причин жалобы в `ReportProductButton` теперь берётся из общего `COMPLAINT_REASONS`. Остальные неиспользуемые наружу seller/payment/delivery-методы API оставлены: они соответствуют реальным бэкенд-роутам и могут быть подключены отдельными фичами.
 
 **Критерий:** `/admin/login` работает в prod, все кнопки ведут к реальным действиям, нет заглушек без пометки, 0 admin-ошибок в консоли браузера.
 

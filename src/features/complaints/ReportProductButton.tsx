@@ -3,17 +3,12 @@ import { observer } from "mobx-react-lite";
 import { FiFlag, FiX } from "react-icons/fi";
 import type { ComplaintReason } from "@shared/api/models";
 import { leroyApi } from "@shared/api/leroyApi";
+import { COMPLAINT_REASONS } from "@shared/lib/admin";
 import styles from "./ReportProductButton.module.scss";
 
-const REASONS: { id: ComplaintReason; label: string }[] = [
-  { id: "prohibited", label: "Запрещённый товар" },
-  { id: "fake", label: "Подделка" },
-  { id: "scam", label: "Мошенничество" },
-  { id: "mismatch", label: "Несоответствие описанию" },
-  { id: "missing_docs", label: "Отсутствие документов" },
-  { id: "copyright", label: "Нарушение авторских прав" },
-  { id: "other", label: "Другое" },
-];
+const REASONS = (
+  Object.entries(COMPLAINT_REASONS) as [ComplaintReason, string][]
+).map(([id, label]) => ({ id, label }));
 
 function ReportProductButton({ productId }: { productId: string }) {
   const [open, setOpen] = useState(false);

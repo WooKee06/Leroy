@@ -47,7 +47,6 @@ export interface Column<T> {
   label: string;
   render: (row: T) => ReactNode;
   className?: string;
-  hideBelow?: number;
 }
 
 export function AdminTable<T extends { id?: string }>({
