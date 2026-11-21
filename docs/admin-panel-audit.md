@@ -679,13 +679,15 @@ Guard'ы:
 
 ### Staging — требуется доступ (в harness не проверено)
 
-- [ ] Дождаться зелёного деплоя Render и Vercel после push; `GET https://api.avelonstore.ru/health` → 200.
-- [ ] Render Shell: `npm run migration:show:prod` → 12/12 applied; при росте — `npm run migration:run:prod`.
-- [ ] Render env: `ALLOW_DEV_AUTH=false`, `DEV_ADMIN_TELEGRAM_IDS=""`, `DEV_AUTH_ALLOWED_IPS=""`.
-- [ ] Render env: `CORS_ALLOWED_ORIGINS=https://app.avelonstore.ru`, `MINI_APP_URL=https://app.avelonstore.ru`, `PUBLIC_URL=https://api.avelonstore.ru`, `TRUST_PROXY_HOPS=1`, `DATABASE_SSL=true`, `DATABASE_SYNCHRONIZE=false`.
+- [x] Деплои после push поднялись (21.11.2026): `GET https://api.avelonstore.ru/health` → 200 `{"status":"ok"}`, `GET https://app.avelonstore.ru/admin/login` → SPA 200; в главном бандле клиента есть строка «Проверяем доступ» из новых guards, значит Vercel собрал актуальный код.
+- [ ] Render Shell: `npm run migration:show:prod` → 12/12 applied; при росте — `npm run migration:run:prod` (нужен доступ к Render).
+- [x] `ALLOW_DEV_AUTH=false` подтверждено внешним запросом: `POST /api/auth/dev` → 404 (роут спрятан). `DEV_ADMIN_TELEGRAM_IDS` и `DEV_AUTH_ALLOWED_IPS` визуально проверить в Render.
+- [x] Новый админ-логин задеплоен: `POST /api/auth/admin/telegram` с пустым телом → 400 (роут есть), `GET /api/admin/dashboard` без токена → 401.
+- [x] CORS allowlist работает: `Origin: https://app.avelonstore.ru` → `access-control-allow-origin` в ответе; `Origin: https://evil.example.com` → заголовка нет.
+- [ ] Остальные Render env визуально: `MINI_APP_URL=https://app.avelonstore.ru`, `PUBLIC_URL=https://api.avelonstore.ru`, `TRUST_PROXY_HOPS=1`, `DATABASE_SSL=true`, `DATABASE_SYNCHRONIZE=false`.
 - [ ] BotFather: домен `https://app.avelonstore.ru` привязан к боту; Mini App открывается с этого домена и присылает подписанный `initData`.
-- [ ] Vercel env: `VITE_API_BASE=https://api.avelonstore.ru/api`; `VITE_PUBLIC_URL=https://app.avelonstore.ru` — если переопределён вручную.
-- [ ] В БД staging есть хотя бы один аккаунт с `role = admin` (назначается в БД/сидом; админка роли не повышает).
+- [ ] Vercel env: задеплоенный бандл пока использует дефолт `https://leroyserver.onrender.com/api` (`VITE_API_BASE` не задан). Оба домена здоровы (health 200), но если нужен кастомный домен — задать `VITE_API_BASE=https://api.avelonstore.ru/api` и пересобрать. `VITE_PUBLIC_URL` задавать не обязательно: Vercel подставляет `VERCEL_*` автоматически.
+- [ ] В БД staging есть хотя бы один аккаунт с `role = admin` (назначается в БД/сидом; админка роли не повышает). Проверить входом через Mini App.
 
 ### Smoke из раздела 4 + browser smoke (вручную)
 
