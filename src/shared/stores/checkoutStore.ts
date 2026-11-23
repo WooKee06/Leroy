@@ -174,6 +174,8 @@ class CheckoutStore {
             deliveryProvider: option.provider || "cdek",
             deliveryTariff: String(option.tariffCode ?? option.id),
             deliveryPrice,
+            deliveryCityCode: deliveryStore.cityCode ?? undefined,
+            deliveryQuoteId: option.quoteId,
             pickupCode: needsPoint ? point?.code : undefined,
             pickupAddress: needsPoint ? deliveryStore.pointAddress : undefined,
           },

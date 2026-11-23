@@ -525,6 +525,8 @@ export const leroyApi = {
       deliveryProvider?: string;
       deliveryTariff?: string;
       deliveryPrice?: number;
+      deliveryCityCode?: number;
+      deliveryQuoteId?: string;
       pickupCode?: string;
       pickupAddress?: string;
     },

@@ -187,7 +187,12 @@ class DeliveryStore {
     this.loading = true;
     this.error = "";
     try {
+      const point = isPickupKind(this.selectedKind) ? this.selectedPoint : null;
       const quote = await leroyApi.deliveryQuote({
+        toCityCode: this.cityCode ?? undefined,
+        toCityName: this.city || undefined,
+        pickupPointCode: point?.code,
+        pickupPointAddress: point ? this.pointAddress : undefined,
         city: this.city || undefined,
         cityCode: this.cityCode ?? undefined,
         subtotal: cartStore.subtotal,

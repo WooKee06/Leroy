@@ -831,11 +831,16 @@ export interface DeliveryQuoteItemDto {
 }
 
 /**
- * Request for POST /api/delivery/quote. `cityCode` is a CDEK location code;
- * `city` is the human-readable fallback. The server resolves weight and
+ * Request for POST /api/delivery/quote. `toCityCode` is the CDEK location
+ * code; `toCityName` is only informational. The server resolves weight and
  * dimensions from the products, so the client never sends them.
+ * `city`/`cityCode` are kept as optional legacy fields for older backends.
  */
 export interface DeliveryQuoteRequestDto {
+  toCityCode?: number;
+  toCityName?: string;
+  pickupPointCode?: string;
+  pickupPointAddress?: string;
   city?: string;
   cityCode?: number;
   subtotal: number;
@@ -857,6 +862,8 @@ export interface DeliveryQuoteOptionDto {
   eta?: string;
   /** True when the option is an estimate because CDEK is unavailable. */
   fallback?: boolean;
+  /** Signed server quote; the order service verifies the price with it. */
+  quoteId?: string;
 }
 
 export interface DeliveryQuoteDto {
