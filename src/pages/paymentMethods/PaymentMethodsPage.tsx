@@ -30,12 +30,13 @@ const methods: PaymentMethod[] = [
     available: true,
   },
   {
-    id: "cards",
+    id: "yookassa",
     icon: <FiCreditCard size={20} />,
-    label: "Банковские карты",
-    desc: "Visa, Mastercard, МИР",
+    label: "Картой через ЮKassa",
+    desc: "Visa, Mastercard, МИР и другие способы оплаты",
     tint: "var(--tint-green)",
     color: "#34c759",
+    available: true,
   },
   {
     id: "stars",
@@ -63,50 +64,51 @@ const PaymentMethodsPage = observer(function PaymentMethodsPage() {
         <PageHeader title="Способы оплаты" />
 
         <p className={styles.hint}>
-          Сейчас доступен только официальный баланс — оплачивайте покупки с
-          внутреннего счёта без привязки карт и кошельков.
+          Доступны официальный баланс и оплата картой через ЮKassa. Выберите
+          способ при оформлении заказа.
         </p>
 
         <div className={styles.list}>
-          {methods.map((m) => (
-            <div
-              key={m.id}
-              className={`${styles.row} ${m.available ? "" : styles.rowSoon}`}
-              onClick={
-                m.available ? () => navigate("/balance") : undefined
-              }
-              role={m.available ? "button" : undefined}
-              tabIndex={m.available ? 0 : undefined}
-            >
-              <span
-                className={styles.rowIcon}
-                style={{ background: m.tint, color: m.color }}
+          {methods.map((m) => {
+            const clickable = m.available && m.id === "balance";
+            return (
+              <div
+                key={m.id}
+                className={`${styles.row} ${m.available ? "" : styles.rowSoon}`}
+                onClick={clickable ? () => navigate("/balance") : undefined}
+                role={clickable ? "button" : undefined}
+                tabIndex={clickable ? 0 : undefined}
               >
-                {m.icon}
-              </span>
-              <span className={styles.rowMain}>
-                <span className={styles.rowLabel}>{m.label}</span>
-                <span className={styles.rowDesc}>
-                  {m.id === "balance"
-                    ? balanceLoading
-                      ? "Загружаем баланс…"
-                      : `Доступно ${formatWalletAmount(
-                          accountStore.balance,
-                          accountStore.currency,
-                        )}`
-                    : m.desc}
+                <span
+                  className={styles.rowIcon}
+                  style={{ background: m.tint, color: m.color }}
+                >
+                  {m.icon}
                 </span>
-              </span>
-              {m.available ? (
-                <span className={styles.activeMark}>
-                  <FiCheck size={13} />
-                  Доступен
+                <span className={styles.rowMain}>
+                  <span className={styles.rowLabel}>{m.label}</span>
+                  <span className={styles.rowDesc}>
+                    {m.id === "balance"
+                      ? balanceLoading
+                        ? "Загружаем баланс…"
+                        : `Доступно ${formatWalletAmount(
+                            accountStore.balance,
+                            accountStore.currency,
+                          )}`
+                      : m.desc}
+                  </span>
                 </span>
-              ) : (
-                <SoonBadge />
-              )}
-            </div>
-          ))}
+                {m.available ? (
+                  <span className={styles.activeMark}>
+                    <FiCheck size={13} />
+                    Доступен
+                  </span>
+                ) : (
+                  <SoonBadge />
+                )}
+              </div>
+            );
+          })}
         </div>
 
         <button type="button" className={styles.addBtn} disabled>

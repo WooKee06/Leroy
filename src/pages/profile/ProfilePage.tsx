@@ -149,7 +149,7 @@ const ProfilePage = observer(function ProfilePage() {
       iconBg: "var(--tint-green)",
       iconColor: "#34c759",
       label: "Способы оплаты",
-      desc: "Официальный баланс",
+      desc: "Баланс и ЮKassa",
       path: "/payment-methods",
     },
     {

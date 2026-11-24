@@ -474,16 +474,21 @@ export type PaymentStatus =
   | "completed"
   | "failed"
   | "cancelled"
-  | "expired";
+  | "expired"
+  | "refunded";
+
+export type PaymentProvider = "mock" | "stars" | "balance" | "yookassa";
 
 export interface PaymentView {
   id: string;
   orderId: string;
-  provider: "mock" | "stars" | "balance";
+  provider: PaymentProvider;
   amount: number;
   currency: string;
   status: PaymentStatus;
   expiresAt?: string;
+  /** Redirect URL for an external payment that still needs confirmation. */
+  confirmationUrl?: string;
 }
 
 // ── Wallet ────────────────────────────────────────────────────────────────

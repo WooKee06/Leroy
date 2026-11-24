@@ -4,7 +4,7 @@ import { cartStore } from "@shared/stores/cartStore";
 import { accountStore } from "@shared/stores/accountStore";
 import { deliveryStore } from "@shared/stores/deliveryStore";
 import { ordersStore } from "@shared/stores/ordersStore";
-import type { Order } from "@shared/api/models";
+import type { Order, PaymentView } from "@shared/api/models";
 import { DELIVERY_KIND_LABELS } from "@shared/lib/delivery";
 import { trackCheckoutStarted, trackPurchase } from "@shared/lib/analytics";
 import { addressStore } from "./addressStore";
@@ -19,7 +19,7 @@ function createIdempotencyKey(): string {
   return `ord_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 }
 
-export type Step = "closed" | "form" | "processing" | "success";
+export type Step = "closed" | "form" | "processing" | "pending" | "success";
 
 class CheckoutStore {
   open = false;
@@ -27,6 +27,7 @@ class CheckoutStore {
   selectedAddressId: string | null = null;
   paymentMethod = "balance";
   order: Order | null = null;
+  payment: PaymentView | null = null;
   error = "";
   /**
    * One key per checkout attempt: retries of `POST /orders` (double tap,
@@ -93,6 +94,7 @@ class CheckoutStore {
   private reset() {
     this.step = "closed";
     this.order = null;
+    this.payment = null;
     this.error = "";
     this.paymentMethod = "balance";
     this.selectedAddressId = null;
@@ -185,11 +187,26 @@ class CheckoutStore {
         await cartStore.clear();
       }
 
-      await leroyApi.pay(order, "balance");
-      await accountStore.loadWallet(true);
-      this.step = "success";
-      trackPurchase(order.id, order.total);
-      void ordersStore.refresh();
+      // The selected method drives the real provider call. Never pay from the
+      // wallet after creating an order labelled as a different method.
+      const provider = this.paymentMethod === "yookassa" ? "yookassa" : "balance";
+      const payment = await leroyApi.pay(order, provider);
+      this.payment = payment;
+
+      if (payment.status === "completed") {
+        this.finishPaidOrder(order);
+        return;
+      }
+
+      if (provider === "yookassa") {
+        // External payment is still pending: show a real confirmation link and
+        // wait for the webhook. Success copy must not appear before that.
+        this.step = "pending";
+        void ordersStore.refresh();
+        return;
+      }
+
+      throw new Error("Платёж не подтверждён. Попробуйте ещё раз.");
     } catch (e) {
       this.step = "form";
       this.error = e instanceof Error ? e.message : "Не удалось оформить заказ";
@@ -197,6 +214,40 @@ class CheckoutStore {
       // quote so the next tap uses current prices.
       void deliveryStore.loadQuote(true);
     }
+  }
+
+  /** Real status refresh for the pending YooKassa screen. */
+  async checkPayment(): Promise<void> {
+    if (!this.payment || !this.order) return;
+    this.error = "";
+    try {
+      const payment = await leroyApi.paymentStatus(this.payment.id);
+      this.payment = payment;
+      if (payment.status === "completed") {
+        this.finishPaidOrder(this.order);
+        return;
+      }
+      if (
+        payment.status === "failed" ||
+        payment.status === "cancelled" ||
+        payment.status === "expired" ||
+        payment.status === "refunded"
+      ) {
+        this.error = "Платёж не прошёл. Оформите заказ заново.";
+      }
+    } catch (e) {
+      this.error = e instanceof Error ? e.message : "Не удалось проверить платёж";
+    }
+    void ordersStore.refresh();
+  }
+
+  private finishPaidOrder(order: Order): void {
+    if (this.payment?.provider === "balance") {
+      void accountStore.loadWallet(true);
+    }
+    this.step = "success";
+    trackPurchase(order.id, order.total);
+    void ordersStore.refresh();
   }
 }
 

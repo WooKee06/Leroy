@@ -582,9 +582,9 @@ export const leroyApi = {
 
   pay(
     order: OrderView,
-    provider: "balance" | "mock" | "stars" = "balance",
-  ): Promise<{ id: string; status: string }> {
-    return http.post<{ id: string; status: string }>("/payments", {
+    provider: "balance" | "mock" | "stars" | "yookassa" = "balance",
+  ): Promise<PaymentView> {
+    return http.post<PaymentView>("/payments", {
       orderId: order.id,
       provider,
     });

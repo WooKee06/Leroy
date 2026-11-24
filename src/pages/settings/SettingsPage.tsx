@@ -139,7 +139,7 @@ function SettingsPage() {
             <Row
               icon={<FiCreditCard size={20} />}
               label="Способы оплаты"
-              desc="Официальный баланс"
+              desc="Баланс и ЮKassa"
               onClick={() => navigate("/payment-methods")}
             />
             <Row icon={<FiGlobe size={20} />} label="Язык" desc="Русский" />
