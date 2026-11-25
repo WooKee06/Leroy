@@ -39,6 +39,7 @@ import type {
   StoreDto,
   TopUpConfirmDto,
   TopUpDto,
+  TopUpProvider,
   UserDto,
   WalletBalanceDto,
   WalletTransactionsPageDto,
@@ -611,10 +612,14 @@ export const leroyApi = {
     return http.get<WalletTransactionsPageDto>("/wallet/transactions", params);
   },
 
-  createTopUp(amount: number): Promise<TopUpDto> {
+  topUp(id: string): Promise<TopUpDto> {
+    return http.get<TopUpDto>(`/wallet/topup/${id}`);
+  },
+
+  createTopUp(amount: number, provider: TopUpProvider = "yookassa"): Promise<TopUpDto> {
     return http.post<TopUpDto>("/wallet/topup", {
       amount,
-      provider: "manual",
+      provider,
     });
   },
 

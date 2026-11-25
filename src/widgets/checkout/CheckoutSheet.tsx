@@ -5,7 +5,6 @@ import {
   FiArrowRight,
   FiCheck,
   FiChevronDown,
-  FiClock,
   FiMapPin,
   FiPlus,
   FiX,
@@ -28,7 +27,6 @@ import type { DeliveryAddress } from "@shared/stores/addressStore";
 
 const PAYMENT_METHODS = [
   { id: "balance", label: "Официальный баланс", available: true },
-  { id: "yookassa", label: "Картой через ЮKassa", available: true },
   { id: "stars", label: "Telegram Stars", available: false },
 ];
 
@@ -58,12 +56,6 @@ function CheckoutSheet() {
   const goToShop = () => {
     close();
     navigate("/");
-  };
-
-  const goToOrder = () => {
-    if (!checkoutStore.order) return;
-    close();
-    navigate(`/orders/${checkoutStore.order.id}`);
   };
 
   return (
@@ -109,41 +101,6 @@ function CheckoutSheet() {
                 <button className={styles.submitBtn} onClick={goToShop}>
                   К покупкам
                   <FiArrowRight size={16} />
-                </button>
-              </div>
-            ) : checkoutStore.step === "pending" && checkoutStore.order ? (
-              <div className={styles.pending}>
-                <div className={styles.pendingIcon}>
-                  <FiClock size={26} />
-                </div>
-                <h2 className={styles.title}>Ожидаем оплату</h2>
-                <p className={styles.successText}>
-                  Заказ №{checkoutStore.order.orderNumber} создан. Перейдите на
-                  защищённую страницу ЮKassa и подтвердите платёж — мы обновим
-                  статус автоматически.
-                </p>
-                {checkoutStore.payment?.confirmationUrl && (
-                  <a
-                    className={styles.submitBtn}
-                    href={checkoutStore.payment.confirmationUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Перейти к оплате
-                    <FiArrowRight size={16} />
-                  </a>
-                )}
-                {checkoutStore.error && (
-                  <p className={styles.error}>{checkoutStore.error}</p>
-                )}
-                <button
-                  className={styles.ghostBtn}
-                  onClick={() => void checkoutStore.checkPayment()}
-                >
-                  Проверить статус оплаты
-                </button>
-                <button className={styles.ghostBtn} onClick={goToOrder}>
-                  Посмотреть заказ
                 </button>
               </div>
             ) : checkoutStore.step === "processing" ? (
@@ -271,12 +228,21 @@ function CheckoutSheet() {
                       {accountStore.balance.toLocaleString("ru-RU")} ₽
                     </p>
                   )}
-                  {checkoutStore.paymentMethod === "yookassa" && (
-                    <p className={styles.payHint}>
-                      После оформления откроется защищённая страница оплаты.
-                      Возврат к заказу произойдёт автоматически.
-                    </p>
-                  )}
+                  <p className={styles.payHint}>
+                    Заказы оплачиваются только с баланса. Пополнить баланс можно
+                    через ЮKassa.
+                  </p>
+                  <button
+                    type="button"
+                    className={styles.ghostBtn}
+                    onClick={() => {
+                      close();
+                      navigate("/balance");
+                    }}
+                  >
+                    Пополнить баланс
+                    <FiArrowRight size={16} />
+                  </button>
                 </label>
 
                 <div className={styles.summary}>

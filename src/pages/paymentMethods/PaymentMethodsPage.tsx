@@ -32,8 +32,8 @@ const methods: PaymentMethod[] = [
   {
     id: "yookassa",
     icon: <FiCreditCard size={20} />,
-    label: "Картой через ЮKassa",
-    desc: "Visa, Mastercard, МИР и другие способы оплаты",
+    label: "ЮKassa",
+    desc: "Пополнение баланса картой — Visa, Mastercard, МИР",
     tint: "var(--tint-green)",
     color: "#34c759",
     available: true,
@@ -64,13 +64,13 @@ const PaymentMethodsPage = observer(function PaymentMethodsPage() {
         <PageHeader title="Способы оплаты" />
 
         <p className={styles.hint}>
-          Доступны официальный баланс и оплата картой через ЮKassa. Выберите
-          способ при оформлении заказа.
+          Заказы оплачиваются с внутреннего баланса. Баланс можно пополнить
+          картой через ЮKassa.
         </p>
 
         <div className={styles.list}>
           {methods.map((m) => {
-            const clickable = m.available && m.id === "balance";
+            const clickable = m.available && (m.id === "balance" || m.id === "yookassa");
             return (
               <div
                 key={m.id}

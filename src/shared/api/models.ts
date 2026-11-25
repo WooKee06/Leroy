@@ -541,16 +541,20 @@ export interface WalletTransactionsPageDto {
   hasMore: boolean;
 }
 
-export type TopUpProvider = "manual" | "stars" | "card";
+export type TopUpProvider = "manual" | "stars" | "card" | "yookassa";
 export type TopUpStatus = "pending" | "completed" | "failed" | "expired";
 
 export interface TopUpDto {
   id: string;
   userId: string;
   amount: number;
+  currency: string;
   provider: TopUpProvider;
   status: TopUpStatus;
   externalId?: string | null;
+  /** Redirect URL for a YooKassa top-up that still needs confirmation. */
+  confirmationUrl?: string | null;
+  failureReason?: string | null;
   expiresAt?: string | null;
   createdAt: string;
   completedAt?: string | null;

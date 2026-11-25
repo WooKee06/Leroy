@@ -6,11 +6,11 @@ import {
   FiArrowUpRight,
   FiCheck,
   FiClock,
+  FiX,
 } from "react-icons/fi";
 import { observer } from "mobx-react-lite";
 import type { WalletTransactionDto } from "@shared/api/models";
 import { leroyApi } from "@shared/api/leroyApi";
-import { ApiError } from "@shared/api/client";
 import { accountStore } from "@shared/stores/accountStore";
 import {
   formatSignedWalletAmount,
@@ -26,11 +26,14 @@ import styles from "./BalancePage.module.scss";
 
 const QUICK_AMOUNTS = [500, 1000, 2500, 5000];
 const PAGE_SIZE = 20;
+const PENDING_TOPUP_KEY = "leroy:pendingTopUpId";
+const POLL_ATTEMPTS = 20;
 
 interface TopUpResult {
   amount: number;
-  /** true — top-up created but not confirmed yet (production/manual path). */
-  pending: boolean;
+  status: "awaiting" | "completed" | "failed";
+  confirmationUrl?: string | null;
+  failureReason?: string | null;
 }
 
 const BalancePage = observer(function BalancePage() {
@@ -39,6 +42,9 @@ const BalancePage = observer(function BalancePage() {
   const [custom, setCustom] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<TopUpResult | null>(null);
+  const [pendingId, setPendingId] = useState<string | null>(() =>
+    localStorage.getItem(PENDING_TOPUP_KEY),
+  );
   const [error, setError] = useState("");
 
   const [transactions, setTransactions] = useState<WalletTransactionDto[]>([]);
@@ -89,6 +95,58 @@ const BalancePage = observer(function BalancePage() {
     };
   }, []);
 
+  // A gateway top-up is confirmed by webhook. Poll the server after creating
+  // it and after returning from YooKassa so the UI does not wait forever.
+  useEffect(() => {
+    if (!pendingId) return;
+    let alive = true;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+
+    const poll = async (attempt: number) => {
+      try {
+        const topUp = await leroyApi.topUp(pendingId);
+        if (!alive) return;
+
+        const status: TopUpResult["status"] =
+          topUp.status === "completed"
+            ? "completed"
+            : topUp.status === "failed" || topUp.status === "expired"
+              ? "failed"
+              : "awaiting";
+        setResult({
+          amount: Number(topUp.amount),
+          status,
+          confirmationUrl: topUp.confirmationUrl,
+          failureReason: topUp.failureReason,
+        });
+
+        if (status !== "awaiting") {
+          localStorage.removeItem(PENDING_TOPUP_KEY);
+          setPendingId(null);
+          await accountStore.loadWallet(true);
+          const page = await leroyApi.walletTransactions({ limit: PAGE_SIZE });
+          if (!alive) return;
+          setTransactions(page.items);
+          setCursor(page.nextCursor);
+          setHasMore(page.hasMore);
+          return;
+        }
+      } catch {
+        // Transient error: keep the pending state and try again below.
+      }
+
+      if (alive && attempt < POLL_ATTEMPTS) {
+        timer = setTimeout(() => void poll(attempt + 1), 2000);
+      }
+    };
+
+    void poll(0);
+    return () => {
+      alive = false;
+      if (timer) clearTimeout(timer);
+    };
+  }, [pendingId]);
+
   const loadMore = async () => {
     if (!cursor || txLoadingMore) return;
     setTxLoadingMore(true);
@@ -116,27 +174,18 @@ const BalancePage = observer(function BalancePage() {
     setError("");
     setTxError("");
 
-    let pending = false;
     try {
-      const topUp = await leroyApi.createTopUp(selected);
-      try {
-        await leroyApi.confirmTopUp(topUp.id);
-      } catch (e) {
-        // Production path: the money is credited by a provider webhook or an
-        // admin, so the owner cannot confirm their own top-up (403).
-        if (e instanceof ApiError && e.status === 403) {
-          pending = true;
-        } else {
-          throw e;
-        }
+      const topUp = await leroyApi.createTopUp(selected, "yookassa");
+      if (!topUp.confirmationUrl) {
+        throw new Error("ЮKassa не вернула ссылку на оплату");
       }
-
-      await accountStore.loadWallet(true);
-      if (!pending) {
-        const page = await leroyApi.walletTransactions({ limit: PAGE_SIZE });
-        applyPage(page);
-      }
-      setResult({ amount: selected, pending });
+      localStorage.setItem(PENDING_TOPUP_KEY, topUp.id);
+      setPendingId(topUp.id);
+      setResult({
+        amount: Number(topUp.amount),
+        status: "awaiting",
+        confirmationUrl: topUp.confirmationUrl,
+      });
     } catch (e) {
       setError(e instanceof Error ? e.message : "Не удалось пополнить баланс");
     } finally {
@@ -144,7 +193,40 @@ const BalancePage = observer(function BalancePage() {
     }
   };
 
+  const checkNow = async () => {
+    if (!pendingId) return;
+    setError("");
+    try {
+      const topUp = await leroyApi.topUp(pendingId);
+      const status: TopUpResult["status"] =
+        topUp.status === "completed"
+          ? "completed"
+          : topUp.status === "failed" || topUp.status === "expired"
+            ? "failed"
+            : "awaiting";
+      setResult({
+        amount: Number(topUp.amount),
+        status,
+        confirmationUrl: topUp.confirmationUrl,
+        failureReason: topUp.failureReason,
+      });
+      if (status === "awaiting") {
+        setError("Платёж ещё не подтверждён. Попробуйте чуть позже.");
+        return;
+      }
+      localStorage.removeItem(PENDING_TOPUP_KEY);
+      setPendingId(null);
+      await accountStore.loadWallet(true);
+      const page = await leroyApi.walletTransactions({ limit: PAGE_SIZE });
+      applyPage(page);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Не удалось проверить платёж");
+    }
+  };
+
   const reset = () => {
+    localStorage.removeItem(PENDING_TOPUP_KEY);
+    setPendingId(null);
     setAmount(null);
     setCustom("");
     setResult(null);
@@ -182,20 +264,52 @@ const BalancePage = observer(function BalancePage() {
         {result ? (
           <div className={styles.successBlock}>
             <div className={styles.successIcon}>
-              {result.pending ? (
+              {result.status === "awaiting" ? (
                 <FiClock size={28} />
-              ) : (
+              ) : result.status === "completed" ? (
                 <FiCheck size={28} />
+              ) : (
+                <FiX size={28} />
               )}
             </div>
             <h2 className={styles.successTitle}>
-              {result.pending ? "Заявка создана" : "Баланс пополнен"}
+              {result.status === "awaiting"
+                ? "Ожидаем оплату"
+                : result.status === "completed"
+                  ? "Баланс пополнен"
+                  : "Пополнение не удалось"}
             </h2>
             <p className={styles.successText}>
-              {result.pending
-                ? `${formatWalletAmount(result.amount, currency)} будут зачислены после подтверждения.`
-                : `${formatWalletAmount(result.amount, currency)} зачислено на ваш счёт`}
+              {result.status === "awaiting"
+                ? `Перейдите на защищённую страницу ЮKassa и оплатите ${formatWalletAmount(result.amount, currency)}. Баланс обновится автоматически.`
+                : result.status === "completed"
+                  ? `${formatWalletAmount(result.amount, currency)} зачислено на ваш счёт`
+                  : result.failureReason ||
+                    "Платёж не прошёл. Попробуйте ещё раз."}
             </p>
+            {error && <p className={styles.error}>{error}</p>}
+            {result.status === "awaiting" && (
+              <>
+                {result.confirmationUrl && (
+                  <a
+                    className={styles.confirmBtn}
+                    href={result.confirmationUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Перейти к оплате
+                    <FiArrowRight size={16} />
+                  </a>
+                )}
+                <button
+                  type="button"
+                  className={styles.backLink}
+                  onClick={() => void checkNow()}
+                >
+                  Проверить оплату
+                </button>
+              </>
+            )}
             <button className={styles.confirmBtn} onClick={reset}>
               Пополнить ещё
               <FiArrowRight size={16} />
