@@ -172,6 +172,41 @@
   }
 }
 
+.checkBtn {
+  width: 100%;
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: $space-sm;
+  padding: 12px 16px;
+  border: 1px solid $text-primary;
+  border-radius: $radius-pill;
+  background: var(--bg-surface);
+  color: $text-primary;
+  font-size: 15px;
+  font-weight: 600;
+  box-shadow: $shadow-soft;
+  transition:
+    background-color 0.15s ease,
+    opacity 0.15s ease,
+    transform 0.14s ease;
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+    background: var(--bg-surface-secondary);
+  }
+
+  &:disabled {
+    opacity: 0.7;
+  }
+}
+
+.spin {
+  animation: spin 0.9s linear infinite;
+}
+
 .backLink {
   display: block;
   width: 100%;
@@ -354,8 +389,18 @@
   }
 }
 
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .successBlock {
+    animation: none;
+  }
+
+  .spin {
     animation: none;
   }
 }

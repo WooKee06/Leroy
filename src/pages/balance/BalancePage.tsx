@@ -6,6 +6,7 @@ import {
   FiArrowUpRight,
   FiCheck,
   FiClock,
+  FiRefreshCw,
   FiX,
 } from "react-icons/fi";
 import { observer } from "mobx-react-lite";
@@ -41,6 +42,7 @@ const BalancePage = observer(function BalancePage() {
   const [amount, setAmount] = useState<number | null>(null);
   const [custom, setCustom] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [checking, setChecking] = useState(false);
   const [result, setResult] = useState<TopUpResult | null>(null);
   const [pendingId, setPendingId] = useState<string | null>(() =>
     localStorage.getItem(PENDING_TOPUP_KEY),
@@ -194,8 +196,9 @@ const BalancePage = observer(function BalancePage() {
   };
 
   const checkNow = async () => {
-    if (!pendingId) return;
+    if (!pendingId || checking) return;
     setError("");
+    setChecking(true);
     try {
       const topUp = await leroyApi.topUp(pendingId);
       const status: TopUpResult["status"] =
@@ -221,6 +224,8 @@ const BalancePage = observer(function BalancePage() {
       applyPage(page);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Не удалось проверить платёж");
+    } finally {
+      setChecking(false);
     }
   };
 
@@ -303,16 +308,29 @@ const BalancePage = observer(function BalancePage() {
                 )}
                 <button
                   type="button"
-                  className={styles.backLink}
+                  className={styles.checkBtn}
+                  disabled={checking}
                   onClick={() => void checkNow()}
                 >
-                  Проверить оплату
+                  <FiRefreshCw
+                    size={18}
+                    className={checking ? styles.spin : undefined}
+                  />
+                  {checking ? "Проверяем…" : "Проверить оплату"}
                 </button>
               </>
             )}
-            <button className={styles.confirmBtn} onClick={reset}>
+            <button
+              type="button"
+              className={
+                result.status === "awaiting"
+                  ? styles.backLink
+                  : styles.confirmBtn
+              }
+              onClick={reset}
+            >
               Пополнить ещё
-              <FiArrowRight size={16} />
+              {result.status !== "awaiting" && <FiArrowRight size={16} />}
             </button>
           </div>
         ) : (
